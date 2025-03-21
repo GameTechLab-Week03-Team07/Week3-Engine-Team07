@@ -180,6 +180,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Resource\StaticMesh\FStaticMeshManager.cpp" />
+    <ClCompile Include="Source\Resource\StaticMesh\FObjImporter.cpp" />
     <ClCompile Include="Source\Core\Math\Transform.cpp" />
     <ClCompile Include="Source\Core\Rendering\FontAtlas.cpp" />
     <ClCompile Include="Source\Debug\DebugDrawManager.cpp" />
@@ -263,6 +265,10 @@
     <ClCompile Include="Source\Object\Light\LightComponent.cpp" />
     <ClCompile Include="Source\Object\Light\SpotLightComponent.cpp" />
     <ClCompile Include="Source\Object\Actor\SpotLight.cpp" />
+    <ClCompile Include="Source\Resource\StaticMesh\UStaticMesh.cpp" />
+    <ClCompile Include="Source\Object\MeshComponent\UMeshComponent.cpp" />
+    <ClCompile Include="Source\Object\MeshComponent\UStaticMeshComponent.cpp" />
+    <ClCompile Include="Source\Object\Actor\StaticMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Font_VS.hlsl">
@@ -313,6 +319,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h" />
     <ClInclude Include="Source\Core\Delegates\Delegate.h" />
     <ClInclude Include="Source\Core\Delegates\DelegateCombination.h" />
     <ClInclude Include="Source\Core\Rendering\FontAtlas.h" />
@@ -329,6 +338,7 @@
     <ClInclude Include="Source\Resource\Material.h" />
     <ClInclude Include="Source\Resource\Mesh.h" />
     <ClInclude Include="Source\Resource\RenderResourceCollection.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\StaticMeshTypes.h" />
     <ClInclude Include="Source\Resource\Texture.h" />
     <ClInclude Include="Source\Static\FUUIDBillBoard.h" />
     <ClInclude Include="Source\Core\Math\Rotator.h" />
@@ -436,6 +446,30 @@
     <ClInclude Include="Source\ThirdParty\ImGui\include\ImGui\imstb_truetype.h" />
     <ClInclude Include="Source\ThirdParty\SimpleJSON\include\SimpleJSON\Json.hpp" />
     <ClCompile Include="Source\Object\SubUVComponent\UParticleSubUVComponent.cpp" />
+    <ClInclude Include="Source\Resource\StaticMesh\UStaticMesh.h" />
+    <ClInclude Include="Source\Object\MeshComponent\UMeshComponent.h" />
+    <ClInclude Include="Source\Object\MeshComponent\UStaticMeshComponent.h" />
+    <ClInclude Include="Source\Object\Actor\StaticMesh.h" />
+    <FxCompile Include="Shaders\StaticMesh_PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shaders\StaticMesh_VS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Shaders\SubUV_PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
@@ -458,10 +492,30 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include=".gitignore" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.mtl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
     <None Include="imgui.ini" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Contents\StaticMesh\Skull.jpg">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </Image>
     <Image Include="font_atlas.dds" />
     <Image Include="font_atlas.png" />
     <Image Include="Pretendard_Kor.png" />
@@ -472,6 +526,38 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="JungleEngine.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Contents\StaticMesh\cube.obj">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="Contents\StaticMesh\FinalBaseMesh.obj">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="Contents\StaticMesh\12140_Skull_v3.obj">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

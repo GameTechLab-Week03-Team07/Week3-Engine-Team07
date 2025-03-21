@@ -70,7 +70,6 @@ void UAssetManager::LoadAssets()
 		{
 			break;
 		}
-		
 		}
 	}
 }
