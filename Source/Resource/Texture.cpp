@@ -5,6 +5,7 @@
 
 #include "Debug/DebugConsole.h"
 #include "DirectXTK/DDSTextureLoader.h"
+#include "DirectXTK/WICTextureLoader.h"
 
 FTexture::FTexture()
 {
@@ -159,20 +160,58 @@ void FTexture::CreateDepthStencilView()
 }
 
 void FTexture::ResLoad(const FString& InPath)
-
 {
 	std::string str = *InPath;
-
 	std::wstring wstr(str.begin(), str.end());
 
 	ID3D11Resource* Resource = nullptr;
-	
-	if (S_OK != DirectX::CreateDDSTextureFromFile(FDevice::Get().GetDevice(), FDevice::Get().GetDeviceContext(), wstr.c_str(), &Resource, &SRV))
+
+	// 파일 확장자 확인
+	std::wstring extension = wstr.substr(wstr.find_last_of(L"."));
+	std::transform(extension.begin(), extension.end(), extension.begin(), ::towlower);
+
+	HRESULT hr = S_OK;
+
+	// DDS 파일인 경우
+	if (extension == L".dds")
+	{
+		hr = DirectX::CreateDDSTextureFromFile(
+			FDevice::Get().GetDevice(),
+			FDevice::Get().GetDeviceContext(),
+			wstr.c_str(),
+			&Resource,
+			&SRV
+		);
+	}
+	// 다른 이미지 형식(WIC 지원 형식)인 경우
+	else
+	{
+		hr = DirectX::CreateWICTextureFromFile(
+			FDevice::Get().GetDevice(),
+			FDevice::Get().GetDeviceContext(),
+			wstr.c_str(),
+			&Resource,
+			&SRV
+		);
+	}
+
+	if (FAILED(hr))
 	{
 		MsgBoxAssert("텍스처 로드에 실패했습니다.");
+		return;
 	}
+
+	// ID3D11Texture2D 인터페이스 가져오기
 	Resource->QueryInterface(__uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&Texture2D));
+
+	// 리소스 해제 (SRV와 Texture2D가 참조를 유지하므로 안전함)
+	if (Resource)
+	{
+		Resource->Release();
+		Resource = nullptr;
+	}
 }
+
 
 void FTexture::ResCreate(ID3D11Texture2D* InRes)
 {
