@@ -8,23 +8,7 @@
 
 UStaticMeshComponent::UStaticMeshComponent()
 {
-	// 정적 메시 컴포넌트 초기화
-	StaticMesh = FStaticMeshManager::Get().GetStaticMesh("12140_Skull_v3.obj");
-	// 메시가 있으면 렌더링 리소스 초기화
-	if (StaticMesh)
-	{
-		InitializeRenderResources();
-	}
-}
-
-UStaticMeshComponent::UStaticMeshComponent(std::string MeshName)
-{
-	StaticMesh = FStaticMeshManager::Get().GetStaticMesh(MeshName);
-	// 메시가 있으면 렌더링 리소스 초기화
-	if (StaticMesh)
-	{
-		InitializeRenderResources();
-	}
+	// 현재 딱히 할 거 없음
 }
 
 UStaticMeshComponent::~UStaticMeshComponent()
@@ -52,7 +36,7 @@ void UStaticMeshComponent::Render()
 	// 상수 버퍼 업데이트
 	UpdateMeshConstantBuffer();
 
-	// 렌더러를 통해 메시 렌더링
+	// 메시 렌더링
 	GetRenderResourceCollection().Render();
 }
 
@@ -86,13 +70,14 @@ void UStaticMeshComponent::InitializeRenderResources()
 	{
 		return;
 	}
-	
+	// 정적메시 정보로 버퍼 생성
 	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
 	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
 	//FString textureName =  StaticMesh->StaticMeshAsset->Materials["12140_Skull_v3"]/.
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
+	// 현재 하드코딩으로 텍스처 키 집어넣음 개선필요
 	GetRenderResourceCollection().SetTextureBinding("12140_Skull_v3_Diffuse", 2, false, true);
 	GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
 }

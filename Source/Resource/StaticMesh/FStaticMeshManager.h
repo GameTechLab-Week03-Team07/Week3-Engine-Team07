@@ -9,7 +9,7 @@
 #include "Core/UObject/TObjectIterator.h"
 #include "Resource/Texture.h"
 
-// 메시 매니저 클래스 (싱글톤 패턴)
+// 메시 매니저 클래스 (일단 싱글톤으로 작성함)
 class FStaticMeshManager : public TSingleton<FStaticMeshManager>
 {
 public:
@@ -21,10 +21,10 @@ public:
 		// 이미 로드된 메시인지 확인
 		if (MeshMap.Find(FilePath))
 		{
-			return *MeshMap.Find(FilePath); // 이미 로드됨
+			return *MeshMap.Find(FilePath); // 이미 로드된 메시라면 그대로 반환
 		}
 
-		// 새 메시 생성
+		// 없으면 새 메시 생성
 		std::shared_ptr<FStaticMesh> newMesh = std::make_shared<FStaticMesh>();
 
 		// OBJ 파일 임포트
@@ -38,7 +38,7 @@ public:
 		MeshMap[FilePath] = newMesh;
 		return newMesh;
 	}
-
+	// UStaticMesh를 로드하는 함수 (UObject를 상속받아 UUID가 생긴 상태)
 	UStaticMesh* LoadObjStaticMesh(const std::string& PathFileName)
 	{
 		// 이미 로드된 UStaticMesh 찾기
@@ -63,7 +63,7 @@ public:
 		return StaticMesh;
 	}
 
-	// 메시 가져오기
+	// 메시 정보 가져오기
 	std::shared_ptr<FStaticMesh> GetMesh(const std::string& MeshName)
 	{
 		std::lock_guard<std::mutex> lock(MeshMutex);
@@ -74,7 +74,7 @@ public:
 			return *res;
 		}
 
-		return nullptr; // 메시를 찾을 수 없음
+		return nullptr; // 메시 없음
 	}
 
 	// UStaticMesh 인스턴스 가져오기
@@ -102,7 +102,7 @@ public:
 		return LoadObjStaticMesh(PathFileName);
 	}
 
-	// UStaticMesh의 텍스처 정보를 활용하여 SRV 생성
+	// UStaticMesh의 텍스처 정보를 활용하여 SRV 생성하는 함수
 	bool LoadTexturesFromStaticMesh(UStaticMesh* StaticMesh)
 	{
 		if (!StaticMesh || !StaticMesh->StaticMeshAsset)
@@ -110,7 +110,7 @@ public:
 
 		bool bSuccess = true;
 
-		// StaticMesh의 모든 재질 순회
+		// StaticMesh의 모든 재질 순회 - 추후 확산 텍스처 맵 이외 다른 처리도 필요할 듯
 		for (const auto& MaterialPair : StaticMesh->StaticMeshAsset->Materials)
 		{
 			const std::string& MaterialName = MaterialPair.Key;

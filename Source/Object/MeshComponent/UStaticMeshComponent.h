@@ -8,7 +8,6 @@ class UStaticMeshComponent : public UMeshComponent
 {
 public:
 	UStaticMeshComponent();
-	UStaticMeshComponent(std::string MeshName);
 	virtual ~UStaticMeshComponent();
 
 	virtual void BeginPlay() override;
@@ -19,7 +18,7 @@ public:
 	void SetStaticMesh(UStaticMesh* InStaticMesh);
 	UStaticMesh* GetStaticMesh() const { return StaticMesh; }
 
-	// 직렬화 함수
+	// 직렬화 함수 - 학습자료에 있어 인터페이스 만들어 두었으나 현재 정의되지 않음, Scene로드 시 정적메시인 경우 사용?
 	void Serialize(bool bIsLoading, json::JSON& Handle)
 	{
 		//Super::Serialize(bIsLoading, Handle);

@@ -254,7 +254,7 @@ void UI::RenderStaticMeshSelection()
 	// 현재 선택된 StaticMesh의 인덱스
 	static int currentMeshIndex = 0;
 
-	// StaticMesh 이름 목록 수집
+	// StaticMesh 이름 목록 수집 추후 이름값을 어떻게 표시할 시 생각해 보면 좋을 듯
 	TArray<FString> meshNames;
 	TArray<UStaticMesh*> meshes;
 
@@ -279,7 +279,7 @@ void UI::RenderStaticMeshSelection()
 	// 드롭다운 표시
 	if (ImGui::Combo("Static Mesh", &currentMeshIndex, meshNamePtrs.GetData(), meshNamePtrs.Num()))
 	{
-		// 선택 변경 시 처리 (필요한 경우)
+		
 	}
 
 	// 스폰 버튼

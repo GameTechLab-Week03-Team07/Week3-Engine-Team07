@@ -13,6 +13,7 @@ namespace fs = std::filesystem;
 
 class FObjImporter {
 public:
+	// 색상 정보가 없는 경우를 위한 팔레스 및 가벼운 랜덤 지정 함수
 	const std::vector<FVector> colorPalette = {
 	{1.0f, 0.0f, 0.0f}, // 빨강
 	{0.0f, 1.0f, 0.0f}, // 초록
@@ -57,7 +58,7 @@ public:
 			std::istringstream iss(line);
 			std::string prefix;
 			iss >> prefix;
-
+			// OBJ semantics https://en.wikipedia.org/wiki/Wavefront_.obj_file
 			if (prefix == "v") {
 				// 정점 위치
 				FVector vertex;
@@ -79,7 +80,7 @@ public:
 				OutObjInfo.Normals.Add(normal);
 			}
 			else if (prefix == "f") {
-				// 면 정의 - 다각형 지원 추가
+				// 면 정의
 				std::vector<std::string> vertexDataList;
 				std::string vertexData;
 
@@ -106,10 +107,11 @@ public:
 					}
 				}
 			}
+			// 머티리얼 파일이 존재하는 경우 처리
 			else if (prefix == "mtllib") {
 				// 재질 라이브러리 파일
 				iss >> mtlLibPath;
-				// 경로 조합
+				// 경로 조합 현재 Contents/StaticMesh 하위로 모두 집어넣음
 				std::string directory = GetDirectoryPath(FilePath);
 				ParseMtlFile(directory + "/" + mtlLibPath, OutObjInfo);
 			}
@@ -189,27 +191,27 @@ public:
 				currentMaterial.PathFileName = currentMaterialName;
 			}
 			else if (prefix == "Kd") {
-				// 확산 색상
+				// Diffuse Color
 				iss >> currentMaterial.DiffuseColor.X >> currentMaterial.DiffuseColor.Y >> currentMaterial.DiffuseColor.Z;
 			}
 			else if (prefix == "Ka") {
-				// 주변광 색상
+				// Ambient Color
 				iss >> currentMaterial.AmbientColor.X >> currentMaterial.AmbientColor.Y >> currentMaterial.AmbientColor.Z;
 			}
 			else if (prefix == "Ks") {
-				// 반사 색상
+				// Specular Color
 				iss >> currentMaterial.SpecularColor.X >> currentMaterial.SpecularColor.Y >> currentMaterial.SpecularColor.Z;
 			}
 			else if (prefix == "Ns") {
-				// 반사 지수
+				// Specular Exponent
 				iss >> currentMaterial.SpecularExponent;
 			}
 			else if (prefix == "d" || prefix == "Tr") {
-				// 불투명도
+				// Transparency
 				iss >> currentMaterial.Opacity;
 			}
 			else if (prefix == "map_Kd") {
-				// 확산 텍스처 맵
+				// DiffuseTexture
 				iss >> currentMaterial.DiffuseTexture;
 			}
 		}
@@ -223,7 +225,7 @@ public:
 		return true;
 	}
 
-	// Raw 데이터를 Cooked 데이터로 변환
+	// OBJ Raw 데이터를 엔진에서 사용할 수 있는 데이터로 변환
 	bool ConvertToStaticMesh(const FObjInfo& ObjInfo, FStaticMesh& OutMesh) {
 		OutMesh.Vertices.Reserve(ObjInfo.Faces.Len() * 3);
 		OutMesh.Indices.Reserve(ObjInfo.Faces.Len() * 3);
@@ -241,7 +243,6 @@ public:
 					vertex.Y = ObjInfo.Vertices[face.VertexIndices[i]].Y;
 					vertex.Z = ObjInfo.Vertices[face.VertexIndices[i]].Z;
 				}
-
 				// UV 좌표 설정
 				if (face.UVIndices[i] >= 0 && face.UVIndices[i] < ObjInfo.UVs.Num()) {
 					vertex.U = ObjInfo.UVs[face.UVIndices[i]].X;
@@ -252,7 +253,6 @@ public:
 					vertex.U = 0.0f;
 					vertex.V = 0.0f;
 				}
-
 				// 법선 벡터 설정
 				if (face.NormalIndices[i] >= 0 && face.NormalIndices[i] < ObjInfo.Normals.Num()) {
 					vertex.NX = ObjInfo.Normals[face.NormalIndices[i]].X;
@@ -265,7 +265,6 @@ public:
 					vertex.NY = 1.0f;
 					vertex.NZ = 0.0f;
 				}
-
 				// 재질에 따른 색상 설정
 				if (!face.MaterialName.empty() && ObjInfo.Materials.Contains(face.MaterialName)) {
 					const FObjMaterialInfo& material = ObjInfo.Materials[face.MaterialName];
@@ -275,7 +274,7 @@ public:
 					vertex.A = material.Opacity;
 				}
 				else {
-					// 기본 색상 설정
+					// 색상 정보가 없는 경우 기본 색상 설정
 					FVector color = GetColorFromPalette(OutMesh.Vertices.Num() / 3);
 					vertex.R = color.X;
 					vertex.G = color.Y;
@@ -308,7 +307,7 @@ public:
 	// 전체 임포트 프로세스
 	bool ImportObjFile(const std::string& FilePath, FStaticMesh& OutMesh) {
 		FObjInfo objInfo;
-
+		// 현재 Contents/StaticMesh 하위로 .obj .mtl 및 이미지 파일을 전부 집어넣음 - 추후 구조화 필요할 듯
 		fs::path projectRoot = fs::current_path();
 		fs::path absolutePath = projectRoot / TEXT("Contents") / TEXT("StaticMesh") / FilePath;
 
@@ -329,7 +328,6 @@ private:
 		return str.substr(first, (last - first + 1));
 	}
 
-	// 파일 경로에서 디렉토리 추출
 	std::string GetDirectoryPath(const std::string& filePath) {
 		size_t lastSlash = filePath.find_last_of("/\\");
 		if (lastSlash != std::string::npos) {

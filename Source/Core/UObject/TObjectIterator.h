@@ -14,7 +14,7 @@ private:
 public:
 	TObjectIterator() : CurrentIndex(0)
 	{
-		// UEngine의 GObjects에서 타입 T에 해당하는 객체들만 필터링
+		// UEngine클래스의 GObjects에서 타입 T에 해당하는 객체들만 필터링
 		for (const auto& Pair : UEngine::Get().GObjects)
 		{
 			if (T* CastedObject = Cast<T>(Pair.Value.get()))

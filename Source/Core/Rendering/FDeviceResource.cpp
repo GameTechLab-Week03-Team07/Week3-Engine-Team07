@@ -19,11 +19,9 @@
 
 void FDevice::InitResource()
 {
-	FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
+	// 테스트용 - obj파일 preload
 	FStaticMeshManager::Get().LoadObjStaticMesh("cube.obj");
-	//FStaticMeshManager::Get().LoadObjStaticMeshAsset("Skull.obj");
-	/*FStaticMeshManager::Get().LoadObjStaticMesh("Skull.obj");*/
-	//FStaticMeshManager::Get().LoadMesh("Skull_fixed.obj");
+	FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
 	FStaticMeshManager::Get().LoadObjStaticMesh("12140_Skull_v3.obj");
 
 	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/ShaderW0.hlsl","Simple_VS","mainVS");
@@ -36,6 +34,7 @@ void FDevice::InitResource()
 		//FInputLayout::Create("Font_VS" , VS);
 	}
 
+	// 정적 메시용 셰이더 준비
 	FVertexShader::Load(L"Shaders/StaticMesh_VS.hlsl", "StaticMesh_VS", "StaticMesh_VS");
 	FPixelShader::Load(L"Shaders/StaticMesh_PS.hlsl", "StaticMesh_PS", "StaticMesh_PS");
 	FPixelShader::Load(L"Shaders/Font_PS.hlsl", "Font_PS", "Font_PS");
@@ -205,7 +204,7 @@ void FDevice::InitResource()
 		Mat->SetVertexShader("Simple_VS");
 		Mat->SetPixelShader("Simple_PS");
 	}
-
+	// 정적 메시 오브젝트용 머티리얼 정의
 	{
 		std::shared_ptr<FMaterial> Mat = FMaterial::Create("StaticMeshMaterial");
 		Mat->SetRasterizer("DefaultRasterizer");

@@ -4,6 +4,7 @@
 #include "Core/Container/Map.h"
 #include "Primitive/PrimitiveVertices.h"
 
+// OBJ파일 내부 Face 정보 구조체
 struct FFace {
 	int VertexIndices[3];
 	int UVIndices[3];
