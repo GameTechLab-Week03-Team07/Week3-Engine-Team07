@@ -136,6 +136,9 @@
     <Filter Include="Source\Shaders">
       <UniqueIdentifier>{68c78504-8bbe-41dd-95bc-6ea4d7dd95be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Object\Window">
+      <UniqueIdentifier>{e9a6b76b-19ca-4566-9ce8-94c9d009c3d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Core\Config\ConfigManager.cpp">
@@ -403,6 +406,9 @@
       <Filter>Source\ThirdParty\ImGui\include\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\Object\Window\Window.cpp">
+      <Filter>Source\Object\Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\AbstractClass\Singleton.h">
@@ -779,6 +785,15 @@
     </ClInclude>
     <ClInclude Include="Source\ThirdParty\DirectXTK\include\DirectXTK\SimpleMath.inl" />
     <ClInclude Include="Source\Debug\UDebugDrawManager.h" />
+    <ClInclude Include="Source\Object\Window\Window.h">
+      <Filter>Source\Object\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Rendering\ViewportClient.h">
+      <Filter>Source\Core\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Rendering\Viewport.h">
+      <Filter>Source\Core\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="JungleEngine.natvis" />

@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -191,6 +191,7 @@
     <ClCompile Include="Source\Debug\EngineShowFlags.cpp" />
     <ClCompile Include="Source\Core\Math\BoxSphereBounds.cpp" />
     <ClCompile Include="Source\Object\Gizmo\GizmoActor.cpp" />
+    <ClCompile Include="Source\Object\Window\Window.cpp" />
     <ClCompile Include="Source\Resource\DirectResource\ConstantBuffer.cpp" />
     <ClCompile Include="Source\Resource\DirectResource\Sampler.cpp" />
     <ClCompile Include="Source\Resource\DirectResource\ShaderResourceBinding.cpp" />
@@ -316,6 +317,8 @@
     <ClInclude Include="Source\Core\Delegates\Delegate.h" />
     <ClInclude Include="Source\Core\Delegates\DelegateCombination.h" />
     <ClInclude Include="Source\Core\Rendering\FontAtlas.h" />
+    <ClInclude Include="Source\Core\Rendering\Viewport.h" />
+    <ClInclude Include="Source\Core\Rendering\ViewportClient.h" />
     <ClInclude Include="Source\Debug\DebugDrawManager.h" />
     <ClInclude Include="Source\Object\Actor\WorldGrid.h" />
     <ClInclude Include="Source\Object\PrimitiveComponent\GizmoComponent.h" />
@@ -323,6 +326,7 @@
     <ClInclude Include="Source\Debug\EngineShowFlags.h" />
     <ClInclude Include="Source\Core\Math\BoxSphereBounds.h" />
     <ClInclude Include="Source\Object\Gizmo\GizmoActor.h" />
+    <ClInclude Include="Source\Object\Window\Window.h" />
     <ClInclude Include="Source\Resource\DirectResource\ConstantBuffer.h" />
     <ClInclude Include="Source\Resource\DirectResource\Sampler.h" />
     <ClInclude Include="Source\Resource\DirectResource\ShaderResourceBinding.h" />

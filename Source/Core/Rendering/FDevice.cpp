@@ -4,6 +4,7 @@
 #include <Debug/DebugConsole.h>
 #include "Static/FEditorManager.h"
 #include "Resource/Texture.h"
+#include "Object/Window/Window.h"
 
 void FDevice::Init(HWND _hwnd)
 {
@@ -81,11 +82,13 @@ void FDevice::CreateDeviceAndSwapChain(HWND hWindow)
     SwapChain->GetDesc(&SwapChainDesc);
     
     // 뷰포트 정보 설정
-    ViewportInfo = {
-        0.0f, 0.0f,
-        static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height),
-        0.0f, 1.0f
-    };
+	float InitWidth = (static_cast<float>(SwapChainDesc.BufferDesc.Width - SSplitter::DefaultSplitterWidth)) / 2;
+	float InitHeight = (static_cast<float>(SwapChainDesc.BufferDesc.Height - SSplitter::DefaultSplitterWidth)) / 2;
+	SetViewport(0, 0.0f, 0.0f, InitWidth, InitHeight);
+	SetViewport(1, InitWidth, 0.0f, InitWidth + SSplitter::DefaultSplitterWidth, InitHeight);
+	SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
+	SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
+
 }
 
 void FDevice::ReleaseDeviceAndSwapChain()
@@ -142,11 +145,12 @@ void FDevice::OnUpdateWindowSize(int Width, int Height)
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc;
 		SwapChain->GetDesc(&SwapChainDesc);
 		// 뷰포트 정보 갱신
-		ViewportInfo = {
-			0.0f, 0.0f,
-			static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height),
-			0.0f, 1.0f
-		};
+		float InitWidth = (static_cast<float>(SwapChainDesc.BufferDesc.Width) - SSplitter::DefaultSplitterWidth) / 2;
+		float InitHeight = (static_cast<float>(SwapChainDesc.BufferDesc.Height) - SSplitter::DefaultSplitterWidth) / 2;
+		SetViewport(0, 0.0f, 0.0f, InitWidth + SSplitter::DefaultSplitterWidth, InitHeight);
+		SetViewport(1, InitWidth, 0.0f, InitWidth + SSplitter::DefaultSplitterWidth, InitHeight);
+		SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
+		SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
 	}
 }
 
@@ -163,9 +167,13 @@ void FDevice::OnResizeComplete()
 
 void FDevice::CreateDepthStencilBuffer()
 {
+	// 뷰포트 정보 설정
+	D3D11_TEXTURE2D_DESC FrameBufferDesc;
+	FrameBuffer->GetDesc(&FrameBufferDesc);
+
 	D3D11_TEXTURE2D_DESC DepthBufferDesc = {};
-	DepthBufferDesc.Width = static_cast<UINT>(ViewportInfo.Width);
-	DepthBufferDesc.Height = static_cast<UINT>(ViewportInfo.Height);
+	DepthBufferDesc.Width = static_cast<float>(FrameBufferDesc.Width);
+	DepthBufferDesc.Height = static_cast<float>(FrameBufferDesc.Height);
 	DepthBufferDesc.MipLevels = 1;
 	DepthBufferDesc.ArraySize = 1;
 	DepthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;            // 32비트 중 24비트는 깊이, 8비트는 스텐실
@@ -261,18 +269,23 @@ void FDevice::Clear() const
 
 void FDevice::SetRenderTarget() const
 {
-	// Rasterization할 Viewport를 설정 
-	FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo);  // DepthStencil 뷰 및 스왑버퍼 세팅
-
 	///////////////////////
 	///일단 임시로 여기서 UUID 픽킹 텍스쳐 바인딩
+
 
 	ID3D11RenderTargetView* RTV = FEditorManager::Get().UUIDTexture->GetRTV();
 	// 렌더 타겟 바인딩
 	ID3D11RenderTargetView* RTVs[2] = { FrameBufferRTV, RTV };
 	FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, RTVs, DepthStencilView);
 
-	// FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, &RTV, nullptr);
+	for (int i = 0; i < 4; i++)
+	{
+		// Rasterization할 Viewport를 설정 
+		FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo[i]);
+	}
+
+
+
 }
 
 void FDevice::PickingPrepare() const
@@ -285,3 +298,13 @@ void FDevice::PickingPrepare() const
 	FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, RTVs, PickingDepthStencilView);
 }
 
+void FDevice::SetViewport(int index, float TopLeftX, float TopLeftY, float Width, float Height)
+{
+	if (index < 0 || index >= 4) return;
+
+	ViewportInfo[index] = {
+		TopLeftX, TopLeftY,
+		Width, Height,
+		0.0f, 1.0f
+	};
+}

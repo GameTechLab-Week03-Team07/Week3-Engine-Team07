@@ -12,8 +12,8 @@
 
 void FEditorManager::Init()
 {
-	const int Width = static_cast<int>(FDevice::Get().GetViewPortInfo().Width);
-	const int Height = static_cast<int>(FDevice::Get().GetViewPortInfo().Height);
+	const int Width = UEngine::Get().GetScreenWidth();
+	const int Height = UEngine::Get().GetScreenHeight();
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = Width;
@@ -221,8 +221,8 @@ void FEditorManager::OnUpdateWindowSize(uint32 Width, uint32 Height)
 
 void FEditorManager::OnResizeComplete()
 {
-	const int Width = static_cast<int>(FDevice::Get().GetViewPortInfo().Width);
-	const int Height = static_cast<int>(FDevice::Get().GetViewPortInfo().Height);
+	const int Width = UEngine::Get().GetScreenWidth();
+	const int Height = UEngine::Get().GetScreenHeight();
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = Width;
@@ -241,8 +241,8 @@ void FEditorManager::OnResizeComplete()
 FVector4 FEditorManager::GetPixel(FVector MPos) const
 {
 
-	const float Width = FDevice::Get().GetViewPortInfo().Width;
-	const float Height = FDevice::Get().GetViewPortInfo().Height;
+	const float Width = UEngine::Get().GetScreenWidth();
+	const float Height = UEngine::Get().GetScreenHeight();
     MPos.X = FMath::Clamp(MPos.X, 0.0f, Width);
     MPos.Y = FMath::Clamp(MPos.Y, 0.0f, Height);
     // 1. Staging 텍스처 생성 (1x1 픽셀)

@@ -226,6 +226,7 @@ void UEngine::InitRenderer()
 	Renderer->Create(WindowHandle);
 	//Renderer->CreateShader();
 	//Renderer->CreateConstantBuffer();
+	//SetupViewports(bSingleViewport);
 }
 
 void UEngine::InitWorld()
@@ -297,4 +298,47 @@ UObject* UEngine::GetObjectByUUID(uint32 InUUID) const
         return Obj->get();
     }
     return nullptr;
+}
+
+
+void UEngine::SetupViewports(bool bSingleViewport)
+{
+	Viewports.Empty();
+	ViewportClients.Empty();
+
+	if (bSingleViewport)
+	{
+		Viewports.Add(std::make_unique<FViewport>(0, 0, ScreenWidth, ScreenHeight));
+		//ViewportClients.push_back(std::make_unique<FOrthogonalViewportClient>());
+	}
+	else
+	{
+		auto TopSplitter = std::make_shared<SSplitterH>();
+		auto BottomSplitter = std::make_shared<SSplitterH>();
+		RootSplitter = std::make_shared<SSplitterV>();
+
+		float SplitterWidth = SSplitter::DefaultSplitterWidth;
+		float SplitterHeight = SSplitter::DefaultSplitterWidth;
+
+		float ViewportWidth = (ScreenWidth - SplitterWidth) / 2;
+		float ViewportHeight = (ScreenHeight - SplitterHeight) / 2;
+
+		TopSplitter->SideLT = std::make_shared<SWindow>(0, 0, ViewportWidth, ViewportHeight);
+		TopSplitter->SideRB = std::make_shared<SWindow>(ViewportWidth + SplitterWidth, 0, ScreenWidth, ViewportHeight);
+		BottomSplitter->SideLT = std::make_shared<SWindow>(0, ViewportHeight + SplitterHeight, ViewportWidth, ScreenHeight);
+		BottomSplitter->SideRB = std::make_shared<SWindow>(ViewportWidth + SplitterWidth, ViewportHeight + SplitterHeight, ScreenWidth, ScreenHeight);
+
+		RootSplitter->SideLT = TopSplitter;
+		RootSplitter->SideRB = BottomSplitter;
+
+		Viewports.Add(std::make_unique<FViewport>(0, 0, ViewportWidth, ViewportHeight));
+		Viewports.Add(std::make_unique<FViewport>(ViewportWidth + SplitterWidth, 0, ViewportWidth, ViewportHeight));
+		Viewports.Add(std::make_unique<FViewport>(0, ViewportHeight + SplitterHeight, ViewportWidth, ViewportHeight));
+		Viewports.Add(std::make_unique<FViewport>(ViewportWidth + SplitterWidth, ViewportHeight + SplitterHeight, ViewportWidth, ViewportHeight));
+
+		//ViewportClients.push_back(std::make_unique<FOrthogonalViewportClient>());
+		//ViewportClients.push_back(std::make_unique<FOrthogonalViewportClient>());
+		//ViewportClients.push_back(std::make_unique<FOrthogonalViewportClient>());
+		//ViewportClients.push_back(std::make_unique<FOrthogonalViewportClient>());
+	}
 }
