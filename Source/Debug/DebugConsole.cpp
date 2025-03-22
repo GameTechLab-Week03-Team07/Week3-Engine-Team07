@@ -85,7 +85,10 @@ void Debug::ProcessCommand(const FString& command, std::vector<FString>& log)
     {
         log.push_back("Available commands:");
         log.push_back("- clear: Clears the console.");
+		log.push_back("- stat fps: Show fps stat");
+		log.push_back("- stat memory: Shows memory stat");
         log.push_back("- help: Shows this help message.");
+
     }
 	else if (command == "stat fps") {
 		FStateGroupEnableManager::Get().EnableStat();
