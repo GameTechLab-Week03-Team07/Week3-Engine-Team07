@@ -231,6 +231,7 @@ UTriangleComp::UTriangleComp()
 UQuadComp::UQuadComp()
 {
 	SetMesh("Quad");
+	bCanBeRendered = true;
 }
 
 ULineComp::ULineComp()

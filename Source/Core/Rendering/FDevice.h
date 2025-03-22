@@ -40,11 +40,11 @@ public:
 	void ReleaseDepthStencilBuffer();
 
 	/** 렌더링 파이프라인을 준비 합니다. */
-	void Prepare() const;
+	void Prepare(int Index) const;
 
 	void Clear() const;
 	
-	void SetRenderTarget() const;
+	void SetRenderTarget(int Index) const;
 
 	/** 픽킹렌더링 파이프라인을 준비 합니다. */
 	void PickingPrepare() const;
@@ -74,7 +74,7 @@ private:
 
 	FLOAT PickingClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f }; //
 	
-    D3D11_VIEWPORT ViewportInfo[4] = {};                       // 렌더링 영역을 정의하는 뷰포트 정보
+    D3D11_VIEWPORT ViewportInfo[5] = {};                       // 렌더링 영역을 정의하는 뷰포트 정보
 
 	// 렌더링에 필요한 리소스 및 상태를 관리하기 위한 변수들
 	ID3D11Texture2D* FrameBuffer = nullptr;                 // 화면 출력용 텍스처

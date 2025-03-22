@@ -409,6 +409,9 @@
     <ClCompile Include="Source\Object\Window\Window.cpp">
       <Filter>Source\Object\Window</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Static\ViewportClient.cpp">
+      <Filter>Source\Static</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\AbstractClass\Singleton.h">
@@ -788,11 +791,11 @@
     <ClInclude Include="Source\Object\Window\Window.h">
       <Filter>Source\Object\Window</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Rendering\ViewportClient.h">
-      <Filter>Source\Core\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Core\Rendering\Viewport.h">
       <Filter>Source\Core\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Static\ViewportClient.h">
+      <Filter>Source\Static</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -82,13 +82,12 @@ void ACamera::InitMatrix()
 	ViewProjectionMatrix = FMatrix::Identity();
 }
 
-void ACamera::UpdateCameraMatrix()
+void ACamera::UpdateCameraMatrix(float AspectRatio)
 {
 	//뷰 매트릭스 업데이트
 	ViewMatrix = GetActorTransform().GetViewMatrix();
 	
 	// 프로젝션 매트릭스 업데이트
-	float AspectRatio = UEngine::Get().GetScreenRatio();
 
 	float FOV = FMath::DegreesToRadians(GetFieldOfView());
 	float Near = GetNear();

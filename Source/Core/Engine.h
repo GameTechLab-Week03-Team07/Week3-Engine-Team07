@@ -7,9 +7,6 @@
 #include "Rendering/UI.h"
 #include "Rendering/URenderer.h"
 #include "UObject/Casts.h"
-#include "Core/Rendering/Viewport.h"
-#include "Core/Rendering/ViewportClient.h"
-#include "Object/Window/Window.h"
 
 class UObject;
 class UWorld;
@@ -75,8 +72,6 @@ public:
     ObjectType* GetObjectByUUID(uint32 InUUID) const;
     UObject* GetObjectByUUID(uint32 InUUID) const;
 
-	void SetupViewports(bool bSingleViewport);
-
 
 private:
     bool IsRunning = false;
@@ -94,11 +89,6 @@ private:
     int ScreenHeight = 0;
 
 	float EngineDeltaTime = 0.0f;
-
-	TArray<std::unique_ptr<FViewport>> Viewports;
-	TArray<std::unique_ptr<FViewportClient>> ViewportClients;
-	bool bSingleViewport = true;
-	std::shared_ptr<SSplitter> RootSplitter;
 
 private:
 	std::unique_ptr<URenderer> Renderer;

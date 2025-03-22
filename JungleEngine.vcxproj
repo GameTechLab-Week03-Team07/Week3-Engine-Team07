@@ -253,6 +253,7 @@
     <ClCompile Include="Source\Object\PrimitiveComponent\UPrimitiveComponent.cpp" />
     <ClCompile Include="Source\Object\World\World.cpp" />
     <ClCompile Include="Source\Object\Actor\Sphere.cpp" />
+    <ClCompile Include="Source\Static\ViewportClient.cpp" />
     <ClCompile Include="Source\ThirdParty\ImGui\include\ImGui\imgui.cpp" />
     <ClCompile Include="Source\ThirdParty\ImGui\include\ImGui\imgui_demo.cpp" />
     <ClCompile Include="Source\ThirdParty\ImGui\include\ImGui\imgui_draw.cpp" />
@@ -318,7 +319,6 @@
     <ClInclude Include="Source\Core\Delegates\DelegateCombination.h" />
     <ClInclude Include="Source\Core\Rendering\FontAtlas.h" />
     <ClInclude Include="Source\Core\Rendering\Viewport.h" />
-    <ClInclude Include="Source\Core\Rendering\ViewportClient.h" />
     <ClInclude Include="Source\Debug\DebugDrawManager.h" />
     <ClInclude Include="Source\Object\Actor\WorldGrid.h" />
     <ClInclude Include="Source\Object\PrimitiveComponent\GizmoComponent.h" />
@@ -408,6 +408,7 @@
     <ClInclude Include="Source\Static\FEditorManager.h" />
     <ClInclude Include="Source\Object\USceneComponent.h" />
     <ClInclude Include="Source\Object\Actor\Sphere.h" />
+    <ClInclude Include="Source\Static\ViewportClient.h" />
     <ClInclude Include="Source\ThirdParty\DirectXTK\include\DirectXTK\Audio.h" />
     <ClInclude Include="Source\ThirdParty\DirectXTK\include\DirectXTK\BufferHelpers.h" />
     <ClInclude Include="Source\ThirdParty\DirectXTK\include\DirectXTK\CommonStates.h" />

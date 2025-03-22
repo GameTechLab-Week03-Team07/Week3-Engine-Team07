@@ -11,4 +11,5 @@ public:
 
     void HandleCameraMovement(float DeltaTime) const;
     void HandleGizmoMovement(float DeltaTime) const;
+    void HandleSplitterMovement(float DeltaTime) const;
 };

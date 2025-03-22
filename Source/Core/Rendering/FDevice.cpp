@@ -82,12 +82,15 @@ void FDevice::CreateDeviceAndSwapChain(HWND hWindow)
     SwapChain->GetDesc(&SwapChainDesc);
     
     // 뷰포트 정보 설정
-	float InitWidth = (static_cast<float>(SwapChainDesc.BufferDesc.Width - SSplitter::DefaultSplitterWidth)) / 2;
-	float InitHeight = (static_cast<float>(SwapChainDesc.BufferDesc.Height - SSplitter::DefaultSplitterWidth)) / 2;
-	SetViewport(0, 0.0f, 0.0f, InitWidth, InitHeight);
-	SetViewport(1, InitWidth, 0.0f, InitWidth + SSplitter::DefaultSplitterWidth, InitHeight);
-	SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
-	SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
+	float InitWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width) / 2;
+	float InitHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height) / 2;
+	SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
+	SetViewport(1, 0.0f, 0.0f, InitWidth, InitHeight);
+	SetViewport(2, InitWidth, 0.0f, InitWidth , InitHeight);
+	SetViewport(3, 0.0f, InitHeight, InitWidth, InitHeight);
+	SetViewport(4, InitWidth, InitHeight, InitWidth, InitHeight);
+
+	//SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
 
 }
 
@@ -145,12 +148,13 @@ void FDevice::OnUpdateWindowSize(int Width, int Height)
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc;
 		SwapChain->GetDesc(&SwapChainDesc);
 		// 뷰포트 정보 갱신
-		float InitWidth = (static_cast<float>(SwapChainDesc.BufferDesc.Width) - SSplitter::DefaultSplitterWidth) / 2;
-		float InitHeight = (static_cast<float>(SwapChainDesc.BufferDesc.Height) - SSplitter::DefaultSplitterWidth) / 2;
-		SetViewport(0, 0.0f, 0.0f, InitWidth + SSplitter::DefaultSplitterWidth, InitHeight);
-		SetViewport(1, InitWidth, 0.0f, InitWidth + SSplitter::DefaultSplitterWidth, InitHeight);
-		SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
-		SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight + SSplitter::DefaultSplitterWidth);
+		float InitWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width) / 2;
+		float InitHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height) / 2;
+		SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
+		SetViewport(1, 0.0f, 0.0f, InitWidth, InitHeight);
+		SetViewport(2, InitWidth, 0.0f, InitWidth, InitHeight);
+		SetViewport(3, 0.0f, InitHeight, InitWidth, InitHeight);
+		SetViewport(4, InitWidth, InitHeight, InitWidth, InitHeight);
 	}
 }
 
@@ -248,10 +252,10 @@ void FDevice::ReleaseDepthStencilBuffer()
 	}
 }
 
-void FDevice::Prepare() const
+void FDevice::Prepare(int Index) const
 {
-	Clear();
-	SetRenderTarget();
+	//Clear();
+	SetRenderTarget(Index);
 }
 
 void FDevice::Clear() const
@@ -267,7 +271,7 @@ void FDevice::Clear() const
 	FDevice::Get().GetDeviceContext()->ClearDepthStencilView(PickingDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void FDevice::SetRenderTarget() const
+void FDevice::SetRenderTarget(int Index) const
 {
 	///////////////////////
 	///일단 임시로 여기서 UUID 픽킹 텍스쳐 바인딩
@@ -278,11 +282,10 @@ void FDevice::SetRenderTarget() const
 	ID3D11RenderTargetView* RTVs[2] = { FrameBufferRTV, RTV };
 	FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, RTVs, DepthStencilView);
 
-	for (int i = 0; i < 4; i++)
-	{
-		// Rasterization할 Viewport를 설정 
-		FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo[i]);
-	}
+
+	// Rasterization할 Viewport를 설정 
+	FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo[Index]);
+
 
 
 
@@ -300,7 +303,7 @@ void FDevice::PickingPrepare() const
 
 void FDevice::SetViewport(int index, float TopLeftX, float TopLeftY, float Width, float Height)
 {
-	if (index < 0 || index >= 4) return;
+	if (index < 0 || index >= 5) return;
 
 	ViewportInfo[index] = {
 		TopLeftX, TopLeftY,

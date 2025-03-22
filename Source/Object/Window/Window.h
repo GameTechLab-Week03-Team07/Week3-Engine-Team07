@@ -5,14 +5,19 @@
 struct FRect
 {
 	float Left, Top, Right, Bottom;
+
+	float GetWidth() const { return Right - Left; }
+	float GetHeight() const { return Bottom - Top; }
 };
 
 class SWindow : public UObject
 {
 public:
 	FRect Rect;
-	bool IsHover(FVector coord) const;
-	virtual void Render() {};
+
+	bool IsHover(FVector coord) const {
+		return coord.X >= Rect.Left && coord.X <= Rect.Right && coord.Y >= Rect.Top && coord.Y <= Rect.Bottom;
+	}
 
 public:
 	SWindow() = default;
@@ -24,6 +29,16 @@ public:
 		Rect.Bottom = Bottom;
 	};
 
+	SWindow(const SWindow& Other) = default; // 복사 생성자 추가
+	SWindow& operator=(const SWindow& Other) // 복사 할당 연산자 추가
+	{
+		if (this != &Other)
+		{
+			Rect = Other.Rect;
+		}
+		return *this;
+	}
+
 	~SWindow() = default;
 };
 
@@ -32,43 +47,17 @@ class SSplitter : public SWindow
 public:
 	std::shared_ptr<SWindow> SideLT; // Left or Top
 	std::shared_ptr<SWindow> SideRB; // Right or Bottom
-	float SplitRatio = 0.5f; // 스플릿 비율
-	static constexpr float DefaultSplitterWidth = 0.001f;
 
-	virtual void OnDrag(float Delta) = 0; // 드래그 이벤트
 };
 
 class SSplitterH : public SSplitter
 {
 public:
-	void Render() override
-	{
-		if (SideLT) SideLT->Render();
-		if (SideRB) SideRB->Render();
-	}
-
-	void OnDrag(float Delta) override
-	{
-		SplitRatio += Delta;
-		if (SplitRatio < 0.1f) SplitRatio = 0.1f;
-		if (SplitRatio > 0.9f) SplitRatio = 0.9f;
-	}
+	float Pos = 0.0f;
 };
 
 class SSplitterV : public SSplitter
 {
 public:
-	void Render() override
-	{
-		if (SideLT) SideLT->Render();
-		if (SideRB) SideRB->Render();
-	}
-
-	void OnDrag(float Delta) override
-	{
-		SplitRatio += Delta;
-		if (SplitRatio < 0.1f) SplitRatio = 0.1f;
-		if (SplitRatio > 0.9f) SplitRatio = 0.9f;
-	}
-
+	float Pos = 0.0f;
 };

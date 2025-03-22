@@ -15,6 +15,7 @@
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
 #include "Static/FUUIDBillBoard.h"
+#include "Static/ViewportClient.h"
 #include <Core/Math/Ray.h>
 
 #include "Core/Rendering/URenderer.h"
@@ -103,7 +104,8 @@ void UWorld::Render()
 	}
 
 	ACamera* cam = FEditorManager::Get().GetCamera();
-	cam->UpdateCameraMatrix();
+	cam->UpdateCameraMatrix(UEngine::Get().GetScreenRatio()); 
+	
 
 
 	//if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton))
@@ -132,6 +134,8 @@ void UWorld::Render()
 	FLineBatchManager::Get().Render();
 
 	FUUIDBillBoard::Get().Render();
+
+	//FViewportClient::Get().Render();
 
 
 	//DisplayPickingTexture(*Renderer);
@@ -194,7 +198,7 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 		RenderComponent->Render();
 	}
 
-	FDevice::Get().SetRenderTarget();
+	//FDevice::Get().SetRenderTarget();
 }
 
 // void UWorld::DisplayPickingTexture(URenderer& Renderer)
