@@ -9,6 +9,10 @@
 UStaticMeshComponent::UStaticMeshComponent()
 {
 	// 현재 딱히 할 거 없음
+	if (StaticMesh)
+	{
+		InitializeRenderResources();
+	}
 }
 
 UStaticMeshComponent::~UStaticMeshComponent()
@@ -56,7 +60,8 @@ void UStaticMeshComponent::SetStaticMesh(UStaticMesh* InStaticMesh)
 
 FBoxSphereBounds UStaticMeshComponent::CalcBounds(const FTransform& LocalToWorld) const
 {
-	if (StaticMesh && StaticMesh->StaticMeshAsset)
+	//if (StaticMesh && StaticMesh->StaticMeshAsset)
+		if (StaticMesh)
 	{
 		return CalcMeshBounds(LocalToWorld);
 	}
@@ -74,12 +79,33 @@ void UStaticMeshComponent::InitializeRenderResources()
 	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
 	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
-	//FString textureName =  StaticMesh->StaticMeshAsset->Materials["12140_Skull_v3"]/.
+	FString textureName = StaticMesh->StaticMeshAsset->Materials["12140_Skull_v3"].PathFileName;
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
-	// 현재 하드코딩으로 텍스처 키 집어넣음 개선필요
-	GetRenderResourceCollection().SetTextureBinding("12140_Skull_v3_Diffuse", 2, false, true);
-	GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
+	
+	if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
+	{
+		// 첫 번째 머티리얼 사용 (또는 다른 선택 로직 구현)
+		for (const auto& MaterialPair : StaticMesh->StaticMeshAsset->Materials)
+		{
+			const auto& MaterialName = MaterialPair.Key;
+			const auto& Material = MaterialPair.Value;
+
+			// 텍스처 경로가 있는지 확인
+			if (!Material.DiffuseTexture.empty())
+			{
+				// 텍스처 이름 생성 (MaterialName + "_Diffuse")
+				FString TextureName = FString(MaterialName) + "_Diffuse";
+
+				// 텍스처 및 샘플러 바인딩
+				GetRenderResourceCollection().SetTextureBinding(TextureName, 2, false, true);
+				GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
+
+				// 첫 번째 유효한 텍스처만 사용하려면 여기서 break
+				break;
+			}
+		}
+	}
 }
 
 FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToWorld) const

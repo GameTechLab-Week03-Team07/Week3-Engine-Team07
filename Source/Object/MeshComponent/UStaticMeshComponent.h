@@ -46,7 +46,7 @@ public:
 
 protected:
 	// 정적 메시 참조
-	UStaticMesh* StaticMesh;
+	UStaticMesh* StaticMesh = nullptr;
 
 	// 렌더링 리소스
 	std::shared_ptr<FVertexBuffer> VertexBuffer;
