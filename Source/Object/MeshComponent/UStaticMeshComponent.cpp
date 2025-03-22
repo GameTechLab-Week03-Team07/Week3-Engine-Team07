@@ -78,34 +78,26 @@ void UStaticMeshComponent::InitializeRenderResources()
 	// 정적메시 정보로 버퍼 생성
 	for (auto section : StaticMesh->StaticMeshAsset->sections)
 	{
+		// 버퍼 생성
 		FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), section.vertices);
 		FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), section.Indices);
-	}
-	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
-	GetRenderResourceCollection().SetMesh(mesh);
-	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
-	
-	if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
-	{
-		// 첫 번째 머티리얼 사용 (또는 다른 선택 로직 구현)
-		for (const auto& MaterialPair : StaticMesh->StaticMeshAsset->Materials)
-		{
-			const auto& MaterialName = MaterialPair.Key;
-			const auto& Material = MaterialPair.Value;
 
-			// 텍스처 경로가 있는지 확인
-			if (!Material.DiffuseTexture.empty())
-			{
-				// 텍스처 이름 생성 (MaterialName + "_Diffuse")
-				FString TextureName = FString(MaterialName) + "_Diffuse";
+		// 머티리얼 이름 가져오기
+		const std::string& materialName = section.MaterialSlotName;
+		// 해당 머티리얼 찾기
 
-				// 텍스처 및 샘플러 바인딩
-				GetRenderResourceCollection().SetTextureBinding(TextureName, 2, false, true);
-				GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
+		if (StaticMesh->StaticMeshAsset->Materials.Contains(materialName)) {
+			const auto& material = StaticMesh->StaticMeshAsset->Materials[materialName];
 
-				// 첫 번째 유효한 텍스처만 사용하려면 여기서 break
-				break;
+			if (!material.DiffuseTexture.empty()) {
+				FString textureSlotName = FString(materialName) + "_Diffuse";
+
+				// 바인딩 시 섹션 또는 머티리얼에 따라 유니크하게 구분되도록
+				GetRenderResourceCollection().SetTextureBinding(textureSlotName, /*BindSlot=*/2, false, true);
+				GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", /*BindSlot=*/0, false, true);
 			}
+			// 5. 머티리얼 이름으로 렌더링 리소스에 설정
+			GetRenderResourceCollection().SetMaterial(materialName);
 		}
 	}
 }

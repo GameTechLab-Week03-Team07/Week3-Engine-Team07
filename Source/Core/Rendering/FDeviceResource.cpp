@@ -22,7 +22,7 @@ void FDevice::InitResource()
 	// 테스트용 - obj파일 preload
 	//FStaticMeshManager::Get().LoadObjStaticMesh("cube.obj");
 	//FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
-	//FStaticMeshManager::Get().LoadObjStaticMesh("12140_Skull_v3.obj");
+	FStaticMeshManager::Get().LoadObjStaticMesh("12140_Skull_v3.obj");
 	FStaticMeshManager::Get().LoadObjStaticMesh("cube2.obj");
 
 	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/ShaderW0.hlsl","Simple_VS","mainVS");
@@ -208,6 +208,24 @@ void FDevice::InitResource()
 	// 정적 메시 오브젝트용 머티리얼 정의
 	{
 		std::shared_ptr<FMaterial> Mat = FMaterial::Create("StaticMeshMaterial");
+		Mat->SetRasterizer("DefaultRasterizer");
+		Mat->SetBlendState("DefaultBlendState");
+		Mat->SetDepthState("DefaultDepthStencilState");
+		Mat->SetVertexShader("StaticMesh_VS");
+		Mat->SetPixelShader("StaticMesh_PS");
+	}
+
+	{
+		std::shared_ptr<FMaterial> Mat = FMaterial::Create("RedMaterial");
+		Mat->SetRasterizer("DefaultRasterizer");
+		Mat->SetBlendState("DefaultBlendState");
+		Mat->SetDepthState("DefaultDepthStencilState");
+		Mat->SetVertexShader("StaticMesh_VS");
+		Mat->SetPixelShader("StaticMesh_PS");
+	}
+
+	{
+		std::shared_ptr<FMaterial> Mat = FMaterial::Create("BlueMaterial");
 		Mat->SetRasterizer("DefaultRasterizer");
 		Mat->SetBlendState("DefaultBlendState");
 		Mat->SetDepthState("DefaultDepthStencilState");
