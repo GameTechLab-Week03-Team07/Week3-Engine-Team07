@@ -11,6 +11,7 @@
 #include "Object/Actor/Cube.h"
 #include "Object/Actor/Cylinder.h"
 #include "Object/Actor/Sphere.h"
+#include "Object/Actor/StaticMesh.h"
 #include "Object/PrimitiveComponent/UPrimitiveComponent.h"
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
@@ -22,7 +23,7 @@
 #include "Object/Actor/Picker.h"
 #include "Core/Config/ConfigManager.h"
 #include "Object/Gizmo/GizmoActor.h"
-
+#include "Object/MeshComponent/UStaticMeshComponent.h"
 #include "Resource/Mesh.h"
 
 #include "Debug/DebugDrawManager.h"
@@ -304,6 +305,19 @@ void UWorld::LoadWorld(const char* InSceneName)
 		{
 			Actor = SpawnActor<ACone>();
 		}
+		else if (ObjectInfo->ObjectType == "StaticMesh")
+		{
+			// AStaticMesh 액터 생성
+			Actor = SpawnActor<AStaticMesh>();
+
+			// UStaticMeshComponent 가져오기
+			UStaticMesh* MeshComp = FStaticMeshManager::Get().LoadObjStaticMesh(ObjectInfo->StaticMeshAssetPath);
+			if (MeshComp)
+			{
+				UStaticMeshComponent* CastedObject = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
+				CastedObject->SetStaticMesh(MeshComp);
+			}
+		}
 		
 		Actor->SetActorTransform(Transform);
 	}
@@ -421,7 +435,7 @@ UWorldInfo UWorld::GetWorldInfo() const
 			WorldInfo.ActorCount--;
 			continue;
 		}
-		WorldInfo.ObjectInfos.push(std::make_unique<UObjectInfo>(
+		auto ObjectInfo = std::make_unique<UObjectInfo>(
 			UObjectInfo{
 				.Location = actor->GetActorPosition(),
 				.Rotation = actor->GetActorRotation(),
@@ -429,7 +443,19 @@ UWorldInfo UWorld::GetWorldInfo() const
 				.ObjectType = actor->GetTypeName(),
 				.UUID = actor->GetUUID()
 			}
-		));
+		);
+
+		// StaticMesh 타입인 경우 메시 경로 추가
+		if (actor->GetTypeName() == "StaticMesh")
+		{
+			UStaticMeshComponent* CastedObject = Cast<UStaticMeshComponent>(actor->GetRootComponent());
+			if (CastedObject->GetStaticMesh()) 
+			{
+				ObjectInfo->StaticMeshAssetPath = CastedObject->GetStaticMesh()->GetAssetPathFileName();
+			}
+		};
+
+		WorldInfo.ObjectInfos.push(std::move(ObjectInfo));
 		i++;
 	}
 	return WorldInfo;

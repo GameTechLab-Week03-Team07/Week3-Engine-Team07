@@ -11,7 +11,7 @@ public:
 
 	std::shared_ptr<FStaticMesh> StaticMeshAsset;
 
-	const FString& GetAssetPathFileName()
+	const std::string& GetAssetPathFileName()
 	{
 		return StaticMeshAsset->PathFileName;
 	}
