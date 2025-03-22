@@ -180,6 +180,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Core\Rendering\FStateGroupEnableManager.cpp" />
     <ClCompile Include="Source\Resource\StaticMesh\FStaticMeshManager.cpp" />
     <ClCompile Include="Source\Resource\StaticMesh\FObjImporter.cpp" />
     <ClCompile Include="Source\Core\Math\Transform.cpp" />
@@ -319,6 +320,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h" />
     <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h" />

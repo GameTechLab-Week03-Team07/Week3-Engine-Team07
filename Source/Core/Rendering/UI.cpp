@@ -684,6 +684,8 @@ void UI::RenderStatPannel() const
 {
 	// 스탯 창 활성화 시
 	if (FStateGroupEnableManager::Get().IsEnableStat()) {
+		ImVec2 windowSize(400, 150);
+		ImGui::SetNextWindowSize(windowSize);
 		ImGui::SetNextWindowBgAlpha(0.0f);
 		ImGui::Begin("Stat", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 		if (bWasWindowSizeUpdated) {
