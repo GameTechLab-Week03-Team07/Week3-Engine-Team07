@@ -1,9 +1,10 @@
-﻿#include "Debug/DebugConsole.h"
+#include "Debug/DebugConsole.h"
 
 #include <cstdarg>
 #include <algorithm>
 #include "ImGui/imgui_internal.h"
 #include "Core/Container/String.h"
+#include <Core/Rendering/FStateGroupEnableManager.h>
 
 
 std::vector<FString> Debug::items;
@@ -86,6 +87,19 @@ void Debug::ProcessCommand(const FString& command, std::vector<FString>& log)
         log.push_back("- clear: Clears the console.");
         log.push_back("- help: Shows this help message.");
     }
+	else if (command == "stat fps") {
+		FStateGroupEnableManager::Get().EnableStat();
+		FStateGroupEnableManager::Get().EnableGroup("FPS");
+	}
+
+	else if (command == "stat memory") {
+		FStateGroupEnableManager::Get().EnableStat();
+		FStateGroupEnableManager::Get().EnableGroup("Memory");
+	}
+
+	else if (command == "stat clear") {
+		FStateGroupEnableManager::Get().DisableStat();
+	}
     else
     {
         log.push_back("Unknown command: " + command);
