@@ -1,3 +1,11 @@
+#pragma once
+#include "Core/Container/Array.h"
+#include "Core/Container/String.h"
+#include "ImGui/imgui.h"
+#include "FStateGroupEnableManager.h"
+
+
+class AActor;
 #include "UI.h"
 
 #include "FDevice.h"
@@ -44,165 +52,164 @@
 
 void UI::Initialize(HWND hWnd, const FDevice& Device, UINT ScreenWidth, UINT ScreenHeight)
 {
-    // ImGui 초기화
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+	// ImGui 초기화
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    // 기본 폰트 크기 설정
-    io.FontGlobalScale = 1.0f;
-    io.DisplaySize = ScreenSize;
-    //io.WantSetMousePos = true;
-    // ImGui Backend 초기화
-    ImGui_ImplWin32_Init(hWnd);
-    ImGui_ImplDX11_Init(Device.GetDevice(), Device.GetDeviceContext());
+	// 기본 폰트 크기 설정
+	io.FontGlobalScale = 1.0f;
+	io.DisplaySize = ScreenSize;
+	//io.WantSetMousePos = true;
+	// ImGui Backend 초기화
+	ImGui_ImplWin32_Init(hWnd);
+	ImGui_ImplDX11_Init(Device.GetDevice(), Device.GetDeviceContext());
 
 	ScreenSize = ImVec2(static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
-    InitialScreenSize = ScreenSize;
-    bIsInitialized = true;
-    
-    io.DisplaySize = ScreenSize;
+	InitialScreenSize = ScreenSize;
+	bIsInitialized = true;
 
-    PreRatio = GetRatio();
-    CurRatio = GetRatio();
+	io.DisplaySize = ScreenSize;
+
+	PreRatio = GetRatio();
+	CurRatio = GetRatio();
 }
 
 void UI::Update()
 {
-    POINT mousePos;
-    if (GetCursorPos(&mousePos)) {
-        HWND hwnd = GetActiveWindow();
-        ScreenToClient(hwnd, &mousePos);
+	POINT mousePos;
+	if (GetCursorPos(&mousePos)) {
+		HWND hwnd = GetActiveWindow();
+		ScreenToClient(hwnd, &mousePos);
 
-        ImVec2 CalculatedMousePos = ResizeToScreenByCurrentRatio(ImVec2(mousePos.x, mousePos.y));
-        ImGui::GetIO().MousePos = CalculatedMousePos;
-        //UE_LOG("MousePos: (%.1f, %.1f), DisplaySize: (%.1f, %.1f)\n",CalculatedMousePos.x, CalculatedMousePos.y, GetRatio().x, GetRatio().y);
-    }
+		ImVec2 CalculatedMousePos = ResizeToScreenByCurrentRatio(ImVec2(mousePos.x, mousePos.y));
+		ImGui::GetIO().MousePos = CalculatedMousePos;
+		//UE_LOG("MousePos: (%.1f, %.1f), DisplaySize: (%.1f, %.1f)\n",CalculatedMousePos.x, CalculatedMousePos.y, GetRatio().x, GetRatio().y);
+	}
 
-    
-    // ImGui Frame 생성
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
 
-    if (bWasWindowSizeUpdated)
-    {
-        PreRatio = CurRatio;
-        CurRatio = GetRatio();
-        UE_LOG("Current Ratio: %f, %f", CurRatio.x, CurRatio.y);
-    }
+	// ImGui Frame 생성
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	if (bWasWindowSizeUpdated)
+	{
+		PreRatio = CurRatio;
+		CurRatio = GetRatio();
+		UE_LOG("Current Ratio: %f, %f", CurRatio.x, CurRatio.y);
+	}
 
 	RenderSceneManager();
-    RenderControlPanel();
-    RenderPropertyWindow();
+	RenderControlPanel();
+	RenderPropertyWindow();
 	RenderShowFlagsPanel();
 	RenderViewModePanel();
+	RenderStatPannel();
 
-    Debug::ShowConsole(bWasWindowSizeUpdated, PreRatio, CurRatio);
+	Debug::ShowConsole(bWasWindowSizeUpdated, PreRatio, CurRatio);
 
-    // ImGui 렌더링
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	// ImGui 렌더링
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    bWasWindowSizeUpdated = false;
+	bWasWindowSizeUpdated = false;
 }
 
 
 void UI::Shutdown() const
 {
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void UI::OnUpdateWindowSize(UINT InScreenWidth, UINT InScreenHeight)
 {
-    // ImGUI 리소스 다시 생성
-    ImGui_ImplDX11_InvalidateDeviceObjects();
-    ImGui_ImplDX11_CreateDeviceObjects();
-   // ImGui 창 크기 업데이트
-	//ScreenSize = ImVec2(static_cast<float>(InScreenWidth), static_cast<float>(InScreenHeight));
+	// ImGUI 리소스 다시 생성
+	ImGui_ImplDX11_InvalidateDeviceObjects();
+	ImGui_ImplDX11_CreateDeviceObjects();
+	// ImGui 창 크기 업데이트
+	 //ScreenSize = ImVec2(static_cast<float>(InScreenWidth), static_cast<float>(InScreenHeight));
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(static_cast<float>(InScreenWidth), static_cast<float>(InScreenHeight));
 
-    bWasWindowSizeUpdated = true;
+	bWasWindowSizeUpdated = true;
 }
 
 void UI::RenderControlPanel()
 {
-    ImGui::Begin("Jungle Control Panel");
+	ImGui::Begin("Jungle Control Panel");
 
-    if (bWasWindowSizeUpdated)
-    {
-        auto* Window = ImGui::GetCurrentWindow();
+	if (bWasWindowSizeUpdated)
+	{
+		auto* Window = ImGui::GetCurrentWindow();
 
-        ImGui::SetWindowPos(ResizeToScreen(Window->Pos));
-        ImGui::SetWindowSize(ResizeToScreen(Window->Size));
-    }
-    
-    ImGui::Text("Hello, Jungle World!");
-    ImGui::Text("FPS: %.3f (%.2f ms)", ImGui::GetIO().Framerate , 1000.0f / ImGui::GetIO().Framerate);
+		ImGui::SetWindowPos(ResizeToScreen(Window->Pos));
+		ImGui::SetWindowSize(ResizeToScreen(Window->Size));
+	}
 
     RenderMemoryUsage();
     RenderPrimitiveSelection();
 	RenderStaticMeshSelection();
     RenderCameraSettings();
 	RenderGridSettings();
-    
-    ImGui::End();
+
+	ImGui::End();
 }
 
 void UI::RenderMemoryUsage() const
 {
-    const uint64 ContainerAllocByte = FPlatformMemory::GetAllocationBytes<EAT_Container>();
-    const uint64 ContainerAllocCount = FPlatformMemory::GetAllocationCount<EAT_Container>();
-    const uint64 ObjectAllocByte = FPlatformMemory::GetAllocationBytes<EAT_Object>();
-    const uint64 ObjectAllocCount = FPlatformMemory::GetAllocationCount<EAT_Object>();
-    ImGui::Text(
-        "Container Memory Uses: %llubyte, Count: %llu",
-        ContainerAllocByte,
-        ContainerAllocCount
-    );
-    ImGui::Text(
-        "Object Memory Uses: %llubyte, Count: %llu Objects",
-        ObjectAllocByte,
-        ObjectAllocCount
-    );
-    ImGui::Text(
-        "Total Memory Uses: %llubyte, Count: %llu",
-        ContainerAllocByte + ObjectAllocByte,
-        ContainerAllocCount + ObjectAllocCount
-    );
-
-    ImGui::Separator();
+	if (FStateGroupEnableManager::Get().IsGroupEnabled(FName("Memory"))) {
+		ImGui::Separator();
+		const uint64 ContainerAllocByte = FPlatformMemory::GetAllocationBytes<EAT_Container>();
+		const uint64 ContainerAllocCount = FPlatformMemory::GetAllocationCount<EAT_Container>();
+		const uint64 ObjectAllocByte = FPlatformMemory::GetAllocationBytes<EAT_Object>();
+		const uint64 ObjectAllocCount = FPlatformMemory::GetAllocationCount<EAT_Object>();
+		ImGui::Text(
+			"Container Memory Uses: %llubyte, Count: %llu",
+			ContainerAllocByte,
+			ContainerAllocCount
+		);
+		ImGui::Text(
+			"Object Memory Uses: %llubyte, Count: %llu Objects",
+			ObjectAllocByte,
+			ObjectAllocCount
+		);
+		ImGui::Text(
+			"Total Memory Uses: %llubyte, Count: %llu",
+			ContainerAllocByte + ObjectAllocByte,
+			ContainerAllocCount + ObjectAllocCount
+		);
+	}
 }
 
 void UI::RenderPrimitiveSelection()
 {
-    const char* items[] = { "Sphere", "Cube", "Cylinder", "Cone", "SpotLight"};
+	const char* items[] = { "Sphere", "Cube", "Cylinder", "Cone", "SpotLight" };
 
-    ImGui::Combo("Primitive", &currentItem, items, IM_ARRAYSIZE(items));
+	ImGui::Combo("Primitive", &currentItem, items, IM_ARRAYSIZE(items));
 
-    if (ImGui::Button("Spawn"))
-    {
-        UWorld* World = UEngine::Get().GetWorld();
-        for (int i = 0 ;  i < NumOfSpawn; i++)
-        {
-            if (strcmp(items[currentItem], "Sphere") == 0)
-            {
-                World->SpawnActor<ASphere>();
-            }
-            else if (strcmp(items[currentItem], "Cube") == 0)
-            {
-                World->SpawnActor<ACube>();
-            }
-            else if (strcmp(items[currentItem], "Cylinder") == 0)
-            {
-                World->SpawnActor<ACylinder>();
-            }
+	if (ImGui::Button("Spawn"))
+	{
+		UWorld* World = UEngine::Get().GetWorld();
+		for (int i = 0; i < NumOfSpawn; i++)
+		{
+			if (strcmp(items[currentItem], "Sphere") == 0)
+			{
+				World->SpawnActor<ASphere>();
+			}
+			else if (strcmp(items[currentItem], "Cube") == 0)
+			{
+				World->SpawnActor<ACube>();
+			}
+			else if (strcmp(items[currentItem], "Cylinder") == 0)
+			{
+				World->SpawnActor<ACylinder>();
+			}
 			else if (strcmp(items[currentItem], "Cone") == 0)
 			{
 				World->SpawnActor<ACone>();
@@ -211,42 +218,42 @@ void UI::RenderPrimitiveSelection()
 			{
 				World->SpawnActor<ASpotLight>();
 			}
-            //else if (strcmp(items[currentItem], "Triangle") == 0)
-            //{
-            //    Actor->AddComponent<UTriangleComp>();   
-            //}
-        }
-    }
-    ImGui::SameLine();
-    ImGui::InputInt("Number of spawn", &NumOfSpawn, 0);
+			//else if (strcmp(items[currentItem], "Triangle") == 0)
+			//{
+			//    Actor->AddComponent<UTriangleComp>();   
+			//}
+		}
+	}
+	ImGui::SameLine();
+	ImGui::InputInt("Number of spawn", &NumOfSpawn, 0);
 
-    ImGui::Separator();
+	ImGui::Separator();
 
-    UWorld* World = UEngine::Get().GetWorld();
-    uint32 bufferSize = 100;
-    char* SceneNameInput = new char[bufferSize];
-    strcpy_s(SceneNameInput, bufferSize, *World->SceneName);
-    
+	UWorld* World = UEngine::Get().GetWorld();
+	uint32 bufferSize = 100;
+	char* SceneNameInput = new char[bufferSize];
+	strcpy_s(SceneNameInput, bufferSize, *World->SceneName);
+
 	if (ImGui::InputText("Scene Name", SceneNameInput, bufferSize))
 	{
 		World->SceneName = SceneNameInput;
 	}
-    
-    if (ImGui::Button("New Scene"))
-    {
-        World->ClearWorld();
-    }
-    if (ImGui::Button("Save Scene"))
-    {
-        World->SaveWorld();   
-    }
-    if (ImGui::Button("Load Scene"))
-    {
-        World->LoadWorld(SceneNameInput);
-    }
+
+	if (ImGui::Button("New Scene"))
+	{
+		World->ClearWorld();
+	}
+	if (ImGui::Button("Save Scene"))
+	{
+		World->SaveWorld();
+	}
+	if (ImGui::Button("Load Scene"))
+	{
+		World->LoadWorld(SceneNameInput);
+	}
 
 	delete[] SceneNameInput;
-    ImGui::Separator();
+	ImGui::Separator();
 }
 
 void UI::RenderStaticMeshSelection()
@@ -306,94 +313,94 @@ void UI::RenderStaticMeshSelection()
 
 void UI::RenderCameraSettings() const
 {
-    ImGui::Text("Camera");
+	ImGui::Text("Camera");
 
-    ACamera* Camera = FEditorManager::Get().GetCamera();
+	ACamera* Camera = FEditorManager::Get().GetCamera();
 
-    bool IsOrthogonal;
-    if (Camera->ProjectionMode == ECameraProjectionMode::Orthographic)
-    {
-        IsOrthogonal = true;
-    }
-    else if (Camera->ProjectionMode == ECameraProjectionMode::Perspective)
-    {
-        IsOrthogonal = false;
-    }
+	bool IsOrthogonal;
+	if (Camera->ProjectionMode == ECameraProjectionMode::Orthographic)
+	{
+		IsOrthogonal = true;
+	}
+	else if (Camera->ProjectionMode == ECameraProjectionMode::Perspective)
+	{
+		IsOrthogonal = false;
+	}
 
-    if (ImGui::Checkbox("Orthogonal", &IsOrthogonal))
-    {
-        if (IsOrthogonal)
-        {
-            Camera->ProjectionMode = ECameraProjectionMode::Orthographic;
-        }
-        else
-        {
-            Camera->ProjectionMode = ECameraProjectionMode::Perspective;
-        }
-    }
+	if (ImGui::Checkbox("Orthogonal", &IsOrthogonal))
+	{
+		if (IsOrthogonal)
+		{
+			Camera->ProjectionMode = ECameraProjectionMode::Orthographic;
+		}
+		else
+		{
+			Camera->ProjectionMode = ECameraProjectionMode::Perspective;
+		}
+	}
 
-    float FOV = Camera->GetFieldOfView();
-    if (ImGui::DragFloat("FOV", &FOV, 0.1f))
-    {
-        FOV = std::clamp(FOV, 0.01f, 179.99f);
-        Camera->SetFieldOfVew(FOV);
-    }
+	float FOV = Camera->GetFieldOfView();
+	if (ImGui::DragFloat("FOV", &FOV, 0.1f))
+	{
+		FOV = std::clamp(FOV, 0.01f, 179.99f);
+		Camera->SetFieldOfVew(FOV);
+	}
 
-    float NearFar[2] = { Camera->GetNear(), Camera->GetFar() };
-    if (ImGui::DragFloat2("Near, Far", NearFar, 0.1f))
-    {
-        NearFar[0] = FMath::Max(0.01f, NearFar[0]);
-        NearFar[1] = FMath::Max(0.01f, NearFar[1]);
+	float NearFar[2] = { Camera->GetNear(), Camera->GetFar() };
+	if (ImGui::DragFloat2("Near, Far", NearFar, 0.1f))
+	{
+		NearFar[0] = FMath::Max(0.01f, NearFar[0]);
+		NearFar[1] = FMath::Max(0.01f, NearFar[1]);
 
-        if (NearFar[0] < NearFar[1])
-        {
-            Camera->SetNear(NearFar[0]);
-            Camera->SetFar(NearFar[1]);
-        }
-        else
-        {
-            if (abs(NearFar[0] - Camera->GetNear()) < 0.00001f)
-            {
-                Camera->SetFar(NearFar[0] + 0.01f);
-            }
-            else if (abs(NearFar[1] - Camera->GetFar()) < 0.00001f)
-            {
-                Camera->SetNear(NearFar[1] - 0.01f);
-            }
-        }
-    }
-    
-    FVector CameraPosition = Camera->GetActorTransform().GetPosition();
-    if (ImGui::DragFloat3("Camera Location", reinterpret_cast<float*>(&CameraPosition), 0.1f))
-    {
-        FTransform Trans = Camera->GetActorTransform();
-        Trans.SetPosition(CameraPosition);
-        Camera->SetActorTransform(Trans);
-    }
+		if (NearFar[0] < NearFar[1])
+		{
+			Camera->SetNear(NearFar[0]);
+			Camera->SetFar(NearFar[1]);
+		}
+		else
+		{
+			if (abs(NearFar[0] - Camera->GetNear()) < 0.00001f)
+			{
+				Camera->SetFar(NearFar[0] + 0.01f);
+			}
+			else if (abs(NearFar[1] - Camera->GetFar()) < 0.00001f)
+			{
+				Camera->SetNear(NearFar[1] - 0.01f);
+			}
+		}
+	}
 
-    FVector PrevEulerAngle = Camera->GetActorTransform().GetRotation().GetEuler();
-    FVector UIEulerAngle = { PrevEulerAngle.X, PrevEulerAngle.Y, PrevEulerAngle.Z };
-    if (ImGui::DragFloat3("Camera Rotation", reinterpret_cast<float*>(&UIEulerAngle), 0.1f))
-    {
-        FTransform Transform = Camera->GetActorTransform();
+	FVector CameraPosition = Camera->GetActorTransform().GetPosition();
+	if (ImGui::DragFloat3("Camera Location", reinterpret_cast<float*>(&CameraPosition), 0.1f))
+	{
+		FTransform Trans = Camera->GetActorTransform();
+		Trans.SetPosition(CameraPosition);
+		Camera->SetActorTransform(Trans);
+	}
 
-        //FVector DeltaEulerAngle = UIEulerAngle - PrevEulerAngle;
-        //Transform.Rotate(DeltaEulerAngle);
-        
-        UIEulerAngle.Y = FMath::Clamp(UIEulerAngle.Y, -Camera->MaxYDegree, Camera->MaxYDegree);
-        Transform.SetRotation(UIEulerAngle);
-        Camera->SetActorTransform(Transform);
-    }
-    ImGui::DragFloat("Camera Speed", &Camera->CameraSpeed, 0.1f);
+	FVector PrevEulerAngle = Camera->GetActorTransform().GetRotation().GetEuler();
+	FVector UIEulerAngle = { PrevEulerAngle.X, PrevEulerAngle.Y, PrevEulerAngle.Z };
+	if (ImGui::DragFloat3("Camera Rotation", reinterpret_cast<float*>(&UIEulerAngle), 0.1f))
+	{
+		FTransform Transform = Camera->GetActorTransform();
+
+		//FVector DeltaEulerAngle = UIEulerAngle - PrevEulerAngle;
+		//Transform.Rotate(DeltaEulerAngle);
+
+		UIEulerAngle.Y = FMath::Clamp(UIEulerAngle.Y, -Camera->MaxYDegree, Camera->MaxYDegree);
+		Transform.SetRotation(UIEulerAngle);
+		Camera->SetActorTransform(Transform);
+	}
+	ImGui::DragFloat("Camera Speed", &Camera->CameraSpeed, 0.1f);
 	ImGui::DragFloat("Camera Sensitivity", &Camera->Sensitivity, 0.1f);
 
-    FVector Forward = Camera->GetActorTransform().GetForward();
-    FVector Up = Camera->GetActorTransform().GetUp();
-    FVector Right = Camera->GetActorTransform().GetRight();
+	FVector Forward = Camera->GetActorTransform().GetForward();
+	FVector Up = Camera->GetActorTransform().GetUp();
+	FVector Right = Camera->GetActorTransform().GetRight();
 
-    ImGui::Text("Camera GetForward(): (%.2f %.2f %.2f)", Forward.X, Forward.Y, Forward.Z);
-    ImGui::Text("Camera GetUp(): (%.2f %.2f %.2f)", Up.X, Up.Y, Up.Z);
-    ImGui::Text("Camera GetRight(): (%.2f %.2f %.2f)", Right.X, Right.Y, Right.Z);
+	ImGui::Text("Camera GetForward(): (%.2f %.2f %.2f)", Forward.X, Forward.Y, Forward.Z);
+	ImGui::Text("Camera GetUp(): (%.2f %.2f %.2f)", Up.X, Up.Y, Up.Z);
+	ImGui::Text("Camera GetRight(): (%.2f %.2f %.2f)", Right.X, Right.Y, Right.Z);
 	ImGui::Text("MouseLeftDown: %s", APlayerInput::Get().GetKeyDown(EKeyCode::LButton) ? "True" : "False");
 	ImGui::Text("MousePress : %s", APlayerInput::Get().GetKeyPress(EKeyCode::LButton) ? "True" : "False");
 	ImGui::Text("MosueLeftUp: %s", APlayerInput::Get().GetKeyUp(EKeyCode::LButton) ? "True" : "False");
@@ -403,48 +410,48 @@ void UI::RenderCameraSettings() const
 void UI::RenderPropertyWindow() const
 {
 
-    ImGui::Begin("Properties");
+	ImGui::Begin("Properties");
 
-    if (bWasWindowSizeUpdated)
-    {
-        auto* Window = ImGui::GetCurrentWindow();
+	if (bWasWindowSizeUpdated)
+	{
+		auto* Window = ImGui::GetCurrentWindow();
 
-        ImGui::SetWindowPos(ResizeToScreen(Window->Pos));
-        ImGui::SetWindowSize(ResizeToScreen(Window->Size));
-    }
-    
-    AActor* selectedActor = FEditorManager::Get().GetSelectedActor();
-    if (selectedActor != nullptr)
-    {
-        FTransform selectedTransform = selectedActor->GetActorTransform();
-        float position[] = { selectedTransform.GetPosition().X, selectedTransform.GetPosition().Y, selectedTransform.GetPosition().Z };
-        float scale[] = { selectedTransform.GetScale().X, selectedTransform.GetScale().Y, selectedTransform.GetScale().Z };
+		ImGui::SetWindowPos(ResizeToScreen(Window->Pos));
+		ImGui::SetWindowSize(ResizeToScreen(Window->Size));
+	}
 
-        if (ImGui::DragFloat3("Translation", position, 0.1f))
-        {
-            selectedTransform.SetPosition(position[0], position[1], position[2]);
-            selectedActor->SetActorTransform(selectedTransform);
-        }
+	AActor* selectedActor = FEditorManager::Get().GetSelectedActor();
+	if (selectedActor != nullptr)
+	{
+		FTransform selectedTransform = selectedActor->GetActorTransform();
+		float position[] = { selectedTransform.GetPosition().X, selectedTransform.GetPosition().Y, selectedTransform.GetPosition().Z };
+		float scale[] = { selectedTransform.GetScale().X, selectedTransform.GetScale().Y, selectedTransform.GetScale().Z };
 
-        FVector PrevEulerAngle = selectedTransform.GetRotation().GetEuler();
-        FVector UIEulerAngle = PrevEulerAngle;
-        if (ImGui::DragFloat3("Rotation", reinterpret_cast<float*>(&UIEulerAngle), 0.1f))
-        {
-            FVector DeltaEulerAngle = UIEulerAngle - PrevEulerAngle;
+		if (ImGui::DragFloat3("Translation", position, 0.1f))
+		{
+			selectedTransform.SetPosition(position[0], position[1], position[2]);
+			selectedActor->SetActorTransform(selectedTransform);
+		}
 
-            selectedTransform.Rotate(DeltaEulerAngle);
+		FVector PrevEulerAngle = selectedTransform.GetRotation().GetEuler();
+		FVector UIEulerAngle = PrevEulerAngle;
+		if (ImGui::DragFloat3("Rotation", reinterpret_cast<float*>(&UIEulerAngle), 0.1f))
+		{
+			FVector DeltaEulerAngle = UIEulerAngle - PrevEulerAngle;
+
+			selectedTransform.Rotate(DeltaEulerAngle);
 			UE_LOG("Rotation: %.2f, %.2f, %.2f", DeltaEulerAngle.X, DeltaEulerAngle.Y, DeltaEulerAngle.Z);
-            selectedActor->SetActorTransform(selectedTransform);
-        }
-        if (ImGui::DragFloat3("Scale", scale, 0.1f))
-        {
-            selectedTransform.SetScale(scale[0], scale[1], scale[2]);
-            selectedActor->SetActorTransform(selectedTransform);
-        }
+			selectedActor->SetActorTransform(selectedTransform);
+		}
+		if (ImGui::DragFloat3("Scale", scale, 0.1f))
+		{
+			selectedTransform.SetScale(scale[0], scale[1], scale[2]);
+			selectedActor->SetActorTransform(selectedTransform);
+		}
 		/*if (FEditorManager::Get().GetGizmoHandle() != nullptr)
 		{
 			AGizmoHandle* Gizmo = FEditorManager::Get().GetGizmoHandle();
-            if(Gizmo->GetGizmoType() == EGizmoType::Translate)
+			if(Gizmo->GetGizmoType() == EGizmoType::Translate)
 			{
 				ImGui::Text("GizmoType: Translate");
 			}
@@ -520,8 +527,8 @@ void UI::RenderPropertyWindow() const
 				}*/
 			}
 		}
-    }
-    ImGui::End();
+	}
+	ImGui::End();
 }
 
 void UI::RenderSceneManager()
@@ -639,7 +646,7 @@ void UI::RenderShowFlagsPanel() const
 void UI::RenderViewModePanel() const
 {
 	if (ImGui::Begin("View Mode"))
-	{													
+	{
 		static const char* viewModeNames[] = { "Default", "Solid", "Wireframe" };
 		int currentViewMode = static_cast<int>(FViewMode::Get().GetViewMode());
 
@@ -661,8 +668,39 @@ void UI::RenderGridSettings() const
 		return;
 	}
 
-	if(ImGui::SliderFloat("Grid Size", &World->GetGridSizePtr(), 100.f, 1000.f, "%.2f"))
+	if (ImGui::SliderFloat("Grid Size", &World->GetGridSizePtr(), 100.f, 1000.f, "%.2f"))
 	{
 		World->OnChangedGridSize();
+	}
+}
+
+void UI::RenderFps() const {
+	if (FStateGroupEnableManager::Get().IsGroupEnabled(FName("FPS"))) {
+		ImGui::Text("FPS: %.3f (%.2f ms)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
+	}
+}
+
+void UI::RenderStatPannel() const
+{
+	// 스탯 창 활성화 시
+	if (FStateGroupEnableManager::Get().IsEnableStat()) {
+		ImVec2 windowSize(400, 150);
+		ImGui::SetNextWindowSize(windowSize);
+		ImGui::SetNextWindowBgAlpha(0.0f);
+		ImGui::Begin("Stat", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+		if (bWasWindowSizeUpdated) {
+			if (bWasWindowSizeUpdated)
+			{
+				auto* Window = ImGui::GetCurrentWindow();
+
+				ImGui::SetWindowPos(ResizeToScreen(Window->Pos));
+				ImGui::SetWindowSize(ResizeToScreen(Window->Size));
+			}
+		}
+		// fps 창 렌더링
+		RenderFps();
+		// 메모리 창 렌더링
+		RenderMemoryUsage();
+		ImGui::End();
 	}
 }

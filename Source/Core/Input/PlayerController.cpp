@@ -57,8 +57,17 @@ void APlayerController::HandleGizmoMovement(float DeltaTime) const
     
 }
 
+//void APlayerController::DrawHUDs()
+//{
+//	canvas.Begin();
+//	for (auto hud : statHUDs) {
+//		hud->SetCanvas(&canvas);
+//		hud->DrawHUD();
+//	}
+//}
+//
 void APlayerController::ProcessPlayerInput(float DeltaTime) const
 {
-    HandleGizmoMovement(DeltaTime);
-    // HandleCameraMovement(DeltaTime);
+	HandleGizmoMovement(DeltaTime);
+	// HandleCameraMovement(DeltaTime);
 }

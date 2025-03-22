@@ -1,4 +1,4 @@
-﻿#include "NameTypes.h"
+#include "NameTypes.h"
 
 #include <atomic>
 #include <cwchar>
