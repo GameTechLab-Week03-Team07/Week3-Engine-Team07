@@ -26,6 +26,8 @@ class AActor;
 #include "Object/World/World.h"
 #include "Static/FEditorManager.h"
 #include "Static/FUUIDBillBoard.h"
+#include "Object/MeshComponent/UStaticMeshComponent.h"
+#include "Object/Actor/StaticMesh.h"
 // #include "FDevice.h"
 // #include "FViewMode.h"
 // #include "Core/Engine.h"
@@ -150,11 +152,10 @@ void UI::RenderControlPanel()
 		ImGui::SetWindowSize(ResizeToScreen(Window->Size));
 	}
 
-	ImGui::Text("Hello, Jungle World!");
-
-
-	RenderPrimitiveSelection();
-	RenderCameraSettings();
+    RenderMemoryUsage();
+    RenderPrimitiveSelection();
+	RenderStaticMeshSelection();
+    RenderCameraSettings();
 	RenderGridSettings();
 
 	ImGui::End();
@@ -252,6 +253,61 @@ void UI::RenderPrimitiveSelection()
 	}
 
 	delete[] SceneNameInput;
+	ImGui::Separator();
+}
+
+void UI::RenderStaticMeshSelection()
+{
+	// 현재 선택된 StaticMesh의 인덱스
+	static int currentMeshIndex = 0;
+
+	// StaticMesh 이름 목록 수집 추후 이름값을 어떻게 표시할 시 생각해 보면 좋을 듯
+	TArray<FString> meshNames;
+	TArray<UStaticMesh*> meshes;
+
+	// TObjectIterator를 사용하여 모든 UStaticMesh 객체 순회
+	for (TObjectIterator<UStaticMesh> It; It; ++It)
+	{
+		UStaticMesh* StaticMesh = *It;
+		if (StaticMesh && StaticMesh->StaticMeshAsset)
+		{
+			meshNames.Add(StaticMesh->StaticMeshAsset->PathFileName);
+			meshes.Add(StaticMesh);
+		}
+	}
+
+	// 문자열 포인터 배열 생성 (ImGui::Combo에 필요)
+	TArray<const char*> meshNamePtrs;
+	for (const auto& name : meshNames)
+	{
+		meshNamePtrs.Add(name.GetData());
+	}
+
+	// 드롭다운 표시
+	if (ImGui::Combo("Static Mesh", &currentMeshIndex, meshNamePtrs.GetData(), meshNamePtrs.Num()))
+	{
+		
+	}
+
+	// 스폰 버튼
+	if (ImGui::Button("Spawn Static Mesh"))
+	{
+		UWorld* World = UEngine::Get().GetWorld();
+		if (World && currentMeshIndex < meshes.Num())
+		{
+			// AStaticMesh 액터 생성
+			AStaticMesh* StaticMeshActor = World->SpawnActor<AStaticMesh>();
+
+			// UStaticMeshComponent 가져오기
+			UStaticMeshComponent* MeshComp = StaticMeshActor->GetComponentByClass<UStaticMeshComponent>();
+			if (MeshComp)
+			{
+				// 선택한 StaticMesh 설정
+				MeshComp->SetStaticMesh(meshes[currentMeshIndex]);
+			}
+		}
+	}
+
 	ImGui::Separator();
 }
 

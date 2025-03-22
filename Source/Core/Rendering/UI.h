@@ -23,10 +23,11 @@ public:
 public:// UIWindows
 	void RenderControlPanel();
 	void RenderMemoryUsage() const;
-	void RenderPrimitiveSelection();
-	void RenderCameraSettings() const;
-	void RenderPropertyWindow() const;
-	void RenderSceneManager();
+    void RenderPrimitiveSelection();
+	void RenderStaticMeshSelection();
+    void RenderCameraSettings() const;
+    void RenderPropertyWindow() const;
+    void RenderSceneManager();
 	void RenderShowFlagsPanel() const;
 	void RenderViewModePanel() const;
 	void RenderGridSettings() const;

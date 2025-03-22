@@ -363,13 +363,22 @@
     <ClCompile Include="Source\Object\Actor\WorldGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Rendering\FStateGroupEnableManager.cpp">
+    <ClCompile Include="Source\Resource\StaticMesh\FObjImporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Rendering\HUD.cpp">
+    <ClCompile Include="Source\Resource\StaticMesh\FStaticMeshManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Rendering\FCanvas.cpp">
+    <ClCompile Include="Source\Resource\StaticMesh\UStaticMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\MeshComponent\UMeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\MeshComponent\UStaticMeshComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Object\Actor\StaticMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -382,6 +391,8 @@
     <FxCompile Include="Shaders\ShaderLine_PS.hlsl" />
     <FxCompile Include="Shaders\ShaderLine_VS.hlsl" />
     <FxCompile Include="Shaders\SubUV_PS.hlsl" />
+    <FxCompile Include="Shaders\StaticMesh_PS.hlsl" />
+    <FxCompile Include="Shaders\StaticMesh_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Container\Array.h">
@@ -798,13 +809,28 @@
     <ClInclude Include="Source\Object\Actor\WorldGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h">
-      <Filter>Header Files\Core\Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Rendering\HUD.h">
+    <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Core\Rendering\FCanvas.h">
+    <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\StaticMesh\StaticMeshTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Resource\StaticMesh\UStaticMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\UObject\TObjectIterator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\MeshComponent\UMeshComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\MeshComponent\UStaticMeshComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Object\Actor\StaticMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -813,6 +839,7 @@
     <None Include=".editorconfig" />
     <None Include="imgui.ini" />
     <None Include="README.md" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.mtl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="font_atlas.png">
@@ -822,6 +849,9 @@
     <Image Include="Pretendard_Kor.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Contents\StaticMesh\Skull.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="font_atlas.txt" />
@@ -829,5 +859,10 @@
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="JungleEngine.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Contents\StaticMesh\cube.obj" />
+    <Object Include="Contents\StaticMesh\FinalBaseMesh.obj" />
+    <Object Include="Contents\StaticMesh\12140_Skull_v3.obj" />
   </ItemGroup>
 </Project>
