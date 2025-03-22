@@ -18,6 +18,9 @@ Intermediate/
 *.o
 *.obj
 
+# Exclude OBJ Asset
+!Contents/StaticMesh/*.obj
+
 # Precompiled Headers
 *.gch
 *.pch
