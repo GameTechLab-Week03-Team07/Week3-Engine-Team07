@@ -76,10 +76,12 @@ void UStaticMeshComponent::InitializeRenderResources()
 		return;
 	}
 	// 정적메시 정보로 버퍼 생성
-	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
-	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
+	for (auto section : StaticMesh->StaticMeshAsset->sections)
+	{
+		FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), section.vertices);
+		FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), section.Indices);
+	}
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
-	FString textureName = StaticMesh->StaticMeshAsset->Materials["12140_Skull_v3"].PathFileName;
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
 	
@@ -110,7 +112,7 @@ void UStaticMeshComponent::InitializeRenderResources()
 
 FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToWorld) const
 {
-	if (!StaticMesh || !StaticMesh->StaticMeshAsset || StaticMesh->StaticMeshAsset->Vertices.Num() == 0)
+	//if (!StaticMesh || !StaticMesh->StaticMeshAsset || StaticMesh->StaticMeshAsset->Vertices.Num() == 0)
 	{
 		//return Super::CalcMeshBounds(LocalToWorld);
 	}
@@ -119,15 +121,18 @@ FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToW
 	FVector Min(FLT_MAX, FLT_MAX, FLT_MAX);
 	FVector Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	for (const FVertexSimple& Vertex : StaticMesh->StaticMeshAsset->Vertices)
+	for (auto section : StaticMesh->StaticMeshAsset->sections)
 	{
-		Min.X = FMath::Min(Min.X, Vertex.X);
-		Min.Y = FMath::Min(Min.Y, Vertex.Y);
-		Min.Z = FMath::Min(Min.Z, Vertex.Z);
+		for (auto vertex : section.vertices)
+		{
+			Min.X = FMath::Min(Min.X, vertex.X);
+			Min.Y = FMath::Min(Min.Y, vertex.Y);
+			Min.Z = FMath::Min(Min.Z, vertex.Z);
 
-		Max.X = FMath::Max(Max.X, Vertex.X);
-		Max.Y = FMath::Max(Max.Y, Vertex.Y);
-		Max.Z = FMath::Max(Max.Z, Vertex.Z);
+			Max.X = FMath::Max(Max.X, vertex.X);
+			Max.Y = FMath::Max(Max.Y, vertex.Y);
+			Max.Z = FMath::Max(Max.Z, vertex.Z);
+		}
 	}
 
 	FBox BoundingBox(Min, Max);

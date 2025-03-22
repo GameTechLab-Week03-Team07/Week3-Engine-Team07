@@ -41,6 +41,12 @@ struct FObjInfo {
 	TMap<std::string, FObjMaterialInfo> Materials;
 };
 
+struct FMeshSection {
+	TArray<FVertexSimple> vertices;
+	TArray<uint32> Indices;
+	std::string MaterialSlotName;
+};
+
 // 최종 정적 메시 구조체
 struct FStaticMesh {
 	std::string PathFileName;
@@ -48,10 +54,4 @@ struct FStaticMesh {
 	//TArray<uint32> Indices;
 	TArray<FMeshSection> sections;
 	TMap<std::string, FObjMaterialInfo> Materials;
-};
-
-struct FMeshSection {
-	TArray<FVertexSimple> vertices;
-	TArray<uint32> Indices;
-	std::string MaterialSlotName;
 };

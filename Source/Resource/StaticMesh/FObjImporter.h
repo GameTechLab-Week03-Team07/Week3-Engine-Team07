@@ -254,7 +254,7 @@ public:
 					FVertexSimple vertex;
 
 					// 정점 위치 설정
-					if (face.VertexIndices[i] >= 0 && face.VertexIndices[i][i] < ObjInfo.Vertices.Num()) {
+					if (face.VertexIndices[i] >= 0 && face.VertexIndices[i] < ObjInfo.Vertices.Num()) {
 
 						vertex.X = ObjInfo.Vertices[section.Indices[i]].X;
 						vertex.Y = ObjInfo.Vertices[section.Indices[i]].Y;
