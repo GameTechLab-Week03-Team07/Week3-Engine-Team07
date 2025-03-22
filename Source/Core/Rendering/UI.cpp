@@ -626,6 +626,7 @@ void UI::RenderFps() const {
 
 void UI::RenderStatPannel() const
 {
+	// 스탯 창 활성화 시
 	if (FStateGroupEnableManager::Get().IsEnableStat()) {
 		ImGui::SetNextWindowBgAlpha(0.0f);
 		ImGui::Begin("Stat", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
@@ -638,8 +639,9 @@ void UI::RenderStatPannel() const
 				ImGui::SetWindowSize(ResizeToScreen(Window->Size));
 			}
 		}
-
+		// fps 창 렌더링
 		RenderFps();
+		// 메모리 창 렌더링
 		RenderMemoryUsage();
 		ImGui::End();
 	}

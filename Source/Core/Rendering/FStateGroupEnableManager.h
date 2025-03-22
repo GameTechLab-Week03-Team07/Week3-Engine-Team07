@@ -14,6 +14,8 @@ public:
 	bool IsEnableStat();
 
 private:
+	// 스탯 활성화 상태
 	bool enableState = false;
+	// 스탯 그룹 활성화 상태
 	TMap < FName, bool> GroupStateMap;
 };

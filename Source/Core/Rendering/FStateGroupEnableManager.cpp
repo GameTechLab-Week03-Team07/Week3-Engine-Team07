@@ -16,7 +16,7 @@ bool FStateGroupEnableManager::IsGroupEnabled(FName GroupName)
 	}
 }
 
-// 그룹 활성화
+// 해당 그룹 활성화
 void FStateGroupEnableManager::EnableGroup(FName GroupName)
 {
 	GroupStateMap[GroupName] = true;
@@ -29,16 +29,19 @@ void FStateGroupEnableManager::DisableGroup(FName GroupName)
 	
 }
 
+// 그룹 초기화
 void FStateGroupEnableManager::Initialize() {
 	GroupStateMap["FPS"] = false;
 	GroupStateMap["Memory"] = false;
 }
 
+// 스탯 창 활성화
 void FStateGroupEnableManager::EnableStat()
 {
 	enableState = true;
 }
 
+// 스탯 창 비활성화
 void FStateGroupEnableManager::DisableStat() {
 	enableState = false;
 	for (auto group : GroupStateMap) {
@@ -46,6 +49,7 @@ void FStateGroupEnableManager::DisableStat() {
 	}
 }
 
+// 스탯 창 활성화 여부
 bool FStateGroupEnableManager::IsEnableStat()
 {
 	return enableState;
