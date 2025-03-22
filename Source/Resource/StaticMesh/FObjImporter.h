@@ -44,79 +44,74 @@ public:
 		std::string currentMaterial;
 		std::string mtlLibPath;
 
+		// 로컬 저장소
+		TArray<FVector> tempVertices;
+		TArray<FVector> tempUVs;
+		TArray<FVector> tempNormals;
+
 		while (std::getline(file, line)) {
-			// 주석 제거
 			size_t commentPos = line.find('#');
 			if (commentPos != std::string::npos) {
 				line = line.substr(0, commentPos);
 			}
 
-			// 공백 제거
 			line = Trim(line);
 			if (line.empty()) continue;
 
 			std::istringstream iss(line);
 			std::string prefix;
 			iss >> prefix;
-			// OBJ semantics https://en.wikipedia.org/wiki/Wavefront_.obj_file
+
 			if (prefix == "v") {
-				// 정점 위치
 				FVector vertex;
 				iss >> vertex.X >> vertex.Y >> vertex.Z;
-				OutObjInfo.Vertices.Add(vertex);
+				tempVertices.Add(vertex);
 			}
 			else if (prefix == "vt") {
-				// 텍스처 좌표
 				FVector uv;
 				iss >> uv.X >> uv.Y;
-				// OBJ는 V 좌표가 아래에서 위로 증가하므로 Y 좌표를 뒤집음
 				uv.Y = 1.0f - uv.Y;
-				OutObjInfo.UVs.Add(uv);
+				tempUVs.Add(uv);
 			}
 			else if (prefix == "vn") {
-				// 법선 벡터
 				FVector normal;
 				iss >> normal.X >> normal.Y >> normal.Z;
-				OutObjInfo.Normals.Add(normal);
+				tempNormals.Add(normal);
 			}
 			else if (prefix == "f") {
-				// 면 정의
 				std::vector<std::string> vertexDataList;
 				std::string vertexData;
 
-				// 면의 모든 정점 데이터 수집
 				while (iss >> vertexData) {
 					vertexDataList.push_back(vertexData);
 				}
 
-				// 삼각형화 - 3개 이상의 정점이 있는 경우 처리
 				if (vertexDataList.size() >= 3) {
-					// 팬(fan) 삼각형화 방식 사용
 					for (size_t i = 0; i < vertexDataList.size() - 2; ++i) {
+						std::string materialName = currentMaterial.empty() ? "__default" : currentMaterial;
+
+						// 섹션 찾기 또는 새로 만들기
+						if (!OutObjInfo.Sections.Contains(materialName)) {
+							OutObjInfo.Sections[materialName] = TArray<FFace>();
+						}
+
 						FFace face;
-						face.MaterialName = currentMaterial;
+						face.MaterialName = materialName;
 
-						// 첫 번째 정점은 항상 중심점
 						ParseVertexData(vertexDataList[0], face, 0);
-
-						// 나머지 두 정점으로 삼각형 형성
 						ParseVertexData(vertexDataList[i + 1], face, 1);
 						ParseVertexData(vertexDataList[i + 2], face, 2);
 
-						OutObjInfo.Faces.Add(face);
+						OutObjInfo.Sections[materialName].Add(face);
 					}
 				}
 			}
-			// 머티리얼 파일이 존재하는 경우 처리
 			else if (prefix == "mtllib") {
-				// 재질 라이브러리 파일
 				iss >> mtlLibPath;
-				// 경로 조합 현재 Contents/StaticMesh 하위로 모두 집어넣음
 				std::string directory = GetDirectoryPath(FilePath);
 				ParseMtlFile(directory + "/" + mtlLibPath, OutObjInfo);
 			}
 			else if (prefix == "usemtl") {
-				// 현재 사용 중인 재질
 				iss >> currentMaterial;
 			}
 		}
@@ -227,73 +222,96 @@ public:
 
 	// OBJ Raw 데이터를 엔진에서 사용할 수 있는 데이터로 변환
 	bool ConvertToStaticMesh(const FObjInfo& ObjInfo, FStaticMesh& OutMesh) {
-		OutMesh.Vertices.Reserve(ObjInfo.Faces.Len() * 3);
-		OutMesh.Indices.Reserve(ObjInfo.Faces.Len() * 3);
+		std::unordered_map<std::string, int> materialToSectionIndex;
+		// 섹션별 정점 캐시
+		std::unordered_map<std::string, std::unordered_map<std::string, uint32>> vertexCaches;
 
-		std::unordered_map<std::string, int> vertexCache;
-		int nextIndex = 0;
+		for (const auto& section : ObjInfo.Sections) {
+			std::string materialName = section.Key;
+			const TArray <FFace> &faceList = section.Value;
 
-		for (const auto& face : ObjInfo.Faces) {
-			for (int i = 0; i < 3; i++) {
-				FVertexSimple vertex;
+			if (materialName.empty()) {
+				materialName = "__default";
+			}
+			// 섹션 생성 or 획득
+			int sectionIndex;
+			if (materialToSectionIndex.find(materialName) == materialToSectionIndex.end()) {
+				sectionIndex = static_cast<int>(OutMesh.sections.Num());
+				FMeshSection section;
+				section.MaterialSlotName = materialName;
+				OutMesh.sections.Add(section);
+				materialToSectionIndex[materialName] = sectionIndex;
+			}
+			else {
+				sectionIndex = materialToSectionIndex[materialName];
+			}
 
-				// 정점 위치 설정
-				if (face.VertexIndices[i] >= 0 && face.VertexIndices[i] < ObjInfo.Vertices.Num()) {
-					vertex.X = ObjInfo.Vertices[face.VertexIndices[i]].X;
-					vertex.Y = ObjInfo.Vertices[face.VertexIndices[i]].Y;
-					vertex.Z = ObjInfo.Vertices[face.VertexIndices[i]].Z;
-				}
-				// UV 좌표 설정
-				if (face.UVIndices[i] >= 0 && face.UVIndices[i] < ObjInfo.UVs.Num()) {
-					vertex.U = ObjInfo.UVs[face.UVIndices[i]].X;
-					vertex.V = ObjInfo.UVs[face.UVIndices[i]].Y;
-				}
-				else {
-					// UV 좌표가 없는 경우 기본값 설정
-					vertex.U = 0.0f;
-					vertex.V = 0.0f;
-				}
-				// 법선 벡터 설정
-				if (face.NormalIndices[i] >= 0 && face.NormalIndices[i] < ObjInfo.Normals.Num()) {
-					vertex.NX = ObjInfo.Normals[face.NormalIndices[i]].X;
-					vertex.NY = ObjInfo.Normals[face.NormalIndices[i]].Y;
-					vertex.NZ = ObjInfo.Normals[face.NormalIndices[i]].Z;
-				}
-				else {
-					// 법선이 없는 경우 기본값 설정 (위쪽 방향)
-					vertex.NX = 0.0f;
-					vertex.NY = 1.0f;
-					vertex.NZ = 0.0f;
-				}
-				// 재질에 따른 색상 설정
-				if (!face.MaterialName.empty() && ObjInfo.Materials.Contains(face.MaterialName)) {
-					const FObjMaterialInfo& material = ObjInfo.Materials[face.MaterialName];
-					vertex.R = material.DiffuseColor.X;
-					vertex.G = material.DiffuseColor.Y;
-					vertex.B = material.DiffuseColor.Z;
-					vertex.A = material.Opacity;
-				}
-				else {
-					// 색상 정보가 없는 경우 기본 색상 설정
-					FVector color = GetColorFromPalette(OutMesh.Vertices.Num() / 3);
-					vertex.R = color.X;
-					vertex.G = color.Y;
-					vertex.B = color.Z;
-					vertex.A = 1.0f;
-				}
+			FMeshSection& section = OutMesh.sections[sectionIndex];
+			auto& vertexCache = vertexCaches[materialName];
 
-				// 정점 중복 제거를 위한 키 생성
-				std::string vertexKey = CreateVertexKey(vertex);
+			for (const FFace& face : faceList) {
+				for (int i = 0; i < 3; i++) {
+					FVertexSimple vertex;
 
-				// 이미 처리된 정점인지 확인
-				if (vertexCache.find(vertexKey) != vertexCache.end()) {
-					OutMesh.Indices.Add(vertexCache[vertexKey]);
-				}
-				else {
-					OutMesh.Vertices.Add(vertex);
-					OutMesh.Indices.Add(nextIndex);
-					vertexCache[vertexKey] = nextIndex;
-					nextIndex++;
+					// 정점 위치 설정
+					if (face.VertexIndices[i] >= 0 && face.VertexIndices[i][i] < ObjInfo.Vertices.Num()) {
+
+						vertex.X = ObjInfo.Vertices[section.Indices[i]].X;
+						vertex.Y = ObjInfo.Vertices[section.Indices[i]].Y;
+						vertex.Z = ObjInfo.Vertices[section.Indices[i]].Z;
+					}
+					// UV 좌표 설정
+					if (face.UVIndices[i] >= 0 && face.UVIndices[i] < ObjInfo.UVs.Num()) {
+						vertex.U = ObjInfo.UVs[face.UVIndices[i]].X;
+						vertex.V = ObjInfo.UVs[face.UVIndices[i]].Y;
+					}
+					else {
+						// UV 좌표가 없는 경우 기본값 설정
+						vertex.U = 0.0f;
+						vertex.V = 0.0f;
+					}
+					// 법선 벡터 설정
+					if (face.NormalIndices[i] >= 0 && face.NormalIndices[i] < ObjInfo.Normals.Num()) {
+						vertex.NX = ObjInfo.Normals[face.NormalIndices[i]].X;
+						vertex.NY = ObjInfo.Normals[face.NormalIndices[i]].Y;
+						vertex.NZ = ObjInfo.Normals[face.NormalIndices[i]].Z;
+					}
+					else {
+						// 법선이 없는 경우 기본값 설정 (위쪽 방향)
+						vertex.NX = 0.0f;
+						vertex.NY = 1.0f;
+						vertex.NZ = 0.0f;
+					}
+					// 재질에 따른 색상 설정
+					if (!face.MaterialName.empty() && ObjInfo.Materials.Contains(face.MaterialName)) {
+						const FObjMaterialInfo& material = ObjInfo.Materials[face.MaterialName];
+						vertex.R = material.DiffuseColor.X;
+						vertex.G = material.DiffuseColor.Y;
+						vertex.B = material.DiffuseColor.Z;
+						vertex.A = material.Opacity;
+					}
+					else {
+						// 색상 정보가 없는 경우 기본 색상 설정
+						FVector color = GetColorFromPalette(section.vertices.Num() / 3);
+						vertex.R = color.X;
+						vertex.G = color.Y;
+						vertex.B = color.Z;
+						vertex.A = 1.0f;
+					}
+
+					// 정점 중복 제거를 위한 키 생성
+					std::string vertexKey = CreateVertexKey(vertex);
+
+					// 이미 처리된 정점인지 확인
+					if (vertexCache.find(vertexKey) != vertexCache.end()) {
+						section.Indices.Add(vertexCache[vertexKey]);
+					}
+					else {
+						section.vertices.Add(vertex);
+						uint32 newIndex = static_cast<uint32>(section.vertices.Num() - 1);
+						section.Indices.Add(newIndex);
+						vertexCache[vertexKey] = newIndex;
+					}
 				}
 			}
 		}
