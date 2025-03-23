@@ -227,13 +227,33 @@ public:
 
 	// OBJ Raw 데이터를 엔진에서 사용할 수 있는 데이터로 변환
 	bool ConvertToStaticMesh(const FObjInfo& ObjInfo, FStaticMesh& OutMesh) {
+		// 정점과 인덱스 버퍼의 용량 예약
 		OutMesh.Vertices.Reserve(ObjInfo.Faces.Len() * 3);
 		OutMesh.Indices.Reserve(ObjInfo.Faces.Len() * 3);
+		OutMesh.Sections.Empty(); // 서브메시 섹션 초기화
 
 		std::unordered_map<std::string, int> vertexCache;
 		int nextIndex = 0;
 
+		std::string currentMaterial = "";
+		int sectionStart = 0;
+		bool firstFace = true;
+
+		// 각 face(삼각형) 단위로 처리
 		for (const auto& face : ObjInfo.Faces) {
+			// material이 바뀌었으면, 이전 섹션을 확정하고 새로운 섹션을 시작
+			if (firstFace || face.MaterialName != currentMaterial) {
+				if (!firstFace) {
+					int sectionIndexCount = OutMesh.Indices.Num() - sectionStart;
+					FSubMeshSection section(sectionStart, sectionIndexCount, currentMaterial);
+					OutMesh.Sections.Add(section);
+				}
+				currentMaterial = face.MaterialName;
+				sectionStart = OutMesh.Indices.Num();
+				firstFace = false;
+			}
+
+			// face는 삼각형이므로 3개의 정점을 처리
 			for (int i = 0; i < 3; i++) {
 				FVertexSimple vertex;
 
@@ -243,13 +263,12 @@ public:
 					vertex.Y = ObjInfo.Vertices[face.VertexIndices[i]].Y;
 					vertex.Z = ObjInfo.Vertices[face.VertexIndices[i]].Z;
 				}
-				// UV 좌표 설정
+				// 텍스처 좌표 설정
 				if (face.UVIndices[i] >= 0 && face.UVIndices[i] < ObjInfo.UVs.Num()) {
 					vertex.U = ObjInfo.UVs[face.UVIndices[i]].X;
 					vertex.V = ObjInfo.UVs[face.UVIndices[i]].Y;
 				}
 				else {
-					// UV 좌표가 없는 경우 기본값 설정
 					vertex.U = 0.0f;
 					vertex.V = 0.0f;
 				}
@@ -260,7 +279,6 @@ public:
 					vertex.NZ = ObjInfo.Normals[face.NormalIndices[i]].Z;
 				}
 				else {
-					// 법선이 없는 경우 기본값 설정 (위쪽 방향)
 					vertex.NX = 0.0f;
 					vertex.NY = 1.0f;
 					vertex.NZ = 0.0f;
@@ -274,7 +292,7 @@ public:
 					vertex.A = material.Opacity;
 				}
 				else {
-					// 색상 정보가 없는 경우 기본 색상 설정
+					// 머티리얼 정보가 없으면 기본 팔레트 색상 사용
 					FVector color = GetColorFromPalette(OutMesh.Vertices.Num() / 3);
 					vertex.R = color.X;
 					vertex.G = color.Y;
@@ -282,10 +300,10 @@ public:
 					vertex.A = 1.0f;
 				}
 
-				// 정점 중복 제거를 위한 키 생성
+				// 정점 중복 제거를 위한 고유 키 생성
 				std::string vertexKey = CreateVertexKey(vertex);
 
-				// 이미 처리된 정점인지 확인
+				// 이미 처리된 정점이면 기존 인덱스를 사용, 아니면 새 정점을 추가
 				if (vertexCache.find(vertexKey) != vertexCache.end()) {
 					OutMesh.Indices.Add(vertexCache[vertexKey]);
 				}
@@ -298,7 +316,14 @@ public:
 			}
 		}
 
-		// 재질 복사
+		// 마지막 섹션 마무리
+		if (!firstFace) {
+			int sectionIndexCount = OutMesh.Indices.Num() - sectionStart;
+			FSubMeshSection section(sectionStart, sectionIndexCount, currentMaterial);
+			OutMesh.Sections.Add(section);
+		}
+
+		// 재질 정보 복사
 		OutMesh.Materials = ObjInfo.Materials;
 
 		return true;

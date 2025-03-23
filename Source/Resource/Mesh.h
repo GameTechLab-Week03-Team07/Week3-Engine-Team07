@@ -10,6 +10,7 @@
 #include "Resource/DirectResource/Vertexbuffer.h"
 #include "Resource/DirectResource/IndexBuffer.h"
 #include "Debug/DebugConsole.h"
+#include "StaticMesh/StaticMeshTypes.h"
 
 class FMesh : public FResource<FMesh>
 {
@@ -66,6 +67,13 @@ public:
 
 	void Setting();
 	void Draw();
+	void Draw(const TArray<FSubMeshSection>& Sections);
+
+	void SetMaterials(const TMap<std::string, FObjMaterialInfo>& InMaterials) { Materials = InMaterials; }
+	const TMap<std::string, FObjMaterialInfo>& GetMaterials() const { return Materials; }
+
+	void SetSections(const TArray<FSubMeshSection>& InSections) { Sections = InSections; }
+	const TArray<FSubMeshSection>& GetSections() const { return Sections; }
 
 	std::shared_ptr<FVertexBuffer> GetVertexBuffer()
 	{
@@ -81,4 +89,7 @@ private:
 	std::shared_ptr<FVertexBuffer> VertexBuffer = nullptr;
 	std::shared_ptr<FIndexBuffer> IndexBuffer = nullptr;
 	D3D_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	TArray<FSubMeshSection> Sections;
+	TMap<std::string, FObjMaterialInfo> Materials;
 };

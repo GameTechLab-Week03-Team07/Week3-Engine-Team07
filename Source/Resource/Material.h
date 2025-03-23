@@ -43,6 +43,12 @@ public:
 		return PixelShaderPtr;
 	}
 
+	void SetDiffuseColor(const FVector& InColor) { DiffuseColor = InColor; }
+	const FVector& GetDiffuseColor() const { return DiffuseColor; }
+
+	void SetDiffuseTexture(const FString& InTextureName) { DiffuseTextureName = InTextureName; }
+	const FString& GetDiffuseTexture() const { return DiffuseTextureName; }
+
 	void Setting();
 	
 private:
@@ -52,6 +58,8 @@ private:
 	std::shared_ptr<FBlendState> BlendStatePtr = nullptr;
 	std::shared_ptr<FDepthStencilState> DepthStencilPtr = nullptr;
 
+	FVector DiffuseColor = FVector(1.0f, 1.0f, 1.0f);
+	FString DiffuseTextureName;
 };
 
 

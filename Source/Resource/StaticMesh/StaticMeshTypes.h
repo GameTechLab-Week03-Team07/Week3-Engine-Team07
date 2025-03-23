@@ -40,10 +40,18 @@ struct FObjInfo {
 	TMap<std::string, FObjMaterialInfo> Materials;
 };
 
+// 서브메시 정보를 담는 구조체
+struct FSubMeshSection {
+	uint32 indexStart;
+	uint32 indexCount;
+	std::string SlotName;
+};
+
 // 최종 정적 메시 구조체
 struct FStaticMesh {
 	std::string PathFileName;
 	TArray<FVertexSimple> Vertices;
 	TArray<uint32> Indices;
 	TMap<std::string, FObjMaterialInfo> Materials;
+	TArray<FSubMeshSection> Sections;
 };

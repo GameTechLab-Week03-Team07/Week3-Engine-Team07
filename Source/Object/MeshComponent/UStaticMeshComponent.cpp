@@ -79,10 +79,21 @@ void UStaticMeshComponent::InitializeRenderResources()
 	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
 	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
-	FString textureName = StaticMesh->StaticMeshAsset->Materials["12140_Skull_v3"].PathFileName;
+	// 만약 StaticMeshAsset에 Sections 배열이 있다면 FMesh에 전달
+	if (StaticMesh->StaticMeshAsset->Sections.Num()!=0)
+	{
+		mesh->SetSections(StaticMesh->StaticMeshAsset->Sections);
+	}
+	if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
+	{
+		mesh->SetMaterials(StaticMesh->StaticMeshAsset->Materials);
+	}
+
+	// 이후 렌더 리소스에 메시 설정
 	GetRenderResourceCollection().SetMesh(mesh);
-	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
-	
+	//GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
+
+
 	if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
 	{
 		// 첫 번째 머티리얼 사용 (또는 다른 선택 로직 구현)
@@ -102,7 +113,7 @@ void UStaticMeshComponent::InitializeRenderResources()
 				GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
 
 				// 첫 번째 유효한 텍스처만 사용하려면 여기서 break
-				break;
+				//break;
 			}
 		}
 	}
