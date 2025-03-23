@@ -2,8 +2,10 @@
 #define _TCHAR_DEFINED  // TCHAR 재정의 에러 때문
 #include <d3d11.h>
 #include "Core/AbstractClass/Singleton.h"
+#include "Core/Math/Vector.h"
 
 //디바이스 스왑 체인 관리, 뷰포트도 일단 가지고 있음
+class FViewport;
 
 class FDevice : public TSingleton<FDevice>
 {
@@ -50,6 +52,10 @@ public:
 	void PickingPrepare() const;
 
 	void SetViewport(int index, float TopLeftX, float TopLeftY, float Width, float Height);
+
+	void UpdateViewport(FViewport* Viewport);
+
+	FVector GetWindowPosFromNDC(FVector NDCPos, float Width, float Height);
 	
 	/** 스왑 체인의 백 버퍼와 프론트 버퍼를 교체하여 화면에 출력 */
 	void SwapBuffer() const;

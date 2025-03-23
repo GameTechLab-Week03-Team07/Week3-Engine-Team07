@@ -7,7 +7,7 @@ struct FRect
 	float Left, Top, Right, Bottom;
 
 	float GetWidth() const { return Right - Left; }
-	float GetHeight() const { return Bottom - Top; }
+	float GetHeight() const { return Top - Bottom; }
 };
 
 class SWindow : public UObject
@@ -29,16 +29,6 @@ public:
 		Rect.Bottom = Bottom;
 	};
 
-	SWindow(const SWindow& Other) = default; // 복사 생성자 추가
-	SWindow& operator=(const SWindow& Other) // 복사 할당 연산자 추가
-	{
-		if (this != &Other)
-		{
-			Rect = Other.Rect;
-		}
-		return *this;
-	}
-
 	~SWindow() = default;
 };
 
@@ -53,11 +43,29 @@ public:
 class SSplitterH : public SSplitter
 {
 public:
+	SSplitterH() = default;
+	SSplitterH(float Left, float Top, float Right, float Bottom)
+		: SSplitter()
+	{
+		Rect.Left = Left;
+		Rect.Top = Top;
+		Rect.Right = Right;
+		Rect.Bottom = Bottom;
+	}
 	float Pos = 0.0f;
 };
 
 class SSplitterV : public SSplitter
 {
 public:
+	SSplitterV() = default;
+	SSplitterV(float Left, float Top, float Right, float Bottom)
+		: SSplitter()
+	{
+		Rect.Left = Left;
+		Rect.Top = Top;
+		Rect.Right = Right;
+		Rect.Bottom = Bottom;
+	}
 	float Pos = 0.0f;
 };

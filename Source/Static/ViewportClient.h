@@ -17,6 +17,8 @@ public:
 	void SetMesh(const FString& InName) { RenderResourceCollection.SetMesh(InName); }
 	void SetMaterial(const FString& InName) { RenderResourceCollection.SetMaterial(InName); }
 	FConstantsComponentData& GetConstantsComponentData() { return ConstantsComponentData; }
+	void Drag();
+	FViewport* GetViewport() { return Viewport; }
 
 private:
 	TArray<FVertexSimple> VertexBuffer;

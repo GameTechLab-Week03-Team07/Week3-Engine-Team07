@@ -141,11 +141,11 @@ void UEngine::Run()
 		if (World)
 		{
 			FDevice::Get().Clear();
+
 			FDevice::Get().SetRenderTarget(0);
-			World->Tick(EngineDeltaTime);
+			FViewportClient::Get().Drag();
 			FViewportClient::Get().Render();
-			FEditorManager::Get().LateTick(EngineDeltaTime);
-			World->LateTick(EngineDeltaTime);
+
 			for (int i = 1; i <= 4; i++)
 			{
 				FDevice::Get().SetRenderTarget(i);

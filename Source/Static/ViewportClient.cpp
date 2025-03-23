@@ -5,6 +5,8 @@
 #include "Core/Engine.h"
 #include "Object/Actor/Camera.h"
 #include "Object/World/World.h"
+#include "Core/Input/PlayerInput.h"
+#include "Core/Rendering/FDevice.h"
 
 void FViewportClient::Create()
 {	
@@ -21,8 +23,8 @@ void FViewportClient::Render()
 
 	FMatrix ModelMatrix = FMatrix::Identity();
 	ModelMatrix.M[0][0] = 2.0f;
-	ModelMatrix.M[1][1] = 0.002f;
-	ModelMatrix.M[3][1] = -Viewport->SplitterH->Pos;
+	ModelMatrix.M[1][1] = 0.001f;
+	ModelMatrix.M[3][1] = Viewport->SplitterH->Pos / 2;
 
 	const FMatrix& ProjectionMatrix = FMatrix::OrthoForLH(1, 1, Camera->GetNear(), Camera->GetFar());
 
@@ -41,7 +43,7 @@ void FViewportClient::Render()
 
 	ModelMatrix.M[0][0] = 0.001f;
 	ModelMatrix.M[1][1] = 2.0f;
-	ModelMatrix.M[3][0] = Viewport->SplitterV->Pos;
+	ModelMatrix.M[3][0] = Viewport->SplitterV->Pos / 2;
 
 	MVP = FMatrix::Transpose(
 		ModelMatrix *
@@ -53,3 +55,24 @@ void FViewportClient::Render()
 	RenderResourceCollection.Render();
 }
 
+void FViewportClient::Drag() {
+	if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton) == true)
+	{
+		FVector MouseNDCPos = APlayerInput::Get().GetMouseNDCPos();
+		// SplitterH
+
+		Viewport->SplitterH->Pos = APlayerInput::Get().GetMouseNDCPos().Y;
+		Viewport->SplitterH->SideLT->Rect.Bottom = APlayerInput::Get().GetMouseNDCPos().Y;
+		Viewport->SplitterH->SideRB->Rect.Top = APlayerInput::Get().GetMouseNDCPos().Y;
+
+		// SplitterV
+		Viewport->SplitterV->Pos = APlayerInput::Get().GetMouseNDCPos().X;
+		Viewport->SplitterV->SideLT->Rect.Right = APlayerInput::Get().GetMouseNDCPos().X;
+		Viewport->SplitterV->SideRB->Rect.Left = APlayerInput::Get().GetMouseNDCPos().X;
+
+		float WindowWidth = UEngine::Get().GetScreenWidth();
+		float WindowHeight = UEngine::Get().GetScreenHeight();
+
+		FDevice::Get().UpdateViewport(Viewport);
+	}
+}
