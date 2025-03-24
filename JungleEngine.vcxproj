@@ -322,6 +322,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h" />
     <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
+    <ClInclude Include="Source\Resource\FMatIndexConstantsComponentData.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h" />
     <ClInclude Include="Source\Core\Delegates\Delegate.h" />

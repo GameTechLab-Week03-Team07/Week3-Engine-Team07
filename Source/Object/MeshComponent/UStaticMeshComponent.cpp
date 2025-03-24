@@ -79,6 +79,14 @@ void UStaticMeshComponent::InitializeRenderResources()
 	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
 	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
+	if (StaticMesh->StaticMeshAsset->Sections.Num() != 0)
+	{
+		mesh->SetSections(StaticMesh->StaticMeshAsset->Sections);
+	}
+	/*if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
+	{
+		mesh->SetMaterials(StaticMesh->StaticMeshAsset->Materials);
+	}*/
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
 
@@ -89,6 +97,7 @@ void UStaticMeshComponent::InitializeRenderResources()
 		GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
 		GetRenderResourceCollection().SetTextureBinding(texArrayName, 2, false, true);
 	}
+	GetRenderResourceCollection().SetConstantBufferBinding("MatIndexConstantBuffer", &GetRenderResourceCollection().MatIndexData, sizeof(FMatIndexConstantsComponentData), 3, true, true );
 }
 
 FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToWorld) const

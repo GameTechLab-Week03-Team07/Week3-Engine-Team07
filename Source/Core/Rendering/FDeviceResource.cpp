@@ -23,7 +23,7 @@ void FDevice::InitResource()
 	//FStaticMeshManager::Get().LoadObjStaticMesh("cube.obj");
 	//FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
 	//FStaticMeshManager::Get().LoadObjStaticMesh("12140_Skull_v3.obj");
-
+	FStaticMeshManager::Get().LoadObjStaticMesh("dice.obj");
 	FStaticMeshManager::Get().LoadObjStaticMesh("cube2.obj");
 
 	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/ShaderW0.hlsl","Simple_VS","mainVS");
@@ -42,6 +42,7 @@ void FDevice::InitResource()
 	FPixelShader::Load(L"Shaders/Font_PS.hlsl", "Font_PS", "Font_PS");
 	FPixelShader::Load(L"Shaders/SubUV_PS.hlsl", "SubUV_PS", "SubUV_PS");
 	FConstantBuffer::Create("DefaultConstantBuffer", sizeof(FConstantsComponentData));
+	FConstantBuffer::Create("MatIndexConstantBuffer", sizeof(FMatIndexConstantsComponentData));
 
 	//FPixelShader::Load(L"Shaders/Font_PS.hlsl","Font_PS","Font_PS");
 	{
