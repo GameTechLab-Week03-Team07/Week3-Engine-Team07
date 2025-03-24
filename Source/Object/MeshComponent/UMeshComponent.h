@@ -1,11 +1,13 @@
 #pragma once
 #include "Core/Container/String.h"
+#include "Core/UObject/ObjectMacros.h"
 #include "Object/PrimitiveComponent/UPrimitiveComponent.h"
 #include "SimpleJSON/Json.hpp" 
 
 // 메시 컴포넌트 기본 클래스 어떤 계층으로 분리할 지 아직 미정
 class UMeshComponent : public UPrimitiveComponent
 {
+	DECLARE_CLASS(UMeshComponent, UPrimitiveComponent);
 public:
 	UMeshComponent();
 	virtual ~UMeshComponent();

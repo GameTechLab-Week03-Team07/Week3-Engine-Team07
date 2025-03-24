@@ -18,12 +18,8 @@ cbuffer constants : register(b0)
 {
 	matrix MVP;
 	float4 CustomColor;
-	uint bUseVertexColor;
-}
-
-cbuffer UUIDColor : register(b1)
-{
 	float4 UUIDColor;
+	uint bUseVertexColor;
 }
 
 cbuffer Depth : register(b2)
