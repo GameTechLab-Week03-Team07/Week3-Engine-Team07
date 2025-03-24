@@ -534,10 +534,12 @@ void UI::RenderPropertyWindow() const
 void UI::RenderSceneManager()
 {
 	ImGui::Begin("SceneManager");
-	TArray<AActor*>& Actors = UEngine::Get().GetWorld()->GetActors();
+	TArray<AActor*>& Actors = UEngine::Get().GetWorld()->GetDisplayedActors();
 
-	if (Actors.Num() == 0)
+	if (Actors.Num() == 0) {
+		ImGui::End();
 		return;
+	}
 
 	if (PrevSize != Actors.Num())
 	{
@@ -592,10 +594,6 @@ void UI::RenderSceneManager()
 			}
 		}
 	}
-
-
-
-
 
 	// if (CurActor != nullptr)
 	// {

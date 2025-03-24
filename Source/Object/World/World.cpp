@@ -20,7 +20,6 @@
 
 #include "Core/Rendering/URenderer.h"
 #include "Object/Actor/Arrow.h"
-#include "Object/Actor/Picker.h"
 #include "Core/Config/ConfigManager.h"
 #include "Object/Gizmo/GizmoActor.h"
 #include "Object/MeshComponent/UStaticMeshComponent.h"
@@ -33,6 +32,8 @@ void UWorld::InitWorld()
 {
 	//TODO : 
 	GridSize = FString::ToFloat(UConfigManager::Get().GetValue(TEXT("World"), TEXT("GridSize")));
+	ExcludedClasses.Add(FString("ACamera"));
+	ExcludedClasses.Add(FString("AGizmoActor"));
 }
 
 void UWorld::BeginPlay()
@@ -151,7 +152,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 			continue;
 		}
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		RenderComponent->Render();
 	}
 
@@ -162,7 +162,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 		RenderComponent->Render();
 		//MsgBoxAssert("없어진 기능입니다");
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		// uint32 depth = RenderComponent->GetOwner()->GetDepth();
 		// RenderComponent->Render();
 	}
@@ -321,6 +320,20 @@ void UWorld::LoadWorld(const char* InSceneName)
 		
 		Actor->SetActorTransform(Transform);
 	}
+}
+
+TArray<AActor*>& UWorld::GetDisplayedActors() {
+	DisplayedActors.Empty();
+
+	for (AActor* Actor : Actors)
+	{
+		if (Actor && ExcludedClasses.Find(Actor->GetClass()->GetName()) == -1)
+		{
+			DisplayedActors.Add(Actor);
+		}
+	}
+
+	return DisplayedActors;
 }
 
 void UWorld::RayCasting(const FVector& MouseNDCPos)

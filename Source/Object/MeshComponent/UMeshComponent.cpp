@@ -43,6 +43,16 @@ void UMeshComponent::UpdateMeshBounds()
 
 void UMeshComponent::UpdateMeshConstantBuffer()
 {
+	if (bIsPicked)
+	{
+		bUseVertexColor = false;
+		SetCustomColor(FVector4(1.0f, 0.647f, 0.0f, 1.0f));
+	}
+	else
+	{
+		bUseVertexColor = true;
+	}
+
 	// 상수 버퍼 업데이트 로직
 	FMatrix ModelMatrix;
 	CalculateModelMatrix(ModelMatrix);
