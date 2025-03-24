@@ -13,6 +13,7 @@
 #include "Static/FEditorManager.h"
 #include "Static/FUUIDBillBoard.h"
 #include "Static/FLineBatchManager.h"
+#include "Static/ViewportClient.h"
 #include "Resource/DirectResource/Vertexbuffer.h"
 #include "Resource/DirectResource/PixelShader.h"
 #include "Resource/DirectResource/VertexShader.h"
@@ -27,6 +28,9 @@ void URenderer::Create(HWND hWindow)
 	FViewMode::Get().Initialize(FDevice::Get().GetDevice());
 	FLineBatchManager::Get().Create();
 	FUUIDBillBoard::Get().Create();
+	FViewportClient::Get().Create();
+
+	//LoadTexture(L"font_atlas.png");
 }
 
 void URenderer::Release()

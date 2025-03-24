@@ -10,6 +10,9 @@
 #include "Rendering/FDevice.h"
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
+#include "Static/ViewportClient.h"
+#include <Debug/EngineShowFlags.h>
+#include "Rendering/FViewMode.h"
 
 
 class AArrow;
@@ -39,10 +42,12 @@ LRESULT UEngine::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 	{
+		uint32 FocusedViewportIndex = FViewportClient::Get().GetFocusedViewportIndex();
+		ACamera* CurrentCamera = UEngine::Get().GetWorld()->GetCameraList()[FocusedViewportIndex];
 		// 마우스 휠 이벤트 처리
 		short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-		float curZoomSize = UEngine::Get().GetWorld()->GetCamera()->GetZoomSize();
-		UEngine::Get().GetWorld()->GetCamera()->SetZoomSize(curZoomSize + zDelta);
+		float curZoomSize = CurrentCamera->GetZoomSize();
+		CurrentCamera->SetZoomSize(curZoomSize + zDelta);
 		break;
 
 	}
@@ -138,12 +143,37 @@ void UEngine::Run()
 		// World Update
 		if (World)
 		{
-			FDevice::Get().Prepare();
-			World->Tick(EngineDeltaTime);
-			World->Render();
+			FDevice::Get().Clear();
 
-			FEditorManager::Get().LateTick(EngineDeltaTime);
-		    World->LateTick(EngineDeltaTime);
+			if (FViewportClient::Get().GetIsSplitLayout())
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					FDevice::Get().SetRenderTarget(i);
+					World->Tick(EngineDeltaTime);
+					World->Render(i);
+
+					FEditorManager::Get().LateTick(EngineDeltaTime);
+					World->LateTick(EngineDeltaTime);
+				}
+
+				FDevice::Get().SetRenderTarget(4);
+				FViewportClient::Get().Drag();
+				FViewportClient::Get().Render();
+				FViewportClient::Get().SetFocusedViewport();
+			}
+			else
+			{
+				FDevice::Get().SetRenderTarget(4);
+				World->Tick(EngineDeltaTime);
+				World->Render(4);
+
+				FEditorManager::Get().LateTick(EngineDeltaTime);
+				World->LateTick(EngineDeltaTime);
+
+				FEditorManager::Get().GetCamera()->SetIsControllable(true);
+			}
+
 		}
 
         //각 Actor에서 TickActor() -> PlayerTick() -> TickPlayerInput() 호출하는데 지금은 Message에서 처리하고 있다
@@ -223,8 +253,6 @@ void UEngine::InitRenderer()
 	// 렌더러 초기화
 	Renderer = std::make_unique<URenderer>();
 	Renderer->Create(WindowHandle);
-	//Renderer->CreateShader();
-	//Renderer->CreateConstantBuffer();
 }
 
 void UEngine::InitWorld()
@@ -232,23 +260,46 @@ void UEngine::InitWorld()
     World = FObjectFactory::ConstructObject<UWorld>();
 	World->InitWorld();
 
-	World->SetCamera(World->SpawnActor<ACamera>());
-
-    FEditorManager::Get().SetCamera(World->GetCamera());
-
-	////Test
-	//FLineBatchManager::Get().AddLine(FVector{ 3.0f,3.0f,0.0f }, { -3.f,-3.f,0.0f });
-	//FLineBatchManager::Get().AddLine(FVector{ 6.0f,6.0f,6.0f }, { -6.f,-6.f,-6.0f });
-	//FLineBatchManager::Get().AddLine(FVector{ 6.0f,6.0f,7.0f }, { -6.f,-6.f,-7.0f });
-	//FLineBatchManager::Get().AddLine(FVector{ 6.0f,6.0f,8.0f }, { -6.f,-6.f,-8.0f });
+	InitCamera();
 
 	FLineBatchManager::Get().DrawWorldGrid(World->GetGridSize(), World->GetGridSize() / 100.f);
 
-    //// Test
-    //AArrow* Arrow = World->SpawnActor<AArrow>();
-    //World->SpawnActor<ASphere>();
-
 	World->BeginPlay();
+}
+
+void UEngine::InitCamera() 
+{
+	ACamera* FrontViewCamera = World->SpawnActor<ACamera>();
+	FrontViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	FrontViewCamera->SetOrthoViewType(EOrthoViewMode::Front);
+	FrontViewCamera->SetActorPosition(FVector(-5.0f, 0.0f, 0.0f));
+	FrontViewCamera->SetActorRotation(FVector(0.0f, 0.0f, 0.0f));
+	World->AddCamera(FrontViewCamera);
+	FEditorManager::Get().AddCamera(FrontViewCamera);
+
+	ACamera* SideViewCamera = World->SpawnActor<ACamera>();
+	SideViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	SideViewCamera->SetOrthoViewType(EOrthoViewMode::Side);
+	SideViewCamera->SetActorPosition(FVector(0.0f, 5.0f, 0.0f));
+	SideViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
+	World->AddCamera(SideViewCamera);
+	FEditorManager::Get().AddCamera(SideViewCamera);
+
+	ACamera* PerspectiveCamera = World->SpawnActor<ACamera>();
+	PerspectiveCamera->ProjectionMode = ECameraProjectionMode::Perspective;
+	World->AddCamera(PerspectiveCamera);
+	FEditorManager::Get().AddCamera(PerspectiveCamera);
+
+	ACamera* TopViewCamera = World->SpawnActor<ACamera>();
+	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	TopViewCamera->SetOrthoViewType(EOrthoViewMode::Top);
+	TopViewCamera->SetActorPosition(FVector(0.0f, 0.0f, 5.0f));
+	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
+	World->AddCamera(TopViewCamera);
+	FEditorManager::Get().AddCamera(TopViewCamera);
+
+	World->SetCamera(PerspectiveCamera);
+	FEditorManager::Get().SetCamera(World->GetCamera());
 }
 
 void UEngine::ShutdownWindow()

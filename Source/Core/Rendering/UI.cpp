@@ -26,6 +26,7 @@ class AActor;
 #include "Object/World/World.h"
 #include "Static/FEditorManager.h"
 #include "Static/FUUIDBillBoard.h"
+#include "Static/ViewportClient.h"
 #include "Object/MeshComponent/UStaticMeshComponent.h"
 #include "Object/Actor/StaticMesh.h"
 // #include "FDevice.h"
@@ -652,7 +653,17 @@ void UI::RenderViewModePanel() const
 		{
 			FViewMode::Get().SetViewMode((static_cast<EViewModeIndex>(currentViewMode)));
 		}
+
+		// 레이아웃 변경(분할 레이아웃)
+		bool IsSplitLayout = FViewportClient::Get().GetIsSplitLayout();
+		if (ImGui::Checkbox("SplitLayout", &IsSplitLayout))
+		{
+			FViewportClient::Get().SetIsSplitLayout(IsSplitLayout);
+		}
+
 	}
+
+
 	ImGui::End();
 }
 

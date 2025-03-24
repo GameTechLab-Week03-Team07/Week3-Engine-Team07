@@ -12,6 +12,17 @@ namespace ECameraProjectionMode
     };
 }
 
+namespace EOrthoViewMode
+{
+	enum Type : uint8
+	{
+		Front,
+		Side,
+		Top,
+		None
+	};
+}
+
 class ACamera : public AActor, public IGizmoInterface
 {
 	DECLARE_CLASS(ACamera, AActor)
@@ -29,12 +40,14 @@ private:
     // 화면각
     float FieldOfView;
 
-	
 	FMatrix ViewMatrix;
 	FMatrix ProjectionMatrix;
 	FMatrix ViewProjectionMatrix;
 
 	float ZoomSize = 1000.f;
+	bool bIsControllable = true;
+	EOrthoViewMode::Type OrthoViewMode = EOrthoViewMode::None;
+
 public:
     const float MaxYDegree = 89.8f;
     //카메라 스피드 IMGui용 나중에 Velocity로 관리하면 없어질애라 편하게 public에서 관리
@@ -58,7 +71,9 @@ public:
 	void SetZoomSize(float InZoomSize) { ZoomSize = FMath::Clamp(InZoomSize, 100.f, 1000.f); }
 	float GetZoomSize() const { return ZoomSize; }
 
-	
+    void SetIsControllable(bool bIsControllable) { this->bIsControllable = bIsControllable; }
+	void SetOrthoViewType(EOrthoViewMode::Type Type) { OrthoViewMode = Type; }
+
 	const FMatrix& GetProjectionMatrix() const { return ProjectionMatrix; }
 	const FMatrix& GetViewProjectionMatrix() const { return ViewProjectionMatrix; }
 	const FMatrix& GetViewMatrix() const { return ViewMatrix; }
@@ -83,7 +98,7 @@ public:
     }
 
 	/** Projection 변환 Matrix를 업데이트 합니다. */
-	void UpdateCameraMatrix();
+	void UpdateCameraMatrix(float Width, float Height);
 	
 	void MoveForward();
 	void MoveBackward();

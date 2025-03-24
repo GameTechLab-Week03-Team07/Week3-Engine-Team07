@@ -5,7 +5,7 @@
 #include "Core/Container/Map.h"
 #include "Core/Input/PlayerInput.h"
 #include "Object/Actor/Camera.h"
-#include <Object/Gizmo/GizmoHandle.h>
+#include "Object/Gizmo/GizmoHandle.h"
 
 #include "Object/Actor/Cone.h"
 #include "Object/Actor/Cube.h"
@@ -16,7 +16,8 @@
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
 #include "Static/FUUIDBillBoard.h"
-#include <Core/Math/Ray.h>
+#include "Static/ViewportClient.h"
+#include "Core/Math/Ray.h"
 
 #include "Core/Rendering/URenderer.h"
 #include "Object/Actor/Arrow.h"
@@ -91,7 +92,7 @@ void UWorld::OnDestroy()
 	UConfigManager::Get().SaveConfig("editor.ini");
 }
 
-void UWorld::Render()
+void UWorld::Render(uint32 ViewportIndex)
 {
 	URenderer* Renderer = UEngine::Get().GetRenderer();
 
@@ -104,8 +105,42 @@ void UWorld::Render()
 		return;
 	}
 
-	ACamera* cam = FEditorManager::Get().GetCamera();
-	cam->UpdateCameraMatrix();
+
+	ACamera* cam = nullptr;
+
+	switch (ViewportIndex)
+	{
+	case 0:
+		cam = FEditorManager::Get().GetCameraList()[0];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 1:
+		cam = FEditorManager::Get().GetCameraList()[1];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 2:
+		cam = FEditorManager::Get().GetCameraList()[2];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 3:
+		cam = FEditorManager::Get().GetCameraList()[3];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	default:
+		cam = FEditorManager::Get().GetCameraList()[2];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	}
+
+	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 
 
 	//if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton))
@@ -130,10 +165,9 @@ void UWorld::Render()
 	}
 	UDebugDrawManager::Get().Render();
 
-
-	FLineBatchManager::Get().Render();
-
 	FUUIDBillBoard::Get().Render();
+
+	//FViewportClient::Get().Render();
 
 
 	//DisplayPickingTexture(*Renderer);
@@ -194,7 +228,7 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 		RenderComponent->Render();
 	}
 
-	FDevice::Get().SetRenderTarget();
+	//FDevice::Get().SetRenderTarget();
 }
 
 // void UWorld::DisplayPickingTexture(URenderer& Renderer)
