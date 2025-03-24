@@ -211,7 +211,6 @@ void AGizmoActor::Tick(float DeltaTime)
 			iter.Value->OnChangedGizmoType(GizmoType);
 		}
 	}
-
 	SetScaleByDistance();
 }
 
