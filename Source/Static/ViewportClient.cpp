@@ -213,9 +213,12 @@ uint32 FViewportClient::GetHoveredViewport() {
 void FViewportClient::SetFocusedViewport() {
 	for (int i = 0; i < 4; i++)
 	{
-		if (FViewportClient::Get().GetViewport(i)->IsHover(APlayerInput::Get().GetMouseNDCPos()) && APlayerInput::Get().GetKeyPress(EKeyCode::LButton))
+		if (FViewportClient::Get().GetViewport(i)->IsHover(APlayerInput::Get().GetMouseNDCPos()))
 		{
 			SetFocusedViewportIndex(i);
+			UEngine::Get().GetWorld()->GetCameraList()[i]->SetIsControllable(true);
+			continue;
 		}
+		UEngine::Get().GetWorld()->GetCameraList()[i]->SetIsControllable(false);
 	}
 }

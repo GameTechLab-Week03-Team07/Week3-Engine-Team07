@@ -110,6 +110,9 @@ void ACamera::UpdateCameraMatrix(float Width, float Height)
 
 void ACamera::MoveForward()
 {
+	// 카메라 컨트롤 막았으면 return
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() + (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -117,6 +120,8 @@ void ACamera::MoveForward()
 
 void ACamera::MoveBackward()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() - (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -124,6 +129,8 @@ void ACamera::MoveBackward()
 
 void ACamera::MoveLeft()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() - (GetRight() * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -131,6 +138,8 @@ void ACamera::MoveLeft()
 
 void ACamera::MoveRight()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() + (GetRight() * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -138,6 +147,8 @@ void ACamera::MoveRight()
 
 void ACamera::MoveUp()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() + (FVector::UpVector * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -145,6 +156,8 @@ void ACamera::MoveUp()
 
 void ACamera::MoveDown()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() - (FVector::UpVector * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -152,6 +165,8 @@ void ACamera::MoveDown()
 
 void ACamera::Rotate(const FVector& mouseDelta)
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	FVector TargetRotation = tr.GetRotation().GetEuler();
 	TargetRotation.Y -= FMath::Clamp(Sensitivity * mouseDelta.Y, -MaxYDegree, MaxYDegree);
