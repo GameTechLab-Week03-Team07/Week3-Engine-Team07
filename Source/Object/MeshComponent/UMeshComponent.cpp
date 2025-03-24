@@ -3,6 +3,7 @@
 #include "Object/World/World.h"
 #include "Object/Actor/Camera.h"
 #include "Static/FEditorManager.h" 
+#include "UStaticMeshComponent.h"
 
 UMeshComponent::UMeshComponent()
 	: bUseCustomMaterial(false)

@@ -112,28 +112,54 @@ public:
 
 		// StaticMesh의 모든 재질 순회 - 추후 확산 텍스처 맵 이외 다른 처리도 필요할 듯
 		const auto& MaterialArray = StaticMesh->StaticMeshAsset->MaterialInfoArray;
-		for (int i = 0; i < MaterialArray.Num(); ++i) {
+		for (int32 i = 0; i < MaterialArray.Num(); ++i) {
 			const auto& Material = MaterialArray[i];
 			// 확산 텍스처가 있는 경우
 			if (!Material.DiffuseTexture.empty())
 			{
 				// 텍스처 경로 구성
 				// Contents/StaticMesh 폴더 내의 상대 경로로 변환
-				std::string baseStr = "Contents/StaticMesh/" + Material.DiffuseTexture;
+				FString TexturePath = "Contents/StaticMesh/";
+				// ?? 이거 이어붙이면 왜 안되지??
+				TexturePath += Material.DiffuseTexture.c_str();
+				
 				// 텍스처 이름으로 MaterialName 사용
-				std::string texName = Material.PathFileName + "_Diffuse";
+				//FString TextureName = Material.PathFileName + "_Diffuse";
 
+				// 텍스처 이름으로 MaterialArray 이름 사용
+				FString arrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
 
+				TArray<FString> texturePaths;
+
+				const auto& MaterialArray = StaticMesh->StaticMeshAsset->MaterialInfoArray;
+				
+				for (int i = 0; i < MaterialArray.Num(); ++i) {
+					const auto& material = MaterialArray[i];
+
+					if (!material.DiffuseTexture.empty())
+					{
+						// 상대 경로를 문자열로 만들기
+						std::string fullPath = "Contents/StaticMesh/" + material.DiffuseTexture;
+
+						// std::string → FString 변환
+						FString pathFStr = fullPath;
+
+						// 배열에 추가
+						texturePaths.Add(pathFStr);
+					}
+
+				}
 				// 텍스처 로드 및 SRV 생성
 				try {
-					std::shared_ptr<FTexture> TextureImage = FTexture::Load(baseStr, texName);
+					std::shared_ptr<FTexture> TextureImage = FTexture::Load(texturePaths, arrayName);
 					if (TextureImage) {
 						TextureImage->CreateShaderResourceView();
+						//FIXME  : 주석처리 한거 적용
 						// 성공적으로 로드된 텍스처 정보 출력 (디버깅용)
-						std::cout << "Loaded texture: " << texName << " from " << baseStr << std::endl;
+						//std::cout << "Loaded texture: " << TextureName << " from " << TexturePath << std::endl;
 					}
 					else {
-						std::cerr << "Failed to load texture: " << baseStr << std::endl;
+						//std::cerr << "Failed to load texture: " << baseStr << std::endl;
 						bSuccess = false;
 					}
 				}
@@ -143,7 +169,25 @@ public:
 				}
 			}
 
-		}		
+		}
+
+		// 텍스처 리소스 생성
+		//ID3D11Texture2D* textureArray = CreateTexture2DArrayFromImages(LoadedImages); // 너가 만든 함수
+		//ID3D11ShaderResourceView* srv = CreateSRVFromTextureArray(textureArray);
+		
+		//std::shared_ptr<FTexture> TextureArrayTex = std::make_shared<FTexture>();
+		// 등록 이름 구성
+		//FString arrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
+
+		// FTexture 등록
+		//std::shared_ptr<FTexture> texArrayRes = FTexture::Create(arrayName, textureArray);
+
+		// SRV 수동 연결
+		//texArrayRes->SetSRV(srv);
+		
+		// 텍스처 배열 여부 표시 (option)
+		//texArrayRes->SetbIsArray(true);
+
 		return bSuccess;
 	}
 

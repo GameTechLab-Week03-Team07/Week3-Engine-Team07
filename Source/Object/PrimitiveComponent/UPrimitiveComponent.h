@@ -10,6 +10,8 @@
 #include "Resource/RenderResourceCollection.h"
 #include "Resource/DirectResource/IndexBuffer.h"
 #include "Resource/DirectResource/Vertexbuffer.h"
+#include <Resource/Material.h>
+#include <Resource/Mesh.h>
 
 
 class FVertexShader;

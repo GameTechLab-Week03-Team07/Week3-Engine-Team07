@@ -6,7 +6,7 @@
 #include "Debug/DebugConsole.h"
 #include "DirectXTK/DDSTextureLoader.h"
 #include "DirectXTK/WICTextureLoader.h"
-
+#include <wincodec.h>
 FTexture::FTexture()
 {
 }
@@ -212,6 +212,185 @@ void FTexture::ResLoad(const FString& InPath)
 	}
 }
 
+void FTexture::ResLoad(const TArray<FString>& InPaths)
+{
+	// 여러개의 텍스처 파일을 하나의 Texture2DArray로 로드.
+
+	std::vector<std::wstring> wPaths;
+
+	for (const FString& path : InPaths) {
+		std::string str = *path;
+		std::wstring wstr(str.begin(), str.end());
+
+		wPaths.push_back(wstr);
+	}
+
+	ID3D11Texture2D* pTextureArray = nullptr;
+	HRESULT hr = CreateTexture2DArrayFromFiles(FDevice::Get().GetDevice(), wPaths, &pTextureArray, &SRV);
+	if (FAILED(hr)) {
+		MsgBoxAssert("Texture Array load failed");
+		return;
+	}
+	
+	Texture2D = pTextureArray;
+}
+
+HRESULT FTexture::CreateTexture2DArrayFromFiles(ID3D11Device* device, const std::vector<std::wstring>& fileNames, ID3D11Texture2D** textureArrayOut, ID3D11ShaderResourceView** srvOut) {
+	UINT width = 0, height = 0;
+	std::vector<std::vector<BYTE>> imageDatas;
+
+	//FIXME : 여러 확장자 대응 반영하기
+	for (const auto& file : fileNames) {
+		
+		
+		std::vector<BYTE> imageData;
+		UINT w = 0, h = 0;
+		HRESULT hr = LoadWICTextureDataFromFile(device, file, imageData, &w, &h);
+		if (FAILED(hr)) {
+			return hr;
+		}
+
+		if (width == 0 && height == 0) {
+			width = w;
+			height = h;
+		}
+		else if (w != width || h != height) {
+			return E_FAIL;
+		}
+
+		imageDatas.push_back(std::move(imageData));
+	}
+	UINT textureCount = static_cast<UINT>(fileNames.size());
+
+	// Texture2DArray 생성에 사용할 설명 구조체 설정
+	D3D11_TEXTURE2D_DESC texDesc = {};
+	texDesc.Width = width;
+	texDesc.Height = height;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = textureCount;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	// 각 텍스처의 서브리소스 데이터 설정
+	std::vector<D3D11_SUBRESOURCE_DATA> subresources(textureCount);
+	UINT rowPitch = width * 4; // 4바이트 per 픽셀
+	for (UINT i = 0; i < textureCount; ++i)
+	{
+		subresources[i].pSysMem = imageDatas[i].data();
+		subresources[i].SysMemPitch = rowPitch;
+		subresources[i].SysMemSlicePitch = 0;
+	}
+
+	// Texture2DArray 생성
+	HRESULT hr = device->CreateTexture2D(&texDesc, subresources.data(), textureArrayOut);
+	if (FAILED(hr))
+		return hr;
+
+	// Shader Resource View (SRV) 생성
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = texDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+	srvDesc.Texture2DArray.MostDetailedMip = 0;
+	srvDesc.Texture2DArray.MipLevels = 1;
+	srvDesc.Texture2DArray.FirstArraySlice = 0;
+	srvDesc.Texture2DArray.ArraySize = textureCount;
+
+	hr = device->CreateShaderResourceView(*textureArrayOut, &srvDesc, srvOut);
+	return hr;
+}
+HRESULT FTexture::LoadWICTextureDataFromFile(ID3D11Device* device, const std::wstring& fileName, std::vector<BYTE>& imageData, UINT* width, UINT* height)
+{
+	// WIC 팩토리 생성
+	IWICImagingFactory* pWICFactory = nullptr;
+	HRESULT hr = CoCreateInstance(
+		CLSID_WICImagingFactory,
+		nullptr,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&pWICFactory));
+	if (FAILED(hr))
+		return hr;
+
+	// 파일로부터 디코더 생성
+	IWICBitmapDecoder* pDecoder = nullptr;
+	hr = pWICFactory->CreateDecoderFromFilename(
+		fileName.c_str(),
+		nullptr,
+		GENERIC_READ,
+		WICDecodeMetadataCacheOnDemand,
+		&pDecoder);
+	if (FAILED(hr))
+	{
+		pWICFactory->Release();
+		return hr;
+	}
+
+	// 첫 번째 프레임 가져오기
+	IWICBitmapFrameDecode* pFrame = nullptr;
+	hr = pDecoder->GetFrame(0, &pFrame);
+	if (FAILED(hr))
+	{
+		pDecoder->Release();
+		pWICFactory->Release();
+		return hr;
+	}
+
+	// 이미지 크기 얻기
+	hr = pFrame->GetSize(width, height);
+	if (FAILED(hr))
+	{
+		pFrame->Release();
+		pDecoder->Release();
+		pWICFactory->Release();
+		return hr;
+	}
+
+	// 32비트 RGBA 포맷으로 변환
+	IWICFormatConverter* pConverter = nullptr;
+	hr = pWICFactory->CreateFormatConverter(&pConverter);
+	if (FAILED(hr))
+	{
+		pFrame->Release();
+		pDecoder->Release();
+		pWICFactory->Release();
+		return hr;
+	}
+
+	hr = pConverter->Initialize(
+		pFrame,
+		GUID_WICPixelFormat32bppRGBA,
+		WICBitmapDitherTypeNone,
+		nullptr,
+		0.f,
+		WICBitmapPaletteTypeCustom);
+	if (FAILED(hr))
+	{
+		pConverter->Release();
+		pFrame->Release();
+		pDecoder->Release();
+		pWICFactory->Release();
+		return hr;
+	}
+
+	// 이미지 데이터를 저장할 크기 계산
+	UINT rowPitch = (*width) * 4; // 4바이트 per 픽셀 (RGBA)
+	UINT imageSize = rowPitch * (*height);
+	imageData.resize(imageSize);
+
+	hr = pConverter->CopyPixels(nullptr, rowPitch, imageSize, imageData.data());
+
+	// 리소스 해제
+	pConverter->Release();
+	pFrame->Release();
+	pDecoder->Release();
+	pWICFactory->Release();
+
+	return hr;
+}
+
 
 void FTexture::ResCreate(ID3D11Texture2D* InRes)
 {
@@ -221,6 +400,7 @@ void FTexture::ResCreate(ID3D11Texture2D* InRes)
 
 	CreateRenderTargetView();
 }
+
 
 
 void FTexture::ResCreate(const D3D11_TEXTURE2D_DESC& _Desc)

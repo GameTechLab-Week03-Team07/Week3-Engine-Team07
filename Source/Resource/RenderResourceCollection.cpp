@@ -109,6 +109,7 @@ std::shared_ptr<FTextureBinding> FRenderResourceCollection::SetTextureBinding(co
 	return Binding;
 }
 
+
 std::shared_ptr<FSamplerBinding> FRenderResourceCollection::SetSamplerBinding(const FString& _Name, int _BindPoint,
                                                                               bool bIsUseVertexShader, bool bIsUsePixelShader)
 {

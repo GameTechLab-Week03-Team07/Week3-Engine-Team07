@@ -81,23 +81,13 @@ void UStaticMeshComponent::InitializeRenderResources()
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
-	
+
+	//Fixing
 	if (StaticMesh->StaticMeshAsset->MaterialInfoArray.Len()!=0)
 	{
-		for (const auto& pair : StaticMesh->StaticMeshAsset->MaterialSlotNameToIndex) {
-			const std::string& MaterialName = pair.Key;
-			int matIndex = pair.Value;
-
-			if (matIndex < 0 || matIndex >= StaticMesh->StaticMeshAsset->MaterialInfoArray.Len())
-				continue;
-
-			const auto& Material = StaticMesh->StaticMeshAsset->MaterialInfoArray[matIndex];
-			if (!Material.DiffuseTexture.empty()) {
-				FString TextureName = FString(MaterialName) + "_Diffuse";
-				GetRenderResourceCollection().SetTextureBinding(TextureName, 2, false, true);
-				GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
-			}
-		}
+		FString texArrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
+		GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
+		GetRenderResourceCollection().SetTextureBinding(texArrayName, 2, false, true);
 	}
 }
 
