@@ -83,7 +83,7 @@ public:
     }
 
 	/** Projection 변환 Matrix를 업데이트 합니다. */
-	void UpdateCameraMatrix(float AspectRatio);
+	void UpdateCameraMatrix(float Width, float Height);
 	
 	void MoveForward();
 	void MoveBackward();

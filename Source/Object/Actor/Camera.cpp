@@ -82,7 +82,7 @@ void ACamera::InitMatrix()
 	ViewProjectionMatrix = FMatrix::Identity();
 }
 
-void ACamera::UpdateCameraMatrix(float AspectRatio)
+void ACamera::UpdateCameraMatrix(float Width, float Height)
 {
 	//뷰 매트릭스 업데이트
 	ViewMatrix = GetActorTransform().GetViewMatrix();
@@ -95,11 +95,11 @@ void ACamera::UpdateCameraMatrix(float AspectRatio)
 
 	if (ProjectionMode == ECameraProjectionMode::Perspective)
 	{
-		ProjectionMatrix = FMatrix::PerspectiveFovLH(FOV, AspectRatio, Near, Far);
+		ProjectionMatrix = FMatrix::PerspectiveFovLH(FOV, Width / Height, Near, Far);
 	}
 	else if (ProjectionMode == ECameraProjectionMode::Orthographic)
 	{
-		ProjectionMatrix = FMatrix::OrthoForLH(UEngine::Get().GetScreenWidth() / ZoomSize, UEngine::Get().GetScreenHeight() / ZoomSize, Near, Far);
+		ProjectionMatrix = FMatrix::OrthoForLH(Width / ZoomSize, Height / ZoomSize, Near, Far);
 
 		// TODO: 추가 필요.
 		// ProjectionMatrix = FMatrix::OrthoForLH(FOV, AspectRatio, Near, Far);

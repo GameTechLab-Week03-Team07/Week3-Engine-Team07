@@ -16,7 +16,7 @@ public:
 	FRect Rect;
 
 	bool IsHover(FVector coord) const {
-		return coord.X >= Rect.Left && coord.X <= Rect.Right && coord.Y >= Rect.Top && coord.Y <= Rect.Bottom;
+		return coord.X >= Rect.Left && coord.X <= Rect.Right && coord.Y <= Rect.Top && coord.Y >= Rect.Bottom;
 	}
 
 public:
@@ -52,7 +52,6 @@ public:
 		Rect.Right = Right;
 		Rect.Bottom = Bottom;
 	}
-	float Pos = 0.0f;
 };
 
 class SSplitterV : public SSplitter
@@ -67,5 +66,4 @@ public:
 		Rect.Right = Right;
 		Rect.Bottom = Bottom;
 	}
-	float Pos = 0.0f;
 };

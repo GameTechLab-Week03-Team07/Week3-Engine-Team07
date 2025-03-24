@@ -90,7 +90,7 @@ void UWorld::OnDestroy()
 	UConfigManager::Get().SaveConfig("editor.ini");
 }
 
-void UWorld::Render()
+void UWorld::Render(uint32 ViewportIndex)
 {
 	URenderer* Renderer = UEngine::Get().GetRenderer();
 
@@ -103,9 +103,23 @@ void UWorld::Render()
 		return;
 	}
 
-	ACamera* cam = FEditorManager::Get().GetCamera();
-	cam->UpdateCameraMatrix(UEngine::Get().GetScreenRatio()); 
+
+	ACamera* cam = nullptr;
+
+	if (ViewportIndex == 2 || ViewportIndex == 4)
+	{
+		cam = GetCameraList()[2];
+		SetCamera(cam);
+	}
+	else
+	{
+		cam = GetCameraList()[ViewportIndex];
+		cam->SetActorRotation(FVector(0.0f, 0.0f, 0.0f));
+		SetCamera(cam);
+	}
 	
+
+	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 
 
 	//if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton))
@@ -129,9 +143,6 @@ void UWorld::Render()
 		UDebugDrawManager::Get().DrawBoundingBox(LocalMin, LocalMax, SelectedActor->GetActorTransform(), FVector4::RED);
 	}
 	UDebugDrawManager::Get().Render();
-
-
-	FLineBatchManager::Get().Render();
 
 	FUUIDBillBoard::Get().Render();
 

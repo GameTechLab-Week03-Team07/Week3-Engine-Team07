@@ -53,7 +53,7 @@ public:
 
 	void SetViewport(int index, float TopLeftX, float TopLeftY, float Width, float Height);
 
-	void UpdateViewport(FViewport* Viewport);
+	void UpdateViewport();
 
 	FVector GetWindowPosFromNDC(FVector NDCPos, float Width, float Height);
 	

@@ -36,7 +36,7 @@ public:
   
 	bool DestroyActor(AActor* InActor);
 	
-	void Render();
+	void Render(uint32 ViewportIndex);
 	void RenderPickingTexture(URenderer& Renderer);
 	//void DisplayPickingTexture(URenderer& Renderer);
 	void RenderMainTexture(URenderer& Renderer);
@@ -54,7 +54,11 @@ public:
 	void RemoveRenderComponent(UPrimitiveComponent* Component) { RenderComponents.Remove(Component); }
 
 	inline ACamera* GetCamera() const { return Camera; }
+	inline TArray<ACamera*> GetCameraList() const { return CameraList; }
+
 	void SetCamera(ACamera* NewCamera) { Camera = NewCamera; }
+	void AddCamera(ACamera* NewCamera) { CameraList.Add(NewCamera); }
+	void ClearCameraList() { CameraList.Empty(); }
 
 	void RayCasting(const FVector& MouseNDCPos);
 
@@ -70,6 +74,7 @@ public:
 private:
 	UWorldInfo GetWorldInfo() const;
 	ACamera* Camera = nullptr;
+	TArray<ACamera*> CameraList;
 
 	float GridSize = 100.0f;
 

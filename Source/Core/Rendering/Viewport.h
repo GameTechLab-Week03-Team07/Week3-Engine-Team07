@@ -4,34 +4,26 @@
 #include "Object/Window/Window.h"
 
 
-class FViewport
+class FViewport : public SWindow
 {
 public:
-	FViewport(int32 InWidth, int32 InHeight)
-		: Width(InWidth), Height(InHeight) {
-
-		// 수직, 수평 분할기 생성
-		SplitterH = std::make_shared<SSplitterH>(-1.0f, -0.001f, 1.0f, 0.001f);
-		SplitterV = std::make_shared<SSplitterV>(-0.001f, -1.0f, 0.001f, 1.0f);
-
-		// 4분할된 뷰포트 생성 및 설정
-		SplitterH->SideLT = std::make_shared<SWindow>(-1.0f, 1.0f, 1.0f, 0.0f);
-		SplitterH->SideRB = std::make_shared<SWindow>(-1.0f, 0.0f, 1.0f, -1.0f);
-
-		SplitterV->SideLT = std::make_shared<SWindow>(-1.0f, 1.0f, 0.0f, -1.0f);
-		SplitterV->SideRB = std::make_shared<SWindow>(0.0f, 1.0f, 1.0f, -1.0f);
+	FViewport(float InX, float InY, float InWidth, float InHeight)
+		: X(InX), Y(InY), Width(InWidth), Height(InHeight) {
+		Rect.Left = InX;
+		Rect.Top = InY;
+		Rect.Right = InX + InWidth;
+		Rect.Bottom = InY - InHeight;
 	}
 
-	int32 GetX() const { return X; }
-	int32 GetY() const { return Y; }
-	int32 GetWidth() const { return Width; }
-	int32 GetHeight() const { return Height; }
-	void SetWidth(int32 InWidth) { Width = InWidth; }
-	void SetHeight(int32 InHeight) { Height = InHeight; }
-
-	std::shared_ptr<SSplitterH> SplitterH;
-	std::shared_ptr<SSplitterV> SplitterV;
+	float GetX() const { return X; }
+	float GetY() const { return Y; }
+	float GetWidth() const { return Width; }
+	float GetHeight() const { return Height; }
+	void SetX(float InX) { X = InX; }
+	void SetY(float InY) { Y = InY; }
+	void SetWidth(float InWidth) { Width = InWidth; }
+	void SetHeight(float InHeight) { Height = InHeight; }
 
 private:
-	int32 X, Y, Width, Height;
+	float X, Y, Width, Height;
 }; 

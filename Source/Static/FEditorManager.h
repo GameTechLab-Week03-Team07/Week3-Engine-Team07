@@ -21,6 +21,7 @@ public:
 
     inline ACamera* GetCamera() const {return Camera;}
 
+
     void SetCamera(ACamera* NewCamera);
 
 	AGizmoActor* GetGizmo() const {return Gizmo;}
@@ -38,6 +39,7 @@ public:
     
 private:
     ACamera* Camera = nullptr;
+
     AActor* SelectedActor = nullptr;
 	AGizmoActor* Gizmo = nullptr;
 

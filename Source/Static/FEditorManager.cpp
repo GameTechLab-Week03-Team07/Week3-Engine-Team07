@@ -9,6 +9,8 @@
 #include "Core/Input/PlayerInput.h"
 #include "Resource/Texture.h"
 #include "Core/Rendering/FDevice.h"
+#include "Static/ViewportClient.h"
+#include "Object/Actor/Camera.h"
 
 void FEditorManager::Init()
 {
@@ -27,7 +29,6 @@ void FEditorManager::Init()
 	
 	UUIDTexture = FTexture::Create("UUIDTexture", textureDesc);
 	UUIDTexture->CreateRenderTargetView();
-
 
 	//D3D11_TEXTURE2D_DESC DepthBufferDesc = {};
 	//DepthBufferDesc.Width = Width;

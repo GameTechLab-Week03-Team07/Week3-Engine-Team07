@@ -142,19 +142,19 @@ void UEngine::Run()
 		{
 			FDevice::Get().Clear();
 
-			FDevice::Get().SetRenderTarget(0);
-			FViewportClient::Get().Drag();
-			FViewportClient::Get().Render();
-
-			for (int i = 1; i <= 4; i++)
+			for (int i = 0; i < 4; i++)
 			{
 				FDevice::Get().SetRenderTarget(i);
 				World->Tick(EngineDeltaTime);
-				World->Render();
+				World->Render(i);
 
 				FEditorManager::Get().LateTick(EngineDeltaTime);
 				World->LateTick(EngineDeltaTime);
 			}
+
+			FDevice::Get().SetRenderTarget(4);
+			FViewportClient::Get().Drag();
+			FViewportClient::Get().Render();
 
 		}
 
@@ -244,7 +244,27 @@ void UEngine::InitWorld()
     World = FObjectFactory::ConstructObject<UWorld>();
 	World->InitWorld();
 
-	World->SetCamera(World->SpawnActor<ACamera>());
+	ACamera* FrontViewCamera = World->SpawnActor<ACamera>();
+	FrontViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	FrontViewCamera->SetActorRotation(FVector(0.0f, 0.0f, 0.0f));
+	World->AddCamera(FrontViewCamera);
+
+	ACamera* RightViewCamera = World->SpawnActor<ACamera>();
+	RightViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	RightViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
+	World->AddCamera(RightViewCamera);
+
+	ACamera* PerspectiveCamera = World->SpawnActor<ACamera>();
+	World->AddCamera(PerspectiveCamera);
+
+	ACamera* TopViewCamera = World->SpawnActor<ACamera>();
+	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	TopViewCamera->SetActorRotation(FVector(-90.0f, 0.0f, 0.0f));
+	World->AddCamera(TopViewCamera);
+
+
+
+	World->SetCamera(PerspectiveCamera);
 
     FEditorManager::Get().SetCamera(World->GetCamera());
 

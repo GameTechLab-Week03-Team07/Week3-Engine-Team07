@@ -85,11 +85,12 @@ void FDevice::CreateDeviceAndSwapChain(HWND hWindow)
     // 뷰포트 정보 설정
 	float InitWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width) / 2;
 	float InitHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height) / 2;
-	SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
-	SetViewport(1, 0.0f, 0.0f, InitWidth, InitHeight);
-	SetViewport(2, InitWidth, 0.0f, InitWidth , InitHeight);
-	SetViewport(3, 0.0f, InitHeight, InitWidth, InitHeight);
-	SetViewport(4, InitWidth, InitHeight, InitWidth, InitHeight);
+
+	SetViewport(0, 0.0f, 0.0f, InitWidth, InitHeight);
+	SetViewport(1, InitWidth, 0.0f, InitWidth , InitHeight);
+	SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight);
+	SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight);
+	SetViewport(4, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
 
 	//SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
 
@@ -155,15 +156,8 @@ void FDevice::OnUpdateWindowSize(int Width, int Height)
 		float WindowWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width);
 		float WindowHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height);
 
-		// 뷰포트 정보 가져오기
-		FViewport* Viewport = FViewportClient::Get().GetViewport();
-
-		// 윈도우 크기에 맞게 뷰포트 크기 갱신
-		Viewport->SetWidth(WindowWidth);
-		Viewport->SetHeight(WindowHeight);
-
 		// 현재 서브 윈도우 설정에 맞춰 뷰포트 갱신
-		UpdateViewport(Viewport);
+		UpdateViewport();
 	}
 }
 
@@ -294,10 +288,6 @@ void FDevice::SetRenderTarget(int Index) const
 
 	// Rasterization할 Viewport를 설정 
 	FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo[Index]);
-
-
-
-
 }
 
 void FDevice::PickingPrepare() const
@@ -321,18 +311,25 @@ void FDevice::SetViewport(int index, float TopLeftX, float TopLeftY, float Width
 	};
 }
 
-void FDevice::UpdateViewport(FViewport* Viewport) {
+void FDevice::UpdateViewport() {
 	float WindowWidth = static_cast<float>(UEngine::Get().GetScreenWidth());
 	float WindowHeight = static_cast<float>(UEngine::Get().GetScreenHeight());
 
-	SetViewport(0, 0.0f, 0.0f, WindowWidth, WindowHeight);
-	SetViewport(1, 0.0f, 0.0f, Viewport->SplitterV->SideLT->Rect.GetWidth() * WindowWidth / 2, Viewport->SplitterH->SideLT->Rect.GetHeight() * WindowHeight / 2);
-	SetViewport(2, GetWindowPosFromNDC(FVector(Viewport->SplitterV->SideRB->Rect.Left, 0.0f, 0.0f), WindowWidth, WindowHeight).X, 0.0f,
-		Viewport->SplitterV->SideRB->Rect.GetWidth() * WindowWidth / 2, Viewport->SplitterH->SideLT->Rect.GetHeight() * WindowHeight / 2);
-	SetViewport(3, 0.0f, GetWindowPosFromNDC(FVector(0.0f, Viewport->SplitterH->SideRB->Rect.Top, 0.0f),
-		WindowWidth, WindowHeight).Y, Viewport->SplitterV->SideLT->Rect.GetWidth() * WindowWidth / 2, Viewport->SplitterH->SideRB->Rect.GetHeight() * WindowHeight / 2);
-	SetViewport(4, GetWindowPosFromNDC(FVector(Viewport->SplitterV->SideRB->Rect.Left, 0.0f, 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(0.0f, Viewport->SplitterH->SideRB->Rect.Top, 0.0f), WindowWidth, WindowHeight).Y,
-		Viewport->SplitterV->SideRB->Rect.GetWidth() * WindowWidth / 2, Viewport->SplitterH->SideRB->Rect.GetHeight() * WindowHeight / 2);
+	// 뷰포트 불러오기
+	std::shared_ptr<FViewport> Viewport1 = FViewportClient::Get().GetViewport(0);
+	std::shared_ptr<FViewport> Viewport2 = FViewportClient::Get().GetViewport(1);
+	std::shared_ptr<FViewport> Viewport3 = FViewportClient::Get().GetViewport(2);
+	std::shared_ptr<FViewport> Viewport4 = FViewportClient::Get().GetViewport(3);
+
+	SetViewport(0, 0.0f, 0.0f, Viewport1->GetWidth() * WindowWidth / 2, Viewport1->GetHeight() * WindowHeight / 2);
+	SetViewport(1, GetWindowPosFromNDC(FVector(Viewport2->GetX(), Viewport2->GetY(), 0.0f), WindowWidth, WindowHeight).X, 0.0f,
+		Viewport2->GetWidth() * WindowWidth / 2, Viewport2->GetHeight() * WindowHeight / 2);
+	SetViewport(2, 0.0f, GetWindowPosFromNDC(FVector(Viewport3->GetX(), Viewport3->GetY(), 0.0f),
+		WindowWidth, WindowHeight).Y, Viewport3->GetWidth() * WindowWidth / 2, Viewport3->GetHeight() * WindowHeight / 2);
+	SetViewport(3, GetWindowPosFromNDC(FVector(Viewport4->GetX(), Viewport4->GetY(), 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(Viewport4->GetX(), Viewport4->GetY(), 0.0f), WindowWidth, WindowHeight).Y,
+		Viewport4->GetWidth() * WindowWidth / 2, Viewport4->GetHeight() * WindowHeight / 2);
+	SetViewport(4, 0.0f, 0.0f, WindowWidth, WindowHeight);
+
 }
 
 FVector FDevice::GetWindowPosFromNDC(FVector NDCPos, float Width, float Height) 
