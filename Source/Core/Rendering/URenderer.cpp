@@ -31,7 +31,6 @@ void URenderer::Create(HWND hWindow)
 	FViewportClient::Get().Create();
 
 	//LoadTexture(L"font_atlas.png");
-	LoadTexture(L"Pretendard_Kor.png");
 }
 
 void URenderer::Release()
