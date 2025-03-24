@@ -8,20 +8,6 @@ ACylinder::ACylinder()
     bCanEverTick = true;
 
     UCylinderComp* CylinderComponent = AddComponent<UCylinderComp>();
-	
-	UCylinderComp* CylinderComponent2 = AddComponent<UCylinderComp>();
-	CylinderComponent2->SetRelativeTransform({
-		FVector(0.0f, 0.0f, 0.0f),
-		FVector(90.0f, 0.0f, 0.0f),
-		FVector(1.0f)
-	});
-
-	UCylinderComp* CylinderComponent3 = AddComponent<UCylinderComp>();
-	CylinderComponent3->SetRelativeTransform({
-		FVector(0.0f, 0.0f, 0.0f),
-		FVector(0.0f, 90.0f, 0.0f),
-		FVector(1.0f)
-	});
 
     SetActorTransform(FTransform());
 }
