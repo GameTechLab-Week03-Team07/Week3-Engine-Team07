@@ -106,7 +106,7 @@ void UWorld::Render(uint32 ViewportIndex)
 
 	ACamera* cam = nullptr;
 
-	if (ViewportIndex == 2 || ViewportIndex == 4)
+	if (ViewportIndex == 2)
 	{
 		cam = GetCameraList()[2];
 		SetCamera(cam);

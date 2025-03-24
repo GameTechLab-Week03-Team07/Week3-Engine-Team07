@@ -41,10 +41,12 @@ LRESULT UEngine::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 	{
+		uint32 FocusedViewportIndex = FViewportClient::Get().GetFocusedViewportIndex();
+		ACamera* CurrentCamera = UEngine::Get().GetWorld()->GetCameraList()[FocusedViewportIndex];
 		// 마우스 휠 이벤트 처리
 		short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-		float curZoomSize = UEngine::Get().GetWorld()->GetCamera()->GetZoomSize();
-		UEngine::Get().GetWorld()->GetCamera()->SetZoomSize(curZoomSize + zDelta);
+		float curZoomSize = CurrentCamera->GetZoomSize();
+		CurrentCamera->SetZoomSize(curZoomSize + zDelta);
 		break;
 
 	}
@@ -155,7 +157,7 @@ void UEngine::Run()
 			FDevice::Get().SetRenderTarget(4);
 			FViewportClient::Get().Drag();
 			FViewportClient::Get().Render();
-
+			FViewportClient::Get().SetFocusedViewport();
 		}
 
         //각 Actor에서 TickActor() -> PlayerTick() -> TickPlayerInput() 호출하는데 지금은 Message에서 처리하고 있다
@@ -261,8 +263,6 @@ void UEngine::InitWorld()
 	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	TopViewCamera->SetActorRotation(FVector(-90.0f, 0.0f, 0.0f));
 	World->AddCamera(TopViewCamera);
-
-
 
 	World->SetCamera(PerspectiveCamera);
 
