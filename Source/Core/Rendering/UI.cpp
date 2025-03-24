@@ -18,6 +18,7 @@
 #include "Object/World/World.h"
 #include "Static/FEditorManager.h"
 #include "Static/FUUIDBillBoard.h"
+#include "Static/ViewportClient.h"
 // #include "FDevice.h"
 // #include "FViewMode.h"
 // #include "Core/Engine.h"
@@ -582,14 +583,24 @@ void UI::RenderViewModePanel() const
 {
 	if (ImGui::Begin("View Mode"))
 	{													
-		static const char* viewModeNames[] = { "Default", "Solid", "Wireframe" };
+		static const char* viewModeNames[] = { "Default", "Solid", "Wireframe"};
 		int currentViewMode = static_cast<int>(FViewMode::Get().GetViewMode());
 
 		if (ImGui::Combo("View Mode", &currentViewMode, viewModeNames, IM_ARRAYSIZE(viewModeNames)))
 		{
 			FViewMode::Get().SetViewMode((static_cast<EViewModeIndex>(currentViewMode)));
 		}
+
+		// 레이아웃 변경(분할 레이아웃)
+		bool IsSplitLayout = FViewportClient::Get().GetIsSplitLayout();
+		if (ImGui::Checkbox("SplitLayout", &IsSplitLayout))
+		{
+			FViewportClient::Get().SetIsSplitLayout(IsSplitLayout);
+		}
+
 	}
+
+
 	ImGui::End();
 }
 

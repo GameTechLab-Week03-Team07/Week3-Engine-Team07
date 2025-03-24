@@ -11,6 +11,8 @@
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
 #include "Static/ViewportClient.h"
+#include <Debug/EngineShowFlags.h>
+#include "Rendering/FViewMode.h"
 
 
 class AArrow;
@@ -144,20 +146,35 @@ void UEngine::Run()
 		{
 			FDevice::Get().Clear();
 
-			for (int i = 0; i < 4; i++)
+			if (FViewportClient::Get().GetIsSplitLayout())
 			{
-				FDevice::Get().SetRenderTarget(i);
+				for (int i = 0; i < 4; i++)
+				{
+					FDevice::Get().SetRenderTarget(i);
+					World->Tick(EngineDeltaTime);
+					World->Render(i);
+
+					FEditorManager::Get().LateTick(EngineDeltaTime);
+					World->LateTick(EngineDeltaTime);
+				}
+
+				FDevice::Get().SetRenderTarget(4);
+				FViewportClient::Get().Drag();
+				FViewportClient::Get().Render();
+				FViewportClient::Get().SetFocusedViewport();
+			}
+			else
+			{
+				FDevice::Get().SetRenderTarget(4);
 				World->Tick(EngineDeltaTime);
-				World->Render(i);
+				World->Render(4);
 
 				FEditorManager::Get().LateTick(EngineDeltaTime);
 				World->LateTick(EngineDeltaTime);
+
+				FEditorManager::Get().GetCamera()->SetIsControllable(true);
 			}
 
-			FDevice::Get().SetRenderTarget(4);
-			FViewportClient::Get().Drag();
-			FViewportClient::Get().Render();
-			FViewportClient::Get().SetFocusedViewport();
 		}
 
         //각 Actor에서 TickActor() -> PlayerTick() -> TickPlayerInput() 호출하는데 지금은 Message에서 처리하고 있다
@@ -237,8 +254,6 @@ void UEngine::InitRenderer()
 	// 렌더러 초기화
 	Renderer = std::make_unique<URenderer>();
 	Renderer->Create(WindowHandle);
-	//Renderer->CreateShader();
-	//Renderer->CreateConstantBuffer();
 }
 
 void UEngine::InitWorld()
@@ -246,19 +261,30 @@ void UEngine::InitWorld()
     World = FObjectFactory::ConstructObject<UWorld>();
 	World->InitWorld();
 
+	InitCamera();
+
+	FLineBatchManager::Get().DrawWorldGrid(World->GetGridSize(), World->GetGridSize() / 100.f);
+
+	World->BeginPlay();
+}
+
+void UEngine::InitCamera() 
+{
 	ACamera* FrontViewCamera = World->SpawnActor<ACamera>();
 	FrontViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	FrontViewCamera->SetOrthoViewType(EOrthoViewMode::Front);
 	FrontViewCamera->SetActorPosition(FVector(-5.0f, 0.0f, 0.0f));
 	FrontViewCamera->SetActorRotation(FVector(0.0f, 0.0f, 0.0f));
 	World->AddCamera(FrontViewCamera);
 	FEditorManager::Get().AddCamera(FrontViewCamera);
 
-	ACamera* RightViewCamera = World->SpawnActor<ACamera>();
-	RightViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
-	RightViewCamera->SetActorPosition(FVector(0.0f, 5.0f, 0.0f));
-	RightViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
-	World->AddCamera(RightViewCamera);
-	FEditorManager::Get().AddCamera(RightViewCamera);
+	ACamera* SideViewCamera = World->SpawnActor<ACamera>();
+	SideViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
+	SideViewCamera->SetOrthoViewType(EOrthoViewMode::Side);
+	SideViewCamera->SetActorPosition(FVector(0.0f, 5.0f, 0.0f));
+	SideViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
+	World->AddCamera(SideViewCamera);
+	FEditorManager::Get().AddCamera(SideViewCamera);
 
 	ACamera* PerspectiveCamera = World->SpawnActor<ACamera>();
 	PerspectiveCamera->ProjectionMode = ECameraProjectionMode::Perspective;
@@ -267,29 +293,14 @@ void UEngine::InitWorld()
 
 	ACamera* TopViewCamera = World->SpawnActor<ACamera>();
 	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
-	TopViewCamera->SetIsTopView(true);
+	TopViewCamera->SetOrthoViewType(EOrthoViewMode::Top);
 	TopViewCamera->SetActorPosition(FVector(0.0f, 0.0f, 5.0f));
 	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
 	World->AddCamera(TopViewCamera);
 	FEditorManager::Get().AddCamera(TopViewCamera);
 
 	World->SetCamera(PerspectiveCamera);
-
-    FEditorManager::Get().SetCamera(World->GetCamera());
-
-	////Test
-	//FLineBatchManager::Get().AddLine(FVector{ 3.0f,3.0f,0.0f }, { -3.f,-3.f,0.0f });
-	//FLineBatchManager::Get().AddLine(FVector{ 6.0f,6.0f,6.0f }, { -6.f,-6.f,-6.0f });
-	//FLineBatchManager::Get().AddLine(FVector{ 6.0f,6.0f,7.0f }, { -6.f,-6.f,-7.0f });
-	//FLineBatchManager::Get().AddLine(FVector{ 6.0f,6.0f,8.0f }, { -6.f,-6.f,-8.0f });
-
-	FLineBatchManager::Get().DrawWorldGrid(World->GetGridSize(), World->GetGridSize() / 100.f);
-
-    //// Test
-    //AArrow* Arrow = World->SpawnActor<AArrow>();
-    //World->SpawnActor<ASphere>();
-
-	World->BeginPlay();
+	FEditorManager::Get().SetCamera(World->GetCamera());
 }
 
 void UEngine::ShutdownWindow()

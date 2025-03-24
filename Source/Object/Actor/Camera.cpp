@@ -113,10 +113,22 @@ void ACamera::MoveForward()
 	// 카메라 컨트롤 막았으면 return
 	if (!bIsControllable) return;
 
-	if (bIsTopView)
+	if (OrthoViewMode == EOrthoViewMode::Top)
 	{
 		FVector Position = GetActorPosition();
 		Position.X += CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Front)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z += CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Side)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z += CameraSpeed * UEngine::GetDeltaTime();
 		SetActorPosition(Position);
 	}
 	else
@@ -131,10 +143,22 @@ void ACamera::MoveBackward()
 {
 	if (!bIsControllable) return;
 
-	if (bIsTopView)
+	if (OrthoViewMode == EOrthoViewMode::Top)
 	{
 		FVector Position = GetActorPosition();
 		Position.X -= CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Front)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z -= CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Side)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z -= CameraSpeed * UEngine::GetDeltaTime();
 		SetActorPosition(Position);
 	}
 	else

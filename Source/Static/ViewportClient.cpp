@@ -200,16 +200,6 @@ void FViewportClient::UpdateDragState()
 	}
 }
 
-uint32 FViewportClient::GetHoveredViewport() {
-	for (int i = 0; i < 4; i++)
-	{
-		if (FViewportClient::Get().GetViewport(i)->IsHover(APlayerInput::Get().GetMouseNDCPos()))
-		{
-			return i;
-		}
-	}
-}
-
 void FViewportClient::SetFocusedViewport() {
 	for (int i = 0; i < 4; i++)
 	{

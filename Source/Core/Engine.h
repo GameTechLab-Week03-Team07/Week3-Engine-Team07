@@ -59,6 +59,7 @@ private:
     //void InitDevice();
     void InitRenderer();
     void InitWorld();
+	void InitCamera();
     void ShutdownWindow();
     void UpdateWindowSize(uint32 InScreenWidth, uint32 InScreenHeight);
 

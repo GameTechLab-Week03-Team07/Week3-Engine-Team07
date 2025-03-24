@@ -30,6 +30,9 @@ public:
 	inline std::shared_ptr<FViewport> GetViewport(uint32 index) { return Viewports[index]; }
 	inline void AddViewport(int32 InX, int32 InY, int32 InWidth, int32 InHeight) { Viewports.Add(std::make_shared<FViewport>(InX, InY, InWidth, InHeight)); }
 
+	inline bool GetIsSplitLayout() { return bSplitLayout; }
+	inline void SetIsSplitLayout(bool bInSplitLayout) { bSplitLayout = bInSplitLayout; }
+
 private:
 	TArray<FVertexSimple> VertexBuffer;
 	TArray<uint32> IndexBuffer;
@@ -45,4 +48,6 @@ private:
 	bool bIsDragSplitterV = false;
 
 	uint32 FocusedViewportIndex = 2;
+
+	bool bSplitLayout = false;
 };

@@ -131,6 +131,11 @@ void UWorld::Render(uint32 ViewportIndex)
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
+	default:
+		cam = FEditorManager::Get().GetCameraList()[2];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
 	}
 
 	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
