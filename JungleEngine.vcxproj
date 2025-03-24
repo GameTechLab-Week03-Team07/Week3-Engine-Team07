@@ -180,6 +180,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Archive.cpp" />
+    <ClCompile Include="Source\WindowsBinReader.cpp" />
+    <ClCompile Include="Source\WindowsBinWriter.cpp" />
     <ClCompile Include="Source\Core\Rendering\FStateGroupEnableManager.cpp" />
     <ClCompile Include="Source\Resource\StaticMesh\FStaticMeshManager.cpp" />
     <ClCompile Include="Source\Resource\StaticMesh\FObjImporter.cpp" />
@@ -320,6 +323,9 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Archive.h" />
+    <ClInclude Include="Source\WindowsBinReader.h" />
+    <ClInclude Include="Source\WindowsBinWriter.h" />
     <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h" />
     <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
@@ -559,6 +565,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Object>
+    <Object Include="Contents\StaticMesh\pirate.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
