@@ -27,8 +27,6 @@ void URenderer::Create(HWND hWindow)
 	FViewMode::Get().Initialize(FDevice::Get().GetDevice());
 	FLineBatchManager::Get().Create();
 	FUUIDBillBoard::Get().Create();
-
-	LoadTexture(L"Pretendard_Kor.png");
 }
 
 void URenderer::Release()
@@ -42,30 +40,6 @@ void URenderer::Release()
 void URenderer::Render(FRenderResourceCollection& InRenderResourceCollection)
 {
 	InRenderResourceCollection.Render();
-}
-
-void URenderer::LoadTexture(const wchar_t* texturePath)
-{
-	DirectX::CreateWICTextureFromFile(FDevice::Get().GetDevice(), FDevice::Get().GetDeviceContext(), texturePath, nullptr, &FontTextureSRV);
-	
-	D3D11_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	FDevice::Get().GetDevice()->CreateSamplerState(&samplerDesc, &FontSamplerState);
-	FDevice::Get().GetDeviceContext()->PSSetShaderResources(0, 1, &FontTextureSRV);
-	FDevice::Get().GetDeviceContext()->PSSetSamplers(0, 1, &FontSamplerState);
 }
 
 // void URenderer::ReleasePickingFrameBuffer()

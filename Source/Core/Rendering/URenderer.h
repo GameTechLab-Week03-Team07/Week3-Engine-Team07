@@ -20,10 +20,6 @@ public:
 
 	void Render(class FRenderResourceCollection& InRenderResourceCollection);
 
-	void LoadTexture(const wchar_t* texturePath);
-	ID3D11ShaderResourceView* FontTextureSRV = nullptr;
-	ID3D11SamplerState* FontSamplerState = nullptr;
-    
 protected:
     unsigned int Stride = 0;                                // Vertex 버퍼의 각 요소 크기
 
