@@ -6,6 +6,7 @@
 
 #include "Object/Actor/Camera.h"
 #include "Core/Input/PlayerInput.h"
+#include "Debug/DebugConsole.h"
 
 AGizmoActor::AGizmoActor()
 {
@@ -228,7 +229,7 @@ void AGizmoActor::DoTransform(FTransform& AT, FVector Result, AActor* Actor)
 			AT.SetPosition({ Result.X, AP.Y, AP.Z });
  			break;
  		case EGizmoType::Rotate:
- 			AT.RotatePitch(Result.X);
+ 			AT.RotateRoll(Result.X);
  			break;
  		case EGizmoType::Scale:
  			AT.AddScale({ Result.X * .01f, 0, 0 });
@@ -243,7 +244,7 @@ void AGizmoActor::DoTransform(FTransform& AT, FVector Result, AActor* Actor)
  			AT.SetPosition({ AP.X, Result.Y, AP.Z });
  			break;
  		case EGizmoType::Rotate:
- 			AT.RotateRoll(Result.Y);
+ 			AT.RotatePitch(Result.Y);
  			break;
  		case EGizmoType::Scale:
  			AT.AddScale({ 0, Result.Y * .01f, 0 });
@@ -258,7 +259,7 @@ void AGizmoActor::DoTransform(FTransform& AT, FVector Result, AActor* Actor)
  			AT.SetPosition({ AP.X, AP.Y, Result.Z });
  			break;
  		case EGizmoType::Rotate:
- 			AT.RotatePitch(-Result.Z);
+ 			AT.RotateYaw(-Result.Z);
  			break;
  		case EGizmoType::Scale:
  			AT.AddScale({0, 0, Result.Z * .01f });
