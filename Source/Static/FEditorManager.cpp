@@ -73,8 +73,6 @@ void FEditorManager::SelectActor(AActor* NewActor)
 		    Gizmo->SetActorTransform(newActorTransform);
 			Gizmo->UpdateGizmoTransform(SelectedActor);
 	}
-
-
 }
 
 void FEditorManager::SetCamera(ACamera* NewCamera)
@@ -149,7 +147,10 @@ void FEditorManager::LateTick([[maybe_unused]] float DeltaTime)
 
 			if (const UGizmoComponent* GizmoCom = Cast<UGizmoComponent>(PickedComponent))
 			{
-				Gizmo->SetSelectedAxis(GizmoCom->GetSelectedAxis());
+				if (Gizmo)
+				{
+					Gizmo->SetSelectedAxis(GizmoCom->GetSelectedAxis());
+				}
 			}
 		}
 	}
