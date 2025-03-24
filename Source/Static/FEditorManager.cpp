@@ -73,11 +73,6 @@ void FEditorManager::SelectActor(AActor* NewActor)
 	   }
 }
 
-void FEditorManager::SetCamera(ACamera* NewCamera)
-{
-    Camera = NewCamera;
-}
-
 FVector4 FEditorManager::EncodeUUID(uint32 UUID)
 {
 	const uint32 a = (UUID >> 24) & 0xff;

@@ -6,6 +6,7 @@
 
 #include "Object/Actor/Camera.h"
 #include "Core/Input/PlayerInput.h"
+#include <Static/ViewportClient.h>
 
 AGizmoActor::AGizmoActor()
 {
@@ -119,12 +120,44 @@ void AGizmoActor::Tick(float DeltaTime)
 
 			RECT Rect;
 			GetClientRect(UEngine::Get().GetWindowHandle(), &Rect);
+
 			int ScreenWidth = Rect.right - Rect.left;
 			int ScreenHeight = Rect.bottom - Rect.top;
 
-			// 커서 위치를 NDC로 변경
-			float PosX = 2.0f * pt.x / ScreenWidth - 1.0f;
-			float PosY = -2.0f * pt.y / ScreenHeight + 1.0f;
+			// 현재 포커스된 뷰포트의 정보를 가져옴
+			FViewportClient& ViewportClient = FViewportClient::Get();
+			uint32 CurrentViewportIndex = ViewportClient.GetFocusedViewportIndex();
+			std::shared_ptr<FViewport> CurrentViewport = ViewportClient.GetViewport(CurrentViewportIndex);
+
+			// 뷰포트 크기 정보
+			int ViewportWidth = CurrentViewport->GetWidth() * ScreenWidth / 2;
+			int ViewportHeight = CurrentViewport->GetHeight() * ScreenHeight / 2;
+
+			// 뷰포트의 시작 위치를 NDC에서 Window좌표로 변환
+			float WindowPosFromViewportX = (CurrentViewport->GetX() + 1) * ScreenWidth / 2;
+			float WindowPosFromViewportY = (1 - CurrentViewport->GetY()) * ScreenHeight / 2;
+
+			// 마우스 포인터 뷰포트 넘어가서 좌표 오류나는 것 방지
+			if (pt.x < WindowPosFromViewportX)
+			{
+				pt.x = WindowPosFromViewportX;
+			}
+			else if (pt.x > WindowPosFromViewportX + ViewportWidth)
+			{
+				pt.x = WindowPosFromViewportX + ViewportWidth;
+			}
+			else if (pt.y < WindowPosFromViewportY)
+			{
+				pt.y = WindowPosFromViewportY;
+			}
+			else if (pt.y > WindowPosFromViewportY + ViewportHeight)
+			{
+				pt.y = WindowPosFromViewportY + ViewportHeight;
+			}
+
+			// 커서 위치를 NDC로 변경(뷰포트의 좌상단을 0,0으로)
+			float PosX = 2.0f * (pt.x - WindowPosFromViewportX) / ViewportWidth - 1.0f;
+			float PosY = -2.0f * (pt.y - WindowPosFromViewportY) / ViewportHeight + 1.0f;
 
 			// Projection 공간으로 변환
 			FVector4 RayOrigin{ PosX, PosY, 0.0f, 1.0f };
@@ -144,7 +177,29 @@ void AGizmoActor::Tick(float DeltaTime)
 			RayOrigin /= RayOrigin.W = 1;
 			RayEnd = InvViewMat.TransformVector4(RayEnd);
 			RayEnd /= RayEnd.W = 1;
+
+			ACamera* CurrentCamera = FEditorManager::Get().GetCameraList()[CurrentViewportIndex];
+
 			FVector RayDir = (RayEnd - RayOrigin).GetSafeNormal();
+
+			// Orthographic일 경우 원근이 적용되지 않기 때문에
+			if (CurrentCamera->ProjectionMode == ECameraProjectionMode::Orthographic)
+			{
+				FVector CameraPos = CurrentCamera->GetActorPosition();
+				FVector CameraRight = CurrentCamera->GetRight();
+				FVector CameraUp = CurrentCamera->GetUp();
+				FVector CameraForward = CurrentCamera->GetForward();
+
+				FMatrix InvProjMat = CurrentCamera->GetProjectionMatrix().Inverse();
+				FVector4 OffsetInView = InvProjMat.TransformVector4({ PosX, PosY, 0.0f, 1.0f });
+				OffsetInView /= OffsetInView.W;
+
+				// RayOrigin은 카메라 위치 + 마우스 offset기반으로 구함
+				RayOrigin = FVector4(CameraPos + CameraRight * OffsetInView.X + CameraUp * OffsetInView.Y, 1.0f);
+
+				// Orthographic일 경우 RayDir 방향은 카메라 방향으로 고정
+				RayDir = CurrentCamera->GetForward();
+			}
 
 			// 액터와의 거리
 			float Distance = FVector::Distance(RayOrigin, Actor->GetActorTransform().GetPosition());

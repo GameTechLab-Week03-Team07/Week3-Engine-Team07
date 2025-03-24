@@ -251,15 +251,19 @@ void UEngine::InitWorld()
 	FrontViewCamera->SetActorPosition(FVector(-5.0f, 0.0f, 0.0f));
 	FrontViewCamera->SetActorRotation(FVector(0.0f, 0.0f, 0.0f));
 	World->AddCamera(FrontViewCamera);
+	FEditorManager::Get().AddCamera(FrontViewCamera);
 
 	ACamera* RightViewCamera = World->SpawnActor<ACamera>();
 	RightViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	RightViewCamera->SetActorPosition(FVector(0.0f, 5.0f, 0.0f));
 	RightViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
 	World->AddCamera(RightViewCamera);
+	FEditorManager::Get().AddCamera(RightViewCamera);
 
 	ACamera* PerspectiveCamera = World->SpawnActor<ACamera>();
+	PerspectiveCamera->ProjectionMode = ECameraProjectionMode::Perspective;
 	World->AddCamera(PerspectiveCamera);
+	FEditorManager::Get().AddCamera(PerspectiveCamera);
 
 	ACamera* TopViewCamera = World->SpawnActor<ACamera>();
 	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
@@ -267,6 +271,7 @@ void UEngine::InitWorld()
 	TopViewCamera->SetActorPosition(FVector(0.0f, 0.0f, 5.0f));
 	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
 	World->AddCamera(TopViewCamera);
+	FEditorManager::Get().AddCamera(TopViewCamera);
 
 	World->SetCamera(PerspectiveCamera);
 

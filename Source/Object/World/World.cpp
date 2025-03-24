@@ -109,23 +109,27 @@ void UWorld::Render(uint32 ViewportIndex)
 	switch (ViewportIndex)
 	{
 	case 0:
-		cam = GetCameraList()[0];
+		cam = FEditorManager::Get().GetCameraList()[0];
 		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
 		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
 		break;
 	case 1:
-		cam = GetCameraList()[1];
+		cam = FEditorManager::Get().GetCameraList()[1];
 		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
 		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
 		break;
 	case 2:
-		cam = GetCameraList()[2];
+		cam = FEditorManager::Get().GetCameraList()[2];
 		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
 		break;
 	case 3:
-		cam = GetCameraList()[3];
+		cam = FEditorManager::Get().GetCameraList()[3];
 		cam->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
 		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
 		break;
 	}
 
