@@ -538,12 +538,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Image>
-    <Image Include="font_atlas.dds" />
-    <Image Include="font_atlas.png" />
     <Image Include="Pretendard_Kor.png" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="font_atlas.txt" />
     <Text Include="Pretendard_Kor.txt" />
   </ItemGroup>
   <ItemGroup>

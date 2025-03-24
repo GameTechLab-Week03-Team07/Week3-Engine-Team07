@@ -141,12 +141,6 @@ void FDevice::InitResource()
 
 		FSampler::Create("LinearSamplerState", samplerDesc);
 	}
-	
-	{
-		// TextureSRV
-		std::shared_ptr<FTexture> TextureImage = FTexture::Load("font_atlas.dds", "SubUVTexture");
-		TextureImage->CreateShaderResourceView();
-	}
 
 	{
 		// Blend
