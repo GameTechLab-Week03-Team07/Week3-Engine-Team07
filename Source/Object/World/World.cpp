@@ -33,6 +33,8 @@ void UWorld::InitWorld()
 {
 	//TODO : 
 	GridSize = FString::ToFloat(UConfigManager::Get().GetValue(TEXT("World"), TEXT("GridSize")));
+	ExcludedClasses.Add(FString("ACamera"));
+	ExcludedClasses.Add(FString("AGizmoActor"));
 }
 
 void UWorld::BeginPlay()
@@ -321,6 +323,20 @@ void UWorld::LoadWorld(const char* InSceneName)
 		
 		Actor->SetActorTransform(Transform);
 	}
+}
+
+TArray<AActor*>& UWorld::GetDisplayedActors() {
+	DisplayedActors.Empty();
+
+	for (AActor* Actor : Actors)
+	{
+		if (Actor && ExcludedClasses.Find(Actor->GetClass()->GetName()) == -1)
+		{
+			DisplayedActors.Add(Actor);
+		}
+	}
+
+	return DisplayedActors;
 }
 
 void UWorld::RayCasting(const FVector& MouseNDCPos)
