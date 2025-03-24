@@ -1,7 +1,14 @@
+#pragma once
+
 #include "Core/Container/String.h"
 #include "Object/MeshComponent/UMeshComponent.h"
 #include "Resource/StaticMesh/UStaticMesh.h"
 #include "Resource/StaticMesh/FStaticMeshManager.h"
+
+struct alignas(16) FConstantStaticData
+{
+	int MaterialIndex;
+};
 
 // 정적 메시 컴포넌트 클래스
 class UStaticMeshComponent : public UMeshComponent
@@ -13,6 +20,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void Render() override;
+
+	void UpdateStaticConstantBuffer(const FConstantStaticData& InData);
+
 
 	// 메시 설정 함수
 	void SetStaticMesh(UStaticMesh* InStaticMesh);
@@ -57,4 +67,6 @@ protected:
 
 	// 메시 데이터로부터 바운드 계산
 	virtual FBoxSphereBounds CalcMeshBounds(const FTransform& LocalToWorld) const override;
+
+	FConstantStaticData ConstantsStaticData;
 };

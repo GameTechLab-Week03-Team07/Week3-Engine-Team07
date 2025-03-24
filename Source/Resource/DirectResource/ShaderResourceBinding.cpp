@@ -1,6 +1,8 @@
 #include "ShaderResourceBinding.h"
 #include "Debug/DebugConsole.h"
 
+#include "Core/Rendering/FDevice.h"
+
 void FConstantBufferBinding::Setting()
 {
 
@@ -82,4 +84,27 @@ void FSamplerBinding::Setting()
 void FSamplerBinding::Reset()
 {
 	FShaderResourceBinding::Reset();
+}
+
+// Refactor
+void FTextureArrayBinding::Setting()
+{
+	if (bIsUseVertexShader) {
+		FDevice::Get().GetDeviceContext()->VSSetShaderResources(BindPoint, 1, &SRV);
+	}
+	if (bIsUsePixelShader) {
+		FDevice::Get().GetDeviceContext()->PSSetShaderResources(BindPoint, 1, &SRV);
+	}
+}
+
+void FTextureArrayBinding::Reset()
+{
+	ID3D11ShaderResourceView* ResetRes = nullptr;
+	if (bIsUseVertexShader) {
+		FDevice::Get().GetDeviceContext()->VSSetShaderResources(BindPoint, 1, &ResetRes);
+	}
+	if (bIsUsePixelShader) {
+		FDevice::Get().GetDeviceContext()->PSSetShaderResources(BindPoint, 1, &ResetRes);
+	}
+
 }

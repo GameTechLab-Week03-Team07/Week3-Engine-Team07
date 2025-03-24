@@ -17,6 +17,11 @@
 #include "Primitive/UGeometryGenerator.h"
 #include "Resource/StaticMesh/FStaticMeshManager.h"
 
+struct alignas(16) FConstantStaticData
+{
+	int MaterialIndex;
+};
+
 void FDevice::InitResource()
 {
 	// 테스트용 - obj파일 preload
@@ -42,6 +47,7 @@ void FDevice::InitResource()
 	FPixelShader::Load(L"Shaders/Font_PS.hlsl", "Font_PS", "Font_PS");
 	FPixelShader::Load(L"Shaders/SubUV_PS.hlsl", "SubUV_PS", "SubUV_PS");
 	FConstantBuffer::Create("DefaultConstantBuffer", sizeof(FConstantsComponentData));
+	FConstantBuffer::Create("MaterialConstants", sizeof(FConstantStaticData));
 
 	//FPixelShader::Load(L"Shaders/Font_PS.hlsl","Font_PS","Font_PS");
 	{

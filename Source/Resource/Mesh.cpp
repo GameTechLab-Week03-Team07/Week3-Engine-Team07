@@ -24,7 +24,11 @@ void FMesh::Setting()
 
 void FMesh::Draw()
 {
-	
 	FDevice::Get().GetDeviceContext()->DrawIndexed(IndexBuffer->GetIndexCount(), 0, 0);
 }
 
+
+void FMesh::Draw(const FSubMeshSection& section)
+{
+	FDevice::Get().GetDeviceContext()->DrawIndexed(section.indexCount, section.indexStart, 0);
+}

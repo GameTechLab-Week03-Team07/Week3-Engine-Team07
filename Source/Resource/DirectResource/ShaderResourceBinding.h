@@ -50,6 +50,17 @@ public:
 	void Reset() override;
 };
 
+class FTextureArrayBinding : public FShaderResourceBinding {
+public:
+	friend class FRenderResourceCollection;
+
+	ID3D11ShaderResourceView* SRV = nullptr;
+
+	std::shared_ptr<FTexture> Res;
+	void Setting();
+	void Reset();
+};
+
 //쉐이더가 샘플러를 받아 텍스쳐를 바인딩하기 위한 클래스
 class FSamplerBinding  : public FShaderResourceBinding
 {

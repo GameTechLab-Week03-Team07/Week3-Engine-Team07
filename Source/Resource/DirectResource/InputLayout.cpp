@@ -4,12 +4,20 @@
 #include "Debug/DebugConsole.h"
 
 
-D3D11_INPUT_ELEMENT_DESC FInputLayout:: LayoutDesc[] = {
+D3D11_INPUT_ELEMENT_DESC FInputLayout::LayoutDesc[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
+};
+
+// 이걸 추가로 작성할 필요가 있을까?
+//D3D11_INPUT_ELEMENT_DESC FInputLayout::LayoutTextureArrayDesc[] = {
+//		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+//		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+//};
 
 FInputLayout::~FInputLayout()
 {
@@ -20,9 +28,9 @@ FInputLayout::~FInputLayout()
 	}
 }
 
+
 void FInputLayout::ResCreate(std::shared_ptr<FVertexShader> _Shader)
 {
-	
 	//const std::vector<D3D11_INPUT_ELEMENT_DESC>& Infos = _Buffer->VertexInfoPtr->Infos;
 
 	FDevice::Get().GetDevice()->CreateInputLayout(
@@ -32,19 +40,14 @@ void FInputLayout::ResCreate(std::shared_ptr<FVertexShader> _Shader)
 		_Shader->BinaryCode->GetBufferSize(),
 		&LayOut);
 
-	if (nullptr == LayOut)
-	{
-		MsgBoxAssert("Error: FInputLayout Create Failed") ;
-	}
+	if (LayOut == nullptr) MsgBoxAssert("Error: FInputLayout Create Failed");
 }
 
 void FInputLayout::Setting()
 {
-	if (nullptr == LayOut)
-	{
-		MsgBoxAssert("Error: FInputLayout Create Failed") ;
-	}
+	if (LayOut == nullptr) MsgBoxAssert("Error: FInputLayout Create Failed in LayOut Setting");
 
 	// 버텍스버퍼를 여러개 넣어줄수 있다.
 	FDevice::Get().GetDeviceContext()->IASetInputLayout(LayOut);
+	return;
 }

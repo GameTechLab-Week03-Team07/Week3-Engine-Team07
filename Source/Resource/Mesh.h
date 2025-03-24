@@ -10,11 +10,14 @@
 #include "Resource/DirectResource/Vertexbuffer.h"
 #include "Resource/DirectResource/IndexBuffer.h"
 #include "Debug/DebugConsole.h"
+#include "StaticMesh/StaticMeshTypes.h"
 
 class FMesh : public FResource<FMesh>
 {
 public:
 	FMesh() = default;
+
+	TArray<FSubMeshSection> Sections;
 
 	static std::shared_ptr<FMesh> Create(const FString& InName, D3D_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	{
@@ -65,7 +68,9 @@ public:
 	}
 
 	void Setting();
+
 	void Draw();
+	void Draw(const FSubMeshSection& section);
 
 	std::shared_ptr<FVertexBuffer> GetVertexBuffer()
 	{

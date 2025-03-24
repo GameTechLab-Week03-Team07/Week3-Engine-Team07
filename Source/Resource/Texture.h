@@ -28,8 +28,6 @@ public:
 	{
 		std::shared_ptr<FTexture> NewRes = CreateRes(InName);
 		NewRes->ResLoad(InPath);
-		// NewRes->Filter = _Filter;
-		// NewRes->Address = _Address;
 		return NewRes;
 	}
 	
@@ -100,4 +98,10 @@ private:
 	void ResLoad(const FString& InPath);
 	void ResCreate(const D3D11_TEXTURE2D_DESC& Desc);
 	void ResCreate(ID3D11Texture2D* InRes);
+
+
+	void ResLoad(const TArray<FString>& InPaths);
+	HRESULT CreateTexture2DArrayFromFiles(ID3D11Device* device, const std::vector<std::wstring>& fileNames, ID3D11Texture2D** textureArrayOut, ID3D11ShaderResourceView** srvOut);
+	HRESULT LoadWICTextureDataFromFile(ID3D11Device* device, const std::wstring& fileName, std::vector<BYTE>& imageData, UINT* width, UINT* height);
+
 };
