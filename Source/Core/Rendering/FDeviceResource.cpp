@@ -21,12 +21,12 @@ void FDevice::InitResource()
 {
 	// 테스트용 - obj파일 preload
 	FStaticMeshManager::Get().LoadObjStaticMesh("cube.obj");
-	FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
+	//FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
 	FStaticMeshManager::Get().LoadObjStaticMesh("12140_Skull_v3.obj");
 
-	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/ShaderW0.hlsl","Simple_VS","mainVS");
+	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/Simple_VS.hlsl","Simple_VS","Simple_VS");
 	FInputLayout::Create("Simple_VS" , VS);
-	FPixelShader::Load(L"Shaders/ShaderW0.hlsl","Simple_PS","mainPS");
+	FPixelShader::Load(L"Shaders/Simple_PS.hlsl","Simple_PS","Simple_PS");
 
 	{
 		
