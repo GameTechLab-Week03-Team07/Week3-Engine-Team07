@@ -23,6 +23,7 @@ public:
 	EGizmoType GetGizmoType() const { return GizmoType; }
 
 	void SetScaleByDistance();
+	void UpdateGizmoTransform(AActor* TargetActor);
 	void DoTransform(FTransform& AT, FVector Result, AActor* Actor);
 
 private:

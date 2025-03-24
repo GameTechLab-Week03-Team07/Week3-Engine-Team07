@@ -101,7 +101,18 @@ void AGizmoActor::SetScaleByDistance()
 	SetActorTransform(MyTransform);
 }
 
+void AGizmoActor::UpdateGizmoTransform(AActor* TargetActor)
+{
+	if (!TargetActor)
+		return;
 
+	FVector TargetPosition = TargetActor->GetActorTransform().GetPosition();
+
+	FTransform GizmoTransform = GetActorTransform();
+	GizmoTransform.SetPosition(TargetPosition);
+
+	SetActorTransform(GizmoTransform);
+}
 
 void AGizmoActor::Tick(float DeltaTime)
 {
@@ -150,8 +161,6 @@ void AGizmoActor::Tick(float DeltaTime)
 			float Distance = FVector::Distance(RayOrigin, Actor->GetActorTransform().GetPosition());
 
 			// Ray 방향으로 Distance만큼 재계산
-
-
 			FVector Result = RayDir * Distance;
 			Result += RayOrigin;
 
@@ -160,8 +169,7 @@ void AGizmoActor::Tick(float DeltaTime)
 
 			DoTransform(AT, Result, Actor);
 
-
-			SetActorTransform(Actor->GetActorTransform());
+			UpdateGizmoTransform(Actor);
 		}
 	}
 	
@@ -188,7 +196,6 @@ void AGizmoActor::Tick(float DeltaTime)
 		}
 	}
 
-
 	SetScaleByDistance();
 }
 
@@ -201,7 +208,8 @@ void AGizmoActor::DoTransform(FTransform& AT, FVector Result, AActor* Actor)
  		switch (GizmoType)
  		{
  		case EGizmoType::Translate:
- 			AT.SetPosition({ Result.X, AP.Y, AP.Z });
+ 			//AT.SetPosition({ Result.X, AP.Y, AP.Z });
+			AT.SetPosition({ Result.X, AP.Y, AP.Z });
  			break;
  		case EGizmoType::Rotate:
  			AT.RotatePitch(Result.X);
@@ -242,6 +250,5 @@ void AGizmoActor::DoTransform(FTransform& AT, FVector Result, AActor* Actor)
  		}
  	}
  	Actor->SetActorTransform(AT);
-
 }
 
