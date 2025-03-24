@@ -6,6 +6,7 @@
 // 정적 메시 컴포넌트 클래스
 class UStaticMeshComponent : public UMeshComponent
 {
+	DECLARE_CLASS(UStaticMeshComponent, UMeshComponent);
 public:
 	UStaticMeshComponent();
 	virtual ~UStaticMeshComponent();

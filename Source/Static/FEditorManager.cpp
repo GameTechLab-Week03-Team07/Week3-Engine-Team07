@@ -9,6 +9,7 @@
 #include "Core/Input/PlayerInput.h"
 #include "Resource/Texture.h"
 #include "Core/Rendering/FDevice.h"
+#include "Static/FUUIDBillBoard.h"
 
 void FEditorManager::Init()
 {
@@ -136,6 +137,7 @@ void FEditorManager::LateTick([[maybe_unused]] float DeltaTime)
 			{
 				// PickedActor를 한번 더 클릭하면 UnPicked
 				SelectActor(PickedActor);
+				FUUIDBillBoard::Get().SetTarget(PickedActor);
 			}
 				
 			
