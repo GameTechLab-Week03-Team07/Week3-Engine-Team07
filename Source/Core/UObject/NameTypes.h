@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Core/HAL/PlatformType.h"
 
 class FString;
@@ -23,3 +23,19 @@ public:
 
 	bool operator==(const FName& Other) const;
 };
+// FName.h 또는 FName이 정의된 곳의 하단부에 추가
+#pragma once
+#include <functional> // std::hash 사용을 위해 필요
+
+// FName 클래스 정의가 끝난 뒤에 추가할 것!
+namespace std
+{
+	template <>
+	struct hash<FName>
+	{
+		std::size_t operator()(const FName& Name) const noexcept
+		{
+			return static_cast<std::size_t>(Name.GetComparisonIndex());
+		}
+	};
+}

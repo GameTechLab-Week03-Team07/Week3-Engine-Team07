@@ -32,7 +32,6 @@ public:
 	/** Direct3D Device 및 SwapChain을 해제합니다.  */
 	void ReleaseDeviceAndSwapChain();
 
-
 	/** 뎁스 스텐실 버퍼를 생성합니다. */
 	void CreateDepthStencilBuffer();
 
@@ -59,7 +58,6 @@ public:
 	
 	/** 스왑 체인의 백 버퍼와 프론트 버퍼를 교체하여 화면에 출력 */
 	void SwapBuffer() const;
-
 	
 	void OnUpdateWindowSize(int Width, int Height);
 
@@ -74,7 +72,6 @@ private:
 	ID3D11Device* Device = nullptr;                         // GPU와 통신하기 위한 Direct3D 장치
 	ID3D11DeviceContext* DeviceContext = nullptr;           // GPU 명령 실행을 담당하는 컨텍스트
 	IDXGISwapChain* SwapChain = nullptr;                    // 프레임 버퍼를 교체하는 데 사용되는 스왑 체인
-
 
 	FLOAT ClearColor[4] = { 0.025f, 0.025f, 0.025f, 1.0f }; // 화면(스왑버퍼)을 초기화(clear)할 때 사용할 색상 (RGBA)
 

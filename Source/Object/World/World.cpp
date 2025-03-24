@@ -11,6 +11,7 @@
 #include "Object/Actor/Cube.h"
 #include "Object/Actor/Cylinder.h"
 #include "Object/Actor/Sphere.h"
+#include "Object/Actor/StaticMesh.h"
 #include "Object/PrimitiveComponent/UPrimitiveComponent.h"
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
@@ -20,10 +21,9 @@
 
 #include "Core/Rendering/URenderer.h"
 #include "Object/Actor/Arrow.h"
-#include "Object/Actor/Picker.h"
 #include "Core/Config/ConfigManager.h"
 #include "Object/Gizmo/GizmoActor.h"
-
+#include "Object/MeshComponent/UStaticMeshComponent.h"
 #include "Resource/Mesh.h"
 
 #include "Debug/DebugDrawManager.h"
@@ -33,6 +33,8 @@ void UWorld::InitWorld()
 {
 	//TODO : 
 	GridSize = FString::ToFloat(UConfigManager::Get().GetValue(TEXT("World"), TEXT("GridSize")));
+	ExcludedClasses.Add(FString("ACamera"));
+	ExcludedClasses.Add(FString("AGizmoActor"));
 }
 
 void UWorld::BeginPlay()
@@ -184,7 +186,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 			continue;
 		}
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		RenderComponent->Render();
 	}
 
@@ -195,7 +196,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 		RenderComponent->Render();
 		//MsgBoxAssert("없어진 기능입니다");
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		// uint32 depth = RenderComponent->GetOwner()->GetDepth();
 		// RenderComponent->Render();
 	}
@@ -338,9 +338,36 @@ void UWorld::LoadWorld(const char* InSceneName)
 		{
 			Actor = SpawnActor<ACone>();
 		}
+		else if (ObjectInfo->ObjectType == "StaticMesh")
+		{
+			// AStaticMesh 액터 생성
+			Actor = SpawnActor<AStaticMesh>();
+
+			// UStaticMeshComponent 가져오기
+			UStaticMesh* MeshComp = FStaticMeshManager::Get().LoadObjStaticMesh(ObjectInfo->StaticMeshAssetPath);
+			if (MeshComp)
+			{
+				UStaticMeshComponent* CastedObject = Cast<UStaticMeshComponent>(Actor->GetRootComponent());
+				CastedObject->SetStaticMesh(MeshComp);
+			}
+		}
 		
 		Actor->SetActorTransform(Transform);
 	}
+}
+
+TArray<AActor*>& UWorld::GetDisplayedActors() {
+	DisplayedActors.Empty();
+
+	for (AActor* Actor : Actors)
+	{
+		if (Actor && ExcludedClasses.Find(Actor->GetClass()->GetName()) == -1)
+		{
+			DisplayedActors.Add(Actor);
+		}
+	}
+
+	return DisplayedActors;
 }
 
 void UWorld::RayCasting(const FVector& MouseNDCPos)
@@ -348,7 +375,7 @@ void UWorld::RayCasting(const FVector& MouseNDCPos)
 	FMatrix ProjMatrix = Camera->GetProjectionMatrix(); 
 	FRay worldRay = FRay(Camera->GetViewMatrix(), ProjMatrix, MouseNDCPos.X, MouseNDCPos.Y);
 
-	FLineBatchManager::Get().AddLine(worldRay.GetOrigin(), worldRay.GetDirection() * Camera->GetFar(), FVector4::CYAN);
+	FLineBatchManager::Get().AddLine(worldRay.GetOrigin(), worldRay.GetOrigin() + worldRay.GetDirection() * Camera->GetFar(), FVector4::CYAN);
 
 	AActor* SelectedActor = nullptr;
 	float minDistance = FLT_MAX;
@@ -455,7 +482,7 @@ UWorldInfo UWorld::GetWorldInfo() const
 			WorldInfo.ActorCount--;
 			continue;
 		}
-		WorldInfo.ObjectInfos.push(std::make_unique<UObjectInfo>(
+		auto ObjectInfo = std::make_unique<UObjectInfo>(
 			UObjectInfo{
 				.Location = actor->GetActorPosition(),
 				.Rotation = actor->GetActorRotation(),
@@ -463,7 +490,19 @@ UWorldInfo UWorld::GetWorldInfo() const
 				.ObjectType = actor->GetTypeName(),
 				.UUID = actor->GetUUID()
 			}
-		));
+		);
+
+		// StaticMesh 타입인 경우 메시 경로 추가
+		if (actor->GetTypeName() == "StaticMesh")
+		{
+			UStaticMeshComponent* CastedObject = Cast<UStaticMeshComponent>(actor->GetRootComponent());
+			if (CastedObject->GetStaticMesh()) 
+			{
+				ObjectInfo->StaticMeshAssetPath = CastedObject->GetStaticMesh()->GetAssetPathFileName();
+			}
+		};
+
+		WorldInfo.ObjectInfos.push(std::move(ObjectInfo));
 		i++;
 	}
 	return WorldInfo;

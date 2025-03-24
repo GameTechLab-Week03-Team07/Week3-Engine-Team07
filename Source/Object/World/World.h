@@ -66,6 +66,10 @@ public:
 
 	TArray<AActor*>& GetActors() { return Actors; }
 
+	TArray<FString> ExcludedClasses;
+	
+	TArray<AActor*>& GetDisplayedActors();
+
 	float& GetGridSizePtr() { return GridSize; }
 
 	void OnChangedGridSize();
@@ -84,6 +88,7 @@ public:
 	
 protected:
 	TArray<AActor*> Actors;
+	TArray<AActor*> DisplayedActors;
 	TArray<UPrimitiveComponent*> ZIgnoreRenderComponents;
 	TArray<AActor*> ActorsToSpawn;
 	TArray<AActor*> PendingDestroyActors; // TODO: 추후에 TQueue로 변경

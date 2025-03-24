@@ -15,25 +15,35 @@
 #include "Resource/Material.h"
 #include "Object/PrimitiveComponent/UPrimitiveComponent.h"
 #include "Primitive/UGeometryGenerator.h"
-
+#include "Resource/StaticMesh/FStaticMeshManager.h"
 
 void FDevice::InitResource()
 {
-	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/ShaderW0.hlsl","Simple_VS","mainVS");
+	// 테스트용 - obj파일 preload
+	FStaticMeshManager::Get().LoadObjStaticMesh("cube.obj");
+	//FStaticMeshManager::Get().LoadObjStaticMesh("FinalBaseMesh.obj");
+	//FStaticMeshManager::Get().LoadObjStaticMesh("12140_Skull_v3.obj");
+
+	// Input Layout 세팅을 위해 VS정보가 필요하여 임시 처리
+	const std::shared_ptr<FVertexShader> VS = FVertexShader::Load(L"Shaders/Simple_VS.hlsl","Simple_VS","Simple_VS");
 	FInputLayout::Create("Simple_VS" , VS);
-	FPixelShader::Load(L"Shaders/ShaderW0.hlsl","Simple_PS","mainPS");
+	FPixelShader::Load(L"Shaders/Simple_PS.hlsl","Simple_PS","Simple_PS");
 
 	{
 		
-		std::shared_ptr<FVertexShader> TempVS = FVertexShader::Load(L"Shaders/Font_VS.hlsl","Font_VS","Font_VS");
+		//std::shared_ptr<FVertexShader> TempVS = FVertexShader::Load(L"Shaders/Font_VS.hlsl","Font_VS","Font_VS");
 		//FInputLayout::Create("Font_VS" , VS);
 	}
+
+	// 정적 메시용 셰이더 준비
+	FVertexShader::Load(L"Shaders/StaticMesh_VS.hlsl", "StaticMesh_VS", "StaticMesh_VS");
+	FPixelShader::Load(L"Shaders/StaticMesh_PS.hlsl", "StaticMesh_PS", "StaticMesh_PS");
+	FVertexShader::Load(L"Shaders/Font_VS.hlsl", "Font_VS", "Font_VS");
 	FPixelShader::Load(L"Shaders/Font_PS.hlsl", "Font_PS", "Font_PS");
 	FPixelShader::Load(L"Shaders/SubUV_PS.hlsl", "SubUV_PS", "SubUV_PS");
+
 	FConstantBuffer::Create("DefaultConstantBuffer", sizeof(FConstantsComponentData));
 
-	
-	//FPixelShader::Load(L"Shaders/Font_PS.hlsl","Font_PS","Font_PS");
 	{
 		D3D11_RASTERIZER_DESC RasterizerDesc = {};
 		RasterizerDesc.FillMode = D3D11_FILL_SOLID; // 채우기 모드
@@ -41,6 +51,15 @@ void FDevice::InitResource()
 		RasterizerDesc.FrontCounterClockwise = FALSE;
 	
 		FRasterizer::Create("DefaultRasterizer", RasterizerDesc);
+	}
+
+	{
+		D3D11_RASTERIZER_DESC RasterizerDesc = {};
+		RasterizerDesc.FillMode = D3D11_FILL_SOLID; // 채우기 모드
+		RasterizerDesc.CullMode = D3D11_CULL_NONE;  // 백 페이스 컬링
+		RasterizerDesc.FrontCounterClockwise = FALSE;
+
+		FRasterizer::Create("NoneCullRasterizer", RasterizerDesc);
 	}
 
 	{
@@ -73,7 +92,6 @@ void FDevice::InitResource()
 
 		FDepthStencilState::Create("AlwaysVisibleDepthStencilState", AlwaysVisibleDepthStencilDesc);
 	}
-
 
 	{
 		// Blend
@@ -123,12 +141,6 @@ void FDevice::InitResource()
 
 		FSampler::Create("LinearSamplerState", samplerDesc);
 	}
-	
-	{
-		// TextureSRV
-		std::shared_ptr<FTexture> TextureImage = FTexture::Load("font_atlas.dds", "SubUVTexture");
-		TextureImage->CreateShaderResourceView();
-	}
 
 	{
 		// Blend
@@ -172,7 +184,7 @@ void FDevice::InitResource()
 
 	{
 		std::shared_ptr<FMaterial> Mat = FMaterial::Create("FontMaterial");
-		Mat->SetRasterizer("DefaultRasterizer");
+		Mat->SetRasterizer("NoneCullRasterizer");
 		Mat->SetBlendState("DefaultBlendState");
 		Mat->SetDepthState("DefaultDepthStencilState");
 		Mat->SetVertexShader("Font_VS");
@@ -196,6 +208,15 @@ void FDevice::InitResource()
 		Mat->SetVertexShader("Simple_VS");
 		Mat->SetPixelShader("Simple_PS");
 	}
+	// 정적 메시 오브젝트용 머티리얼 정의
+	{
+		std::shared_ptr<FMaterial> Mat = FMaterial::Create("StaticMeshMaterial");
+		Mat->SetRasterizer("DefaultRasterizer");
+		Mat->SetBlendState("DefaultBlendState");
+		Mat->SetDepthState("DefaultDepthStencilState");
+		Mat->SetVertexShader("StaticMesh_VS");
+		Mat->SetPixelShader("StaticMesh_PS");
+	}
 
 	/// Mesh
 	{
@@ -204,7 +225,7 @@ void FDevice::InitResource()
 		float size = 1.f;
 
 		UGeometryGenerator::CreateCube(size, vertices, indices);
-		
+
 		FVertexBuffer::Create(FString("Cube"), vertices);
 		FIndexBuffer::Create(FString("Cube"), indices);
 		FMesh::Create("Cube");
