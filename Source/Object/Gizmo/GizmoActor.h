@@ -24,6 +24,7 @@ public:
 
 	void SetScaleByDistance();
 	void UpdateGizmoTransform(AActor* TargetActor);
+	void UpdateGizmoComponentsOrientation(AActor* TargetActor);
 	void DoTransform(FTransform& AT, FVector Result, AActor* Actor);
 
 private:

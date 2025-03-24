@@ -71,7 +71,10 @@ void FEditorManager::SelectActor(AActor* NewActor)
         SelectedActor->Pick();
 		    const FTransform newActorTransform = NewActor->GetActorTransform();
 		    Gizmo->SetActorTransform(newActorTransform);
-	   }
+			Gizmo->UpdateGizmoTransform(SelectedActor);
+	}
+
+
 }
 
 void FEditorManager::SetCamera(ACamera* NewCamera)

@@ -28,7 +28,7 @@ PS_OUTPUT StaticMesh_PS(VS_OUTPUT input) : SV_TARGET
 	PS_OUTPUT output;
 	
 	float4 sampledColor = staticMeshTexture.Sample(samLinear, input.Texcoord);
-	output.color = sampledColor;
+	output.color = bUseVertexColor == true ? sampledColor : input.Color;
 	output.UUID = UUIDColor;
 	
 	return output;

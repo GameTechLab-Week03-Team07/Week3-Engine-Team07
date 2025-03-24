@@ -106,10 +106,26 @@ void AGizmoActor::UpdateGizmoTransform(AActor* TargetActor)
 	if (!TargetActor)
 		return;
 
+	// 타겟 액터의 위치와 회전 가져오기
 	FVector TargetPosition = TargetActor->GetActorTransform().GetPosition();
 
+	// Gizmo의 현재 트랜스폼 가져오기
 	FTransform GizmoTransform = GetActorTransform();
+
+	// 위치는 항상 타겟 액터의 위치로 설정
 	GizmoTransform.SetPosition(TargetPosition);
+
+	// Scale 모드일 때만 로컬 축 사용, 나머지는 월드 축 사용
+	if (GizmoType == EGizmoType::Scale)
+	{
+		// Scale 모드에서는 타겟 액터의 회전을 따름
+		GizmoTransform.SetRotation(TargetActor->GetActorTransform().GetRotation());
+	}
+	else
+	{
+		// Translate와 Rotate 모드에서는 월드 축 사용 (회전 초기화)
+		GizmoTransform.SetRotation(FQuat::Identity);
+	}
 
 	SetActorTransform(GizmoTransform);
 }

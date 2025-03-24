@@ -36,7 +36,7 @@ VS_OUTPUT StaticMesh_VS(VS_INPUT input)
 	output.Position = mul(float4(input.Position.xyz, 1.0f), MVP);
 	output.Texcoord = input.Texcoord;
 	output.Normal = input.Normal;
-	output.Color = input.Color;
+	output.Color = bUseVertexColor == true ? input.Color : CustomColor;
 
 	return output;
 }
