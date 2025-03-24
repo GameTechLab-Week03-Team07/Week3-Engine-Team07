@@ -404,10 +404,8 @@
     <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Rendering\UI.h" />
     <ClInclude Include="Source\Core\Rendering\URenderer.h" />
-    <ClCompile Include="Source\Object\Actor\Picker.cpp" />
     <ClInclude Include="Source\Object\Gizmo\GizmoHandle.h" />
     <ClInclude Include="Source\Core\Container\CString.h" />
-    <ClInclude Include="Source\Object\Actor\Picker.h" />
     <ClCompile Include="Source\Static\FEditorManager.cpp" />
     <ClInclude Include="Source\Object\Actor\Arrow.h" />
     <ClInclude Include="Source\Core\Input\PlayerController.h" />

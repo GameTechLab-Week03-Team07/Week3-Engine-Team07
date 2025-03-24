@@ -20,7 +20,6 @@
 
 #include "Core/Rendering/URenderer.h"
 #include "Object/Actor/Arrow.h"
-#include "Object/Actor/Picker.h"
 #include "Core/Config/ConfigManager.h"
 #include "Object/Gizmo/GizmoActor.h"
 #include "Object/MeshComponent/UStaticMeshComponent.h"
@@ -153,7 +152,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 			continue;
 		}
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		RenderComponent->Render();
 	}
 
@@ -164,7 +162,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 		RenderComponent->Render();
 		//MsgBoxAssert("없어진 기능입니다");
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		// uint32 depth = RenderComponent->GetOwner()->GetDepth();
 		// RenderComponent->Render();
 	}
