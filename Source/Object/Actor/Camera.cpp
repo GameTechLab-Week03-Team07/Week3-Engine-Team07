@@ -113,18 +113,36 @@ void ACamera::MoveForward()
 	// 카메라 컨트롤 막았으면 return
 	if (!bIsControllable) return;
 
-	FTransform tr = GetActorTransform();
-	tr.SetPosition(tr.GetPosition() + (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
-	SetActorTransform(tr);
+	if (bIsTopView)
+	{
+		FVector Position = GetActorPosition();
+		Position.X += CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else
+	{
+		FTransform tr = GetActorTransform();
+		tr.SetPosition(tr.GetPosition() + (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
+		SetActorTransform(tr);
+	}
 }
 
 void ACamera::MoveBackward()
 {
 	if (!bIsControllable) return;
 
-	FTransform tr = GetActorTransform();
-	tr.SetPosition(tr.GetPosition() - (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
-	SetActorTransform(tr);
+	if (bIsTopView)
+	{
+		FVector Position = GetActorPosition();
+		Position.X -= CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else
+	{
+		FTransform tr = GetActorTransform();
+		tr.SetPosition(tr.GetPosition() - (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
+		SetActorTransform(tr);
+	}
 }
 
 void ACamera::MoveLeft()

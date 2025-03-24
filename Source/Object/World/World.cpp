@@ -5,7 +5,7 @@
 #include "Core/Container/Map.h"
 #include "Core/Input/PlayerInput.h"
 #include "Object/Actor/Camera.h"
-#include <Object/Gizmo/GizmoHandle.h>
+#include "Object/Gizmo/GizmoHandle.h"
 
 #include "Object/Actor/Cone.h"
 #include "Object/Actor/Cube.h"
@@ -16,7 +16,7 @@
 #include "Static/FLineBatchManager.h"
 #include "Static/FUUIDBillBoard.h"
 #include "Static/ViewportClient.h"
-#include <Core/Math/Ray.h>
+#include "Core/Math/Ray.h"
 
 #include "Core/Rendering/URenderer.h"
 #include "Object/Actor/Arrow.h"
@@ -106,18 +106,28 @@ void UWorld::Render(uint32 ViewportIndex)
 
 	ACamera* cam = nullptr;
 
-	if (ViewportIndex == 2)
+	switch (ViewportIndex)
 	{
+	case 0:
+		cam = GetCameraList()[0];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
+		SetCamera(cam);
+		break;
+	case 1:
+		cam = GetCameraList()[1];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
+		SetCamera(cam);
+		break;
+	case 2:
 		cam = GetCameraList()[2];
 		SetCamera(cam);
-	}
-	else
-	{
-		cam = GetCameraList()[ViewportIndex];
-		cam->SetActorRotation(FVector(0.0f, 0.0f, 0.0f));
+		break;
+	case 3:
+		cam = GetCameraList()[3];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
 		SetCamera(cam);
+		break;
 	}
-	
 
 	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 
