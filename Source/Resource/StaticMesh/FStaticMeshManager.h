@@ -348,7 +348,7 @@ public:
 			reader << material.DiffuseTexture;
 			reader << material.PathFileName;
 
-			OutMesh->Materials[materialName] = material;
+			OutMesh->MaterialInfoArray[OutMesh->MaterialSlotNameToIndex[materialName]] = material;
 		}
 
 		return OutMesh;
