@@ -94,7 +94,9 @@ void UStaticMeshComponent::InitializeRenderResources()
 		GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
 		GetRenderResourceCollection().SetTextureBinding(texArrayName, 2, false, true);
 	}
-	GetRenderResourceCollection().SetConstantBufferBinding("MatIndexConstantBuffer", &GetRenderResourceCollection().MatIndexData, sizeof(FMatIndexConstantsComponentData), 3, true, true );
+	// FRenderResourceCollection::UpdateMatIndexConstantBuffer()
+	//GetRenderResourceCollection().SetConstantBufferBinding("MatIndexConstantBuffer", &GetRenderResourceCollection().MatIndexData, sizeof(FMatIndexConstantsComponentData), 3, true, true );
+	GetRenderResourceCollection().UpdateMatIndexConstantBuffer();
 }
 
 FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToWorld) const
