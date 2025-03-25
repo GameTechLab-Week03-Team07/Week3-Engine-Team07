@@ -68,7 +68,26 @@ public:
 		return *this;
 	}
 
-	// 벡터 직렬화
+	FArchive& operator<<(const std::string& Value)
+	{
+		int32 Length = static_cast<int32>(Value.length());
+		*this << Length;
+
+		if (IsSaving())
+		{
+			if (Length > 0)
+			{
+				Serialize((void*)Value.c_str(), Length);
+			}
+		}
+		else
+		{
+			SetError();
+		}
+		return *this;
+	}
+
+	// TArray 직렬화
 	template<typename T>
 	FArchive& operator<<(TArray<T>& Value)
 	{
@@ -99,12 +118,71 @@ public:
 
 			for (int32 i = 0; i < Count; i++)
 			{
-				*this << Value[i];
+				T& CastedValue = const_cast<T&>(Value[i]);
+				*this << CastedValue;
 			}
 		}
 		else
 		{
 			// 로딩 모드에서는 const 배열을 사용할 수 없음
+			SetError();
+		}
+
+		return *this;
+	}
+
+	// TMap 직렬화
+	template<typename KeyType, typename ValueType>
+	FArchive& operator<<(TMap<KeyType, ValueType>& Value)
+	{
+		int32 Count = static_cast<int32>(Value.Num());
+		*this << Count;
+
+		if (IsLoading())
+		{
+			Value.Reserve(Count);
+			for (int32 i = 0; i < Count; i++)
+			{
+				KeyType Key;
+				ValueType MappedValue;
+				*this << Key;
+				*this << MappedValue;
+				Value.Add(Key, MappedValue);
+			}
+		}
+		else if (IsSaving())
+		{
+			for (auto& Pair : Value)
+			{
+				KeyType Key = Pair.Key;
+				ValueType MappedValue = Pair.Value;
+				*this << Key;
+				*this << MappedValue;
+			}
+		}
+
+		return *this;
+	}
+
+	// const TMap 직렬화 (저장 전용)
+	template<typename KeyType, typename ValueType>
+	FArchive& operator<<(const TMap<KeyType, ValueType>& Value)
+	{
+		if (IsSaving())
+		{
+			int32 Count = static_cast<int32>(Value.Num());
+			*this << Count;
+
+			for (const auto& Pair : Value)
+			{
+				KeyType Key = Pair.Key;
+				ValueType MappedValue = Pair.Value;
+				*this << Key;
+				*this << MappedValue;
+			}
+		}
+		else
+		{
 			SetError();
 		}
 
@@ -120,6 +198,65 @@ public:
 	FArchive& operator<<(FVertexSimple& Value)
 	{
 		*this << Value.X << Value.Y << Value.Z << Value.R << Value.G << Value.B << Value.A << Value.U << Value.V << Value.NX << Value.NY << Value.NZ;
+		return *this;
+	}
+
+	// FObjMaterialInfo 직렬화
+	FArchive& operator<<(FObjMaterialInfo& Value)
+	{
+		*this << Value.PathFileName;
+		*this << Value.DiffuseColor;
+		*this << Value.DiffuseTexture;
+		*this << Value.AmbientColor;
+		*this << Value.SpecularColor;
+		*this << Value.SpecularExponent;
+		*this << Value.Opacity;
+		return *this;
+	}
+
+	// FSubMeshSection 직렬화
+	FArchive& operator<<(FSubMeshSection& Value)
+	{
+		*this << Value.indexStart;
+		*this << Value.indexCount;
+		*this << Value.MaterialIndex;
+		*this << Value.SlotName;
+		return *this;
+	}
+
+	// FStaticMesh 직렬화
+	FArchive& operator<<(FStaticMesh& Value)
+	{
+		*this << Value.PathFileName;
+		*this << Value.Vertices;
+		*this << Value.Indices;
+		*this << Value.MaterialInfoArray;
+		*this << Value.MaterialSlotNameToIndex;
+		*this << Value.Sections;
+		return *this;
+	}
+
+	// const FStaticMesh 직렬화 (저장 전용)
+	FArchive& operator<<(const FStaticMesh& Value)
+	{
+		//std::string PathName = Value.PathFileName;
+
+		if (IsSaving())
+		{
+			//*this << PathName;
+			*this << Value.PathFileName;
+			*this << Value.Vertices;
+			*this << Value.Indices;
+			*this << Value.MaterialInfoArray;
+			*this << Value.MaterialSlotNameToIndex;
+			*this << Value.Sections;
+		}
+		else
+		{
+			// 로딩 모드에서는 const 구조체를 사용할 수 없음
+			SetError();
+		}
+
 		return *this;
 	}
 
