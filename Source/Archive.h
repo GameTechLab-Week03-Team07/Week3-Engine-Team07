@@ -68,6 +68,25 @@ public:
 		return *this;
 	}
 
+	FArchive& operator<<(const std::string& Value)
+	{
+		int32 Length = static_cast<int32>(Value.length());
+		*this << Length;
+
+		if (IsSaving())
+		{
+			if (Length > 0)
+			{
+				Serialize((void*)Value.c_str(), Length);
+			}
+		}
+		else
+		{
+			SetError();
+		}
+		return *this;
+	}
+
 	// TArray 직렬화
 	template<typename T>
 	FArchive& operator<<(TArray<T>& Value)
@@ -99,8 +118,8 @@ public:
 
 			for (int32 i = 0; i < Count; i++)
 			{
-				T& NonConstItem = const_cast<T&>(Value[i]);
-				*this << NonConstItem;
+				T& CastedValue = const_cast<T&>(Value[i]);
+				*this << CastedValue;
 			}
 		}
 		else
@@ -109,41 +128,6 @@ public:
 			SetError();
 		}
 
-		return *this;
-	}
-
-	FArchive& operator<<(FVector& Value)
-	{
-		*this << Value.X << Value.Y << Value.Z;
-		return *this;
-	}
-
-	FArchive& operator<<(FVertexSimple& Value)
-	{
-		*this << Value.X << Value.Y << Value.Z << Value.R << Value.G << Value.B << Value.A << Value.U << Value.V << Value.NX << Value.NY << Value.NZ;
-		return *this;
-	}
-
-	// FObjMaterialInfo 직렬화
-	FArchive& operator<<(FObjMaterialInfo& Value)
-	{
-		*this << Value.PathFileName;
-		*this << Value.DiffuseColor;
-		*this << Value.DiffuseTexture;
-		*this << Value.AmbientColor;
-		*this << Value.SpecularColor;
-		*this << Value.SpecularExponent;
-		*this << Value.Opacity;
-		return *this;
-	}
-
-	// FSubMeshSection 직렬화
-	FArchive& operator<<(FSubMeshSection& Value)
-	{
-		*this << Value.indexStart;
-		*this << Value.indexCount;
-		*this << Value.MaterialIndex;
-		*this << Value.SlotName;
 		return *this;
 	}
 
@@ -199,10 +183,44 @@ public:
 		}
 		else
 		{
-			// 로딩 모드에서는 const 맵을 사용할 수 없음
 			SetError();
 		}
 
+		return *this;
+	}
+
+	FArchive& operator<<(FVector& Value)
+	{
+		*this << Value.X << Value.Y << Value.Z;
+		return *this;
+	}
+
+	FArchive& operator<<(FVertexSimple& Value)
+	{
+		*this << Value.X << Value.Y << Value.Z << Value.R << Value.G << Value.B << Value.A << Value.U << Value.V << Value.NX << Value.NY << Value.NZ;
+		return *this;
+	}
+
+	// FObjMaterialInfo 직렬화
+	FArchive& operator<<(FObjMaterialInfo& Value)
+	{
+		*this << Value.PathFileName;
+		*this << Value.DiffuseColor;
+		*this << Value.DiffuseTexture;
+		*this << Value.AmbientColor;
+		*this << Value.SpecularColor;
+		*this << Value.SpecularExponent;
+		*this << Value.Opacity;
+		return *this;
+	}
+
+	// FSubMeshSection 직렬화
+	FArchive& operator<<(FSubMeshSection& Value)
+	{
+		*this << Value.indexStart;
+		*this << Value.indexCount;
+		*this << Value.MaterialIndex;
+		*this << Value.SlotName;
 		return *this;
 	}
 
@@ -221,11 +239,12 @@ public:
 	// const FStaticMesh 직렬화 (저장 전용)
 	FArchive& operator<<(const FStaticMesh& Value)
 	{
-		std::string PathName = Value.PathFileName;
+		//std::string PathName = Value.PathFileName;
 
 		if (IsSaving())
 		{
-			*this << PathName;
+			//*this << PathName;
+			*this << Value.PathFileName;
 			*this << Value.Vertices;
 			*this << Value.Indices;
 			*this << Value.MaterialInfoArray;
