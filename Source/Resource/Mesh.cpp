@@ -1,6 +1,4 @@
 #include "Mesh.h"
-//#include "Core/Engine.h"
-//#include "Core/Rendering/FDevice.h"
 
 
 void FMesh::Setting()

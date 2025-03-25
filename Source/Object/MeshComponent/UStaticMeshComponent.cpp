@@ -2,8 +2,6 @@
 #include "Core/Engine.h"
 #include "Resource/DirectResource/VertexBuffer.h"
 #include "Resource/DirectResource/IndexBuffer.h"
-#include "Resource/DirectResource/Vertexbuffer.h"
-#include "Resource/DirectResource/IndexBUffer.h"
 #include "Resource/Mesh.h"
 
 UStaticMeshComponent::UStaticMeshComponent()
@@ -90,7 +88,6 @@ void UStaticMeshComponent::InitializeRenderResources()
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
 
-	//Fixing
 	if (StaticMesh->StaticMeshAsset->MaterialInfoArray.Len()!=0)
 	{
 		FString texArrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();

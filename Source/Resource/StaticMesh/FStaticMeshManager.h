@@ -154,12 +154,11 @@ public:
 					std::shared_ptr<FTexture> TextureImage = FTexture::Load(texturePaths, arrayName);
 					if (TextureImage) {
 						TextureImage->CreateShaderResourceView();
-						//FIXME  : 주석처리 한거 적용
 						// 성공적으로 로드된 텍스처 정보 출력 (디버깅용)
-						//std::cout << "Loaded texture: " << TextureName << " from " << TexturePath << std::endl;
+						std::cout << "Loaded texture: " << arrayName << " from " << TexturePath << std::endl;
 					}
 					else {
-						//std::cerr << "Failed to load texture: " << baseStr << std::endl;
+						std::cerr << "Failed to load texture: " << arrayName << std::endl;
 						bSuccess = false;
 					}
 				}
@@ -170,23 +169,6 @@ public:
 			}
 
 		}
-
-		// 텍스처 리소스 생성
-		//ID3D11Texture2D* textureArray = CreateTexture2DArrayFromImages(LoadedImages); // 너가 만든 함수
-		//ID3D11ShaderResourceView* srv = CreateSRVFromTextureArray(textureArray);
-		
-		//std::shared_ptr<FTexture> TextureArrayTex = std::make_shared<FTexture>();
-		// 등록 이름 구성
-		//FString arrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
-
-		// FTexture 등록
-		//std::shared_ptr<FTexture> texArrayRes = FTexture::Create(arrayName, textureArray);
-
-		// SRV 수동 연결
-		//texArrayRes->SetSRV(srv);
-		
-		// 텍스처 배열 여부 표시 (option)
-		//texArrayRes->SetbIsArray(true);
 
 		return bSuccess;
 	}

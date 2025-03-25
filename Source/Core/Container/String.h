@@ -253,3 +253,12 @@ struct std::hash<FString>
 	}
 };
 
+inline std::ostream& operator<<(std::ostream& os, const FString& str)
+{
+#if USE_WIDECHAR
+	return os << str.ToAnsiString();
+#else
+	return os << str.GetData();
+#endif
+}
+

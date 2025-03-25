@@ -19,5 +19,4 @@ float4 StaticMesh_PS(VS_OUTPUT input) : SV_TARGET
 {
 	float4 sampledColor = staticMeshTextures.Sample(samLinear, float3(input.Texcoord, (float) MaterialIndex));
 	return sampledColor;
-	//return float4(MaterialIndex, 0, 0, 1);
 }

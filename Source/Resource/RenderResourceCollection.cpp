@@ -1,9 +1,4 @@
 #include "RenderResourceCollection.h"
-//#include "Debug/DebugConsole.h"
-//#include "DirectResource/ShaderResourceBinding.h"
-//#include "DirectResource/InputLayout.h"
-//#include "Mesh.h"
-//#include "Material.h"
 
 void FRenderResourceCollection::SetMesh(const FString& _Name)
 {
@@ -113,9 +108,9 @@ void FRenderResourceCollection::Render()
 			//		// 필요 시 텍스처 바인딩 로직을 추가하세요.
 			//	}
 			//}
+			// 
 			// 업데이트된 머티리얼 상태를 적용합니다.
 			sectionMat->Setting();
-			//UpdateMatIndexConstantBuffer(Section.MaterialIndex);
 			// 해당 섹션에 대해 DrawIndexed 호출합니다.
 			FDevice::Get().GetDeviceContext()->DrawIndexed(Section.indexCount, Section.indexStart, 0);
 		}

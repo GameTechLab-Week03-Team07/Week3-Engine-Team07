@@ -84,6 +84,7 @@ private:
 	TMap<FString, std::shared_ptr<FSamplerBinding>> SamplerBindings;
 	
 	void UpdateMatIndexConstantBuffer(int MatIndex);
+
 	// // 테스트 상수버퍼
 	// std::shared_ptr<class FConstantBufferBinding> ConstantBufferBinding = nullptr;
 	// std::shared_ptr<class FConstantBuffer> ConstantBuffer = nullptr;
