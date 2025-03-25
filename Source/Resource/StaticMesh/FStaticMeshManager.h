@@ -146,32 +146,54 @@ public:
 		bool bSuccess = true;
 
 		// StaticMesh의 모든 재질 순회 - 추후 확산 텍스처 맵 이외 다른 처리도 필요할 듯
-		for (const auto& MaterialPair : StaticMesh->StaticMeshAsset->Materials)
-		{
-			const std::string& MaterialName = MaterialPair.Key;
-			const FObjMaterialInfo& Material = MaterialPair.Value;
-
+		const auto& MaterialArray = StaticMesh->StaticMeshAsset->MaterialInfoArray;
+		for (int32 i = 0; i < MaterialArray.Num(); ++i) {
+			const auto& Material = MaterialArray[i];
 			// 확산 텍스처가 있는 경우
 			if (!Material.DiffuseTexture.empty())
 			{
 				// 텍스처 경로 구성
 				// Contents/StaticMesh 폴더 내의 상대 경로로 변환
-				std::string baseStr = "Contents/StaticMesh/" + Material.DiffuseTexture;
-				fs::path texturePath = fs::path(baseStr);
+				FString TexturePath = "Contents/StaticMesh/";
+				// ?? 이거 이어붙이면 왜 안되지??
+				TexturePath += Material.DiffuseTexture.c_str();
+				
+				// 텍스처 이름으로 MaterialName 사용
+				//FString TextureName = Material.PathFileName + "_Diffuse";
 
-				// 텍스처 이름으로 MaterialName 사용 (키값과 매핑)
-				std::string textureName = MaterialName + "_Diffuse";
+				// 텍스처 이름으로 MaterialArray 이름 사용
+				FString arrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
 
+				TArray<FString> texturePaths;
+
+				const auto& MaterialArray = StaticMesh->StaticMeshAsset->MaterialInfoArray;
+				
+				for (int i = 0; i < MaterialArray.Num(); ++i) {
+					const auto& material = MaterialArray[i];
+
+					if (!material.DiffuseTexture.empty())
+					{
+						// 상대 경로를 문자열로 만들기
+						std::string fullPath = "Contents/StaticMesh/" + material.DiffuseTexture;
+
+						// std::string → FString 변환
+						FString pathFStr = fullPath;
+
+						// 배열에 추가
+						texturePaths.Add(pathFStr);
+					}
+
+				}
 				// 텍스처 로드 및 SRV 생성
 				try {
-					std::shared_ptr<FTexture> TextureImage = FTexture::Load(texturePath.string(), textureName);
+					std::shared_ptr<FTexture> TextureImage = FTexture::Load(texturePaths, arrayName);
 					if (TextureImage) {
 						TextureImage->CreateShaderResourceView();
 						// 성공적으로 로드된 텍스처 정보 출력 (디버깅용)
-						std::cout << "Loaded texture: " << textureName << " from " << texturePath.string() << std::endl;
+						std::cout << "Loaded texture: " << arrayName << " from " << TexturePath << std::endl;
 					}
 					else {
-						std::cerr << "Failed to load texture: " << texturePath.string() << std::endl;
+						std::cerr << "Failed to load texture: " << arrayName << std::endl;
 						bSuccess = false;
 					}
 				}
@@ -180,6 +202,7 @@ public:
 					bSuccess = false;
 				}
 			}
+
 		}
 
 		return bSuccess;

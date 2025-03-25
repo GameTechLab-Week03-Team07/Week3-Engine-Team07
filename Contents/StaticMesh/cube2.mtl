@@ -1,0 +1,5 @@
+newmtl RedMaterial
+map_Kd red_texture.png
+
+newmtl BlueMaterial
+map_Kd blue_texture.png
