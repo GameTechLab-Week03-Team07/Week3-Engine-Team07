@@ -21,7 +21,7 @@ public:
 	}
 
 	void VertexShader();
-	void Rasterizer();
+	void Rasterizer(bool bOverrideRasterizer);
 	void PixelShader();
 	void Blend();
 	void DepthStencil();
@@ -43,7 +43,7 @@ public:
 		return PixelShaderPtr;
 	}
 
-	void Setting();
+	void Setting(bool bOverrideRasterizer);
 	
 private:
 	std::shared_ptr<FVertexShader> VertexShaderPtr = nullptr;

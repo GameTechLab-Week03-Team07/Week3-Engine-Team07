@@ -5,6 +5,7 @@
 
 #include "Core/HAL/PlatformType.h"
 #include "Core/Math/Vector.h"
+#include "Object/Actor/Camera.h"
 
 
 struct UObjectInfo
@@ -18,10 +19,24 @@ struct UObjectInfo
 	uint32 UUID;
 };
 
+
+struct ACameraInfo
+{
+	ECameraProjectionMode::Type ProjectionMode;
+	EOrthoViewMode OrthoViewMode;
+    FVector Location;
+    FVector Rotation;
+    float Fov;
+    float NearClip;
+    float FarClip;
+};
+
 struct UWorldInfo
 {
 	//UObjectInfo** ObjctInfos;
-	std::queue<std::unique_ptr<UObjectInfo>> ObjectInfos;uint32 ActorCount;
+	std::queue<std::unique_ptr<UObjectInfo>> ObjectInfos;
+	std::queue<std::unique_ptr<ACameraInfo>> CameraInfos;
+	uint32 ActorCount;
 	uint32 Version;
 	std::string SceneName;
 };

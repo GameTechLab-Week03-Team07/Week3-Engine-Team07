@@ -18,13 +18,13 @@ FRasterizer::~FRasterizer()
 	}
 }
 
-void FRasterizer::Setting()
+void FRasterizer::Setting(bool bOverrideRasterizer)
 {
 
 	EViewModeIndex Index = FViewMode::Get().GetViewMode();
 
 
-	if (Index == EViewModeIndex::VMI_Default)
+	if (Index == EViewModeIndex::VMI_Default || !bOverrideRasterizer)
 	{
 		if (nullptr == State)
 		{

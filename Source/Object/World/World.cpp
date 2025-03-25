@@ -96,50 +96,46 @@ void UWorld::Render(uint32 ViewportIndex)
 {
 	URenderer* Renderer = UEngine::Get().GetRenderer();
 
-	//라인 렌더링 임시
-
-
-
 	if (Renderer == nullptr)
 	{
 		return;
 	}
-
 
 	ACamera* cam = nullptr;
 
 	switch (ViewportIndex)
 	{
 	case 0:
-		cam = FEditorManager::Get().GetCameraList()[0];
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Front];
 		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
 	case 1:
-		cam = FEditorManager::Get().GetCameraList()[1];
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Side];
 		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
 	case 2:
-		cam = FEditorManager::Get().GetCameraList()[2];
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::None];
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
 	case 3:
-		cam = FEditorManager::Get().GetCameraList()[3];
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Top];
 		cam->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
 	default:
-		cam = FEditorManager::Get().GetCameraList()[2];
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::None];
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
 	}
 
+	auto temp = FEditorManager::Get().GetCameraList();
 	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 
 
@@ -242,9 +238,11 @@ void UWorld::ClearWorld()
 	for (AActor* Actor : CopyActors)
 	{
 		// if (!Actor->Implements<IGizmoInterface>()) // TODO: RTTI 개선하면 사용
-		if (!dynamic_cast<IGizmoInterface*>(Actor))
+		if (!dynamic_cast<IGizmoInterface*>(Actor) || dynamic_cast<ACamera*>(Actor))
 		{
 			DestroyActor(Actor);
+			ClearCameraList();
+			FEditorManager::Get().ClearCameraList();
 		}
 	}
 
@@ -353,6 +351,38 @@ void UWorld::LoadWorld(const char* InSceneName)
 		}
 		
 		Actor->SetActorTransform(Transform);
+	}
+
+	while (!WorldInfo->CameraInfos.empty())
+	{
+		// 카메라 info 가져오기
+		const std::unique_ptr<ACameraInfo> CameraInfo = std::move(WorldInfo->CameraInfos.front());
+		WorldInfo->CameraInfos.pop();
+		ACamera* Camera = SpawnActor<ACamera>();
+		Camera->ProjectionMode = CameraInfo->ProjectionMode;
+		Camera->SetActorPosition(CameraInfo->Location);
+		Camera->SetActorRotation(CameraInfo->Rotation);
+		Camera->SetFieldOfVew(CameraInfo->Fov);
+		Camera->SetNear(CameraInfo->NearClip);
+		Camera->SetFar(CameraInfo->FarClip);
+
+		if (CameraInfo->ProjectionMode == ECameraProjectionMode::Orthographic)
+		{
+			Camera->SetOrthoViewType(CameraInfo->OrthoViewMode);
+		}
+		// perspective 카메라의 경우 기본 카메라로 지정
+		else
+		{
+			SetCamera(Camera);
+			FEditorManager::Get().SetCamera(GetCamera());
+			Camera->SetRegisterKeyCallback();
+		}
+
+		// 월드 및 에디터 카메라 리스트에 추가
+
+		AddCamera(Camera);
+		FEditorManager::Get().AddCamera(Camera);
+
 	}
 }
 
@@ -479,8 +509,27 @@ UWorldInfo UWorld::GetWorldInfo() const
 		// if (actor->Implements<IGizmoInterface>()) // TODO: RTTI 개선하면 사용
 		if (dynamic_cast<IGizmoInterface*>(actor))
 		{
+			if (dynamic_cast<ACamera*>(actor))
+			{
+				ACamera* Camera = Cast<ACamera>(actor);
+
+				auto CameraInfo = std::make_unique<ACameraInfo>(
+					ACameraInfo{
+						.ProjectionMode = Camera->ProjectionMode,
+						.OrthoViewMode = Camera->GetOrthoViewType(),
+						.Location = Camera->GetActorPosition(),
+						.Rotation = Camera->GetActorRotation(),
+						.Fov = Camera->GetFieldOfView(),
+						.NearClip = Camera->GetNear(),
+						.FarClip = Camera->GetFar()
+					}
+				);
+				WorldInfo.CameraInfos.push(std::move(CameraInfo));
+			}
+
 			WorldInfo.ActorCount--;
 			continue;
+
 		}
 		auto ObjectInfo = std::make_unique<UObjectInfo>(
 			UObjectInfo{
@@ -503,6 +552,7 @@ UWorldInfo UWorld::GetWorldInfo() const
 		};
 
 		WorldInfo.ObjectInfos.push(std::move(ObjectInfo));
+
 		i++;
 	}
 	return WorldInfo;

@@ -7,6 +7,8 @@
 #include "Object/PrimitiveComponent/UPrimitiveComponent.h"
 #include "Core/Rendering/Viewport.h"
 
+
+
 class FViewportClient : public TSingleton<FViewportClient>
 {
 public:
@@ -23,6 +25,8 @@ public:
 
 	uint32 GetHoveredViewport();
 	void SetFocusedViewport();
+
+	void IsPressedOnSplitter();
 
 	inline uint32 GetFocusedViewportIndex() const { return FocusedViewportIndex; }
 	inline void SetFocusedViewportIndex(uint32 index) { FocusedViewportIndex = index; }
@@ -50,4 +54,5 @@ private:
 	uint32 FocusedViewportIndex = 2;
 
 	bool bSplitLayout = false;
+	bool bIsPressedOnSplitter = false;
 };

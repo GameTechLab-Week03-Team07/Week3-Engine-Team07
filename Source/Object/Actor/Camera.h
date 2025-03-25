@@ -12,16 +12,21 @@ namespace ECameraProjectionMode
     };
 }
 
-namespace EOrthoViewMode
+enum class EOrthoViewMode : uint8
 {
-	enum Type : uint8
-	{
-		Front,
-		Side,
-		Top,
-		None
-	};
-}
+	Front,
+	Side,
+	Top,
+	None
+};
+
+inline constexpr EOrthoViewMode OrthoViewModeLookup[4] = {
+	EOrthoViewMode::Front,
+	EOrthoViewMode::Side,
+	EOrthoViewMode::None,
+	EOrthoViewMode::Top,
+
+};
 
 class ACamera : public AActor, public IGizmoInterface
 {
@@ -29,6 +34,7 @@ class ACamera : public AActor, public IGizmoInterface
     
 public:
     ACamera();
+	~ACamera();
 
 	//~ Begin IGizmoInterface
 	virtual bool IsGizmo() override { return true; }
@@ -46,7 +52,7 @@ private:
 
 	float ZoomSize = 1000.f;
 	bool bIsControllable = true;
-	EOrthoViewMode::Type OrthoViewMode = EOrthoViewMode::None;
+	EOrthoViewMode OrthoViewMode = EOrthoViewMode::None;
 
 public:
     const float MaxYDegree = 89.8f;
@@ -60,6 +66,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void SetRegisterKeyCallback();
+
     void SetFieldOfVew(float Fov);
     void SetFar(float Far);
     void SetNear(float Near);
@@ -72,7 +80,8 @@ public:
 	float GetZoomSize() const { return ZoomSize; }
 
     void SetIsControllable(bool bIsControllable) { this->bIsControllable = bIsControllable; }
-	void SetOrthoViewType(EOrthoViewMode::Type Type) { OrthoViewMode = Type; }
+	void SetOrthoViewType(EOrthoViewMode Type) { OrthoViewMode = Type; }
+	EOrthoViewMode GetOrthoViewType() const { return OrthoViewMode; }
 
 	const FMatrix& GetProjectionMatrix() const { return ProjectionMatrix; }
 	const FMatrix& GetViewProjectionMatrix() const { return ViewProjectionMatrix; }

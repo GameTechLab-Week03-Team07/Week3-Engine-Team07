@@ -57,15 +57,6 @@ void APlayerController::HandleGizmoMovement(float DeltaTime) const
     
 }
 
-void APlayerController::HandleSplitterMovement(float DeltaTime) const 
-{
-	if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton) == false)
-	{
-		return;
-	}
-
-}
-
 //void APlayerController::DrawHUDs()
 //{
 //	canvas.Begin();

@@ -23,7 +23,7 @@ public:
 		return Res;
 	}
 
-	void Setting();
+	void Setting(bool bOverrideRasterizer);
 
 protected:
 	void ResCreate(const D3D11_RASTERIZER_DESC& _Desc);
@@ -32,5 +32,4 @@ protected:
 private:
 	D3D11_RASTERIZER_DESC Desc = {};
 	ID3D11RasterizerState* State = nullptr;
-
 };
