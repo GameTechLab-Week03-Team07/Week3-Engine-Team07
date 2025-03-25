@@ -2,8 +2,10 @@
 #define _TCHAR_DEFINED  // TCHAR 재정의 에러 때문
 #include <d3d11.h>
 #include "Core/AbstractClass/Singleton.h"
+#include "Core/Math/Vector.h"
 
 //디바이스 스왑 체인 관리, 뷰포트도 일단 가지고 있음
+class FViewport;
 
 class FDevice : public TSingleton<FDevice>
 {
@@ -17,7 +19,7 @@ public:
 
 	inline ID3D11Device* GetDevice() const { return Device; }
 	inline ID3D11DeviceContext* GetDeviceContext() const { return DeviceContext; }
-	inline const D3D11_VIEWPORT& GetViewPortInfo() const { return ViewportInfo; }
+	inline const D3D11_VIEWPORT& GetViewPortInfo(int index) const { return ViewportInfo[index]; }
 	inline ID3D11DepthStencilView* GetDepthStencilView() const { return DepthStencilView; }
 	inline IDXGISwapChain* GetSwapChain() const { return SwapChain; }
 
@@ -30,7 +32,6 @@ public:
 	/** Direct3D Device 및 SwapChain을 해제합니다.  */
 	void ReleaseDeviceAndSwapChain();
 
-
 	/** 뎁스 스텐실 버퍼를 생성합니다. */
 	void CreateDepthStencilBuffer();
 
@@ -40,18 +41,23 @@ public:
 	void ReleaseDepthStencilBuffer();
 
 	/** 렌더링 파이프라인을 준비 합니다. */
-	void Prepare() const;
+	void Prepare(int Index) const;
 
 	void Clear() const;
 	
-	void SetRenderTarget() const;
+	void SetRenderTarget(int Index) const;
 
 	/** 픽킹렌더링 파이프라인을 준비 합니다. */
 	void PickingPrepare() const;
+
+	void SetViewport(int index, float TopLeftX, float TopLeftY, float Width, float Height);
+
+	void UpdateViewport();
+
+	FVector GetWindowPosFromNDC(FVector NDCPos, float Width, float Height);
 	
 	/** 스왑 체인의 백 버퍼와 프론트 버퍼를 교체하여 화면에 출력 */
 	void SwapBuffer() const;
-
 	
 	void OnUpdateWindowSize(int Width, int Height);
 
@@ -67,12 +73,11 @@ private:
 	ID3D11DeviceContext* DeviceContext = nullptr;           // GPU 명령 실행을 담당하는 컨텍스트
 	IDXGISwapChain* SwapChain = nullptr;                    // 프레임 버퍼를 교체하는 데 사용되는 스왑 체인
 
-
 	FLOAT ClearColor[4] = { 0.025f, 0.025f, 0.025f, 1.0f }; // 화면(스왑버퍼)을 초기화(clear)할 때 사용할 색상 (RGBA)
 
 	FLOAT PickingClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f }; //
 	
-    D3D11_VIEWPORT ViewportInfo = {};                       // 렌더링 영역을 정의하는 뷰포트 정보
+    D3D11_VIEWPORT ViewportInfo[5] = {};                       // 렌더링 영역을 정의하는 뷰포트 정보
 
 	// 렌더링에 필요한 리소스 및 상태를 관리하기 위한 변수들
 	ID3D11Texture2D* FrameBuffer = nullptr;                 // 화면 출력용 텍스처

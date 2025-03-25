@@ -6,6 +6,7 @@
 #include "Core/Container/Array.h"
 #include "Core/Rendering/FDevice.h"
 #include "Debug/EngineShowFlags.h"
+#include "DirectXTK/WICTextureLoader.h"
 
 struct FFontConstantInfo
 {
@@ -60,4 +61,7 @@ private:
 	// Blend state
 	ID3D11BlendState* BlendState = nullptr;
 	float BlendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	ID3D11ShaderResourceView* FontTextureSRV = nullptr;
+	ID3D11SamplerState* FontSamplerState = nullptr;
 };

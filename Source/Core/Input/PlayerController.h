@@ -10,7 +10,8 @@ public:
     void ProcessPlayerInput(float DeltaTime) const;
 
     void HandleCameraMovement(float DeltaTime) const;
-	void HandleGizmoMovement(float DeltaTime) const;
+    void HandleGizmoMovement(float DeltaTime) const;
+    void HandleSplitterMovement(float DeltaTime) const;
 
 	//void DrawHUDs();
 

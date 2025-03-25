@@ -44,7 +44,7 @@ void FRenderResourceCollection::SetMaterial(std::shared_ptr<FMaterial> _Material
 	if (nullptr == Layout && nullptr != Mesh)
 	{
 		Layout = std::make_shared<FInputLayout>();
-		Layout->ResCreate( Material->GetVertexShader());
+		Layout->ResCreate(Material->GetVertexShader());
 	}
 }
 
@@ -59,7 +59,7 @@ void FRenderResourceCollection::Render()
 		Binding.Value->Setting();
 	}
   
-  for (auto& Binding : TextureBindings)
+	for (auto& Binding : TextureBindings)
 	{
 		Binding.Value->Setting();
 	}

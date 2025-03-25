@@ -82,13 +82,12 @@ void ACamera::InitMatrix()
 	ViewProjectionMatrix = FMatrix::Identity();
 }
 
-void ACamera::UpdateCameraMatrix()
+void ACamera::UpdateCameraMatrix(float Width, float Height)
 {
 	//뷰 매트릭스 업데이트
 	ViewMatrix = GetActorTransform().GetViewMatrix();
 	
 	// 프로젝션 매트릭스 업데이트
-	float AspectRatio = UEngine::Get().GetScreenRatio();
 
 	float FOV = FMath::DegreesToRadians(GetFieldOfView());
 	float Near = GetNear();
@@ -96,11 +95,11 @@ void ACamera::UpdateCameraMatrix()
 
 	if (ProjectionMode == ECameraProjectionMode::Perspective)
 	{
-		ProjectionMatrix = FMatrix::PerspectiveFovLH(FOV, AspectRatio, Near, Far);
+		ProjectionMatrix = FMatrix::PerspectiveFovLH(FOV, Width / Height, Near, Far);
 	}
 	else if (ProjectionMode == ECameraProjectionMode::Orthographic)
 	{
-		ProjectionMatrix = FMatrix::OrthoForLH(UEngine::Get().GetScreenWidth() / ZoomSize, UEngine::Get().GetScreenHeight() / ZoomSize, Near, Far);
+		ProjectionMatrix = FMatrix::OrthoForLH(Width / ZoomSize, Height / ZoomSize, Near, Far);
 
 		// TODO: 추가 필요.
 		// ProjectionMatrix = FMatrix::OrthoForLH(FOV, AspectRatio, Near, Far);
@@ -111,20 +110,69 @@ void ACamera::UpdateCameraMatrix()
 
 void ACamera::MoveForward()
 {
-	FTransform tr = GetActorTransform();
-	tr.SetPosition(tr.GetPosition() + (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
-	SetActorTransform(tr);
+	// 카메라 컨트롤 막았으면 return
+	if (!bIsControllable) return;
+
+	if (OrthoViewMode == EOrthoViewMode::Top)
+	{
+		FVector Position = GetActorPosition();
+		Position.X += CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Front)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z += CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Side)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z += CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else
+	{
+		FTransform tr = GetActorTransform();
+		tr.SetPosition(tr.GetPosition() + (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
+		SetActorTransform(tr);
+	}
 }
 
 void ACamera::MoveBackward()
 {
-	FTransform tr = GetActorTransform();
-	tr.SetPosition(tr.GetPosition() - (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
-	SetActorTransform(tr);
+	if (!bIsControllable) return;
+
+	if (OrthoViewMode == EOrthoViewMode::Top)
+	{
+		FVector Position = GetActorPosition();
+		Position.X -= CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Front)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z -= CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else if (OrthoViewMode == EOrthoViewMode::Side)
+	{
+		FVector Position = GetActorPosition();
+		Position.Z -= CameraSpeed * UEngine::GetDeltaTime();
+		SetActorPosition(Position);
+	}
+	else
+	{
+		FTransform tr = GetActorTransform();
+		tr.SetPosition(tr.GetPosition() - (GetForward() * CameraSpeed * UEngine::GetDeltaTime()));
+		SetActorTransform(tr);
+	}
 }
 
 void ACamera::MoveLeft()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() - (GetRight() * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -132,6 +180,8 @@ void ACamera::MoveLeft()
 
 void ACamera::MoveRight()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() + (GetRight() * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -139,6 +189,8 @@ void ACamera::MoveRight()
 
 void ACamera::MoveUp()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() + (FVector::UpVector * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -146,6 +198,8 @@ void ACamera::MoveUp()
 
 void ACamera::MoveDown()
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	tr.SetPosition(tr.GetPosition() - (FVector::UpVector * CameraSpeed * UEngine::GetDeltaTime()));
 	SetActorTransform(tr);
@@ -153,6 +207,8 @@ void ACamera::MoveDown()
 
 void ACamera::Rotate(const FVector& mouseDelta)
 {
+	if (!bIsControllable) return;
+
 	FTransform tr = GetActorTransform();
 	FVector TargetRotation = tr.GetRotation().GetEuler();
 	TargetRotation.Y -= FMath::Clamp(Sensitivity * mouseDelta.Y, -MaxYDegree, MaxYDegree);

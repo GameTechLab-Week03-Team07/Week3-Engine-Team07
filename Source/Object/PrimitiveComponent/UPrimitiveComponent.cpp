@@ -28,6 +28,12 @@ UPrimitiveComponent::~UPrimitiveComponent()
 void UPrimitiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	bCanBeRendered = true;
+	Max = GetMesh()->GetVertexBuffer()->GetMax();
+	Min = GetMesh()->GetVertexBuffer()->GetMin();
+
+	FVector extent = (Max - Min) / 2;
+	SetBoxExtent(extent);
 }
 
 void UPrimitiveComponent::Tick(float DeltaTime)
@@ -169,25 +175,30 @@ FBoxSphereBounds UPrimitiveComponent::CalcBounds(const FTransform& LocalToWorld)
 UCubeComp::UCubeComp()
 {
 	SetMesh("Cube");
-	bCanBeRendered = true;
+	/*bCanBeRendered = true;
 	Max = GetMesh()->GetVertexBuffer()->GetMax();
 	Min = GetMesh()->GetVertexBuffer()->GetMin();
 
 	FVector extent = (Max - Min) / 2;
-	SetBoxExtent(extent);
+	SetBoxExtent(extent);*/
 }
 
 USphereComp::USphereComp()
 {
 	SetMesh("Sphere");
 	bCanBeRendered = true;
-	Max = GetMesh()->GetVertexBuffer()->GetMax();
+	/*Max = GetMesh()->GetVertexBuffer()->GetMax();
 	Min = GetMesh()->GetVertexBuffer()->GetMin();
 
 	FVector extent = (Max - Min) / 2;
 	float radius = extent.Length();
 
-	SetSphereRadius(radius);
+	SetSphereRadius(radius);*/
+	/*Max = GetMesh()->GetVertexBuffer()->GetMax();
+	Min = GetMesh()->GetVertexBuffer()->GetMin();
+	FVector extent = (Max - Min) / 2;
+	float radius = extent.Length();
+	SetBoxExtent(extent);*/
 }
 
 void USphereComp::SetSphereRadius(float InSphereRadius)
@@ -231,6 +242,7 @@ UTriangleComp::UTriangleComp()
 UQuadComp::UQuadComp()
 {
 	SetMesh("Quad");
+	bCanBeRendered = true;
 }
 
 ULineComp::ULineComp()

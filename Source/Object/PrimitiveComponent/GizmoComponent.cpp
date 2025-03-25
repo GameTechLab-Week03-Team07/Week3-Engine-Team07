@@ -1,6 +1,6 @@
 #include "GizmoComponent.h"
 #include "Object/Gizmo/GizmoActor.h"
-
+#include "Static/FEditorManager.h"
 
 UGizmoComponent::UGizmoComponent()
 {
@@ -31,6 +31,18 @@ void UGizmoComponent::Render()
 
 void UGizmoComponent::OnChangedGizmoType(EGizmoType Gizmo)
 {
+	if (AActor* Owner = GetOwner())
+	{
+		if (AGizmoActor* GizmoActor = Cast<AGizmoActor>(Owner))
+		{
+			// 선택된 액터가 있으면 Gizmo 방향 업데이트
+			if (AActor* SelectedActor = FEditorManager::Get().GetSelectedActor())
+			{
+				GizmoActor->UpdateGizmoTransform(SelectedActor);
+			}
+		}
+	}
+
 	switch (Gizmo)
 	{
 	case EGizmoType::Translate:

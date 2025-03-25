@@ -20,10 +20,13 @@ public:
     void SelectActor(AActor* NewActor);
 
     inline ACamera* GetCamera() const {return Camera;}
+	inline TArray<ACamera*> GetCameraList() const { return CameraList; }
 
-    void SetCamera(ACamera* NewCamera);
+	inline void SetCamera(ACamera* NewCamera) { Camera = NewCamera; }
+	inline void AddCamera(ACamera* NewCamera) { CameraList.Add(NewCamera); }
+	inline void ClearCameraList() { CameraList.Empty(); }
 
-	AGizmoActor* GetGizmo() const {return Gizmo;}
+	inline AGizmoActor* GetGizmo() const {return Gizmo;}
 
 	static FVector4 EncodeUUID(uint32 UUID);
 	static uint32 DecodeUUID(FVector4 color);
@@ -38,6 +41,8 @@ public:
     
 private:
     ACamera* Camera = nullptr;
+	TArray<ACamera*> CameraList;
+
     AActor* SelectedActor = nullptr;
 	AGizmoActor* Gizmo = nullptr;
 

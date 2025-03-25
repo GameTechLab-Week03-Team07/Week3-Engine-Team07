@@ -4,6 +4,8 @@
 #include <Debug/DebugConsole.h>
 #include "Static/FEditorManager.h"
 #include "Resource/Texture.h"
+#include "Object/Window/Window.h"
+#include "Static/ViewportClient.h"
 
 void FDevice::Init(HWND _hwnd)
 {
@@ -81,11 +83,17 @@ void FDevice::CreateDeviceAndSwapChain(HWND hWindow)
     SwapChain->GetDesc(&SwapChainDesc);
     
     // 뷰포트 정보 설정
-    ViewportInfo = {
-        0.0f, 0.0f,
-        static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height),
-        0.0f, 1.0f
-    };
+	float InitWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width) / 2;
+	float InitHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height) / 2;
+
+	SetViewport(0, 0.0f, 0.0f, InitWidth, InitHeight);
+	SetViewport(1, InitWidth, 0.0f, InitWidth , InitHeight);
+	SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight);
+	SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight);
+	SetViewport(4, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
+
+	//SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
+
 }
 
 void FDevice::ReleaseDeviceAndSwapChain()
@@ -141,12 +149,15 @@ void FDevice::OnUpdateWindowSize(int Width, int Height)
 
 		DXGI_SWAP_CHAIN_DESC SwapChainDesc;
 		SwapChain->GetDesc(&SwapChainDesc);
+
 		// 뷰포트 정보 갱신
-		ViewportInfo = {
-			0.0f, 0.0f,
-			static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height),
-			0.0f, 1.0f
-		};
+
+		// 현재 윈도우 크기
+		float WindowWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width);
+		float WindowHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height);
+
+		// 현재 서브 윈도우 설정에 맞춰 뷰포트 갱신
+		UpdateViewport();
 	}
 }
 
@@ -163,9 +174,13 @@ void FDevice::OnResizeComplete()
 
 void FDevice::CreateDepthStencilBuffer()
 {
+	// 뷰포트 정보 설정
+	D3D11_TEXTURE2D_DESC FrameBufferDesc;
+	FrameBuffer->GetDesc(&FrameBufferDesc);
+
 	D3D11_TEXTURE2D_DESC DepthBufferDesc = {};
-	DepthBufferDesc.Width = static_cast<UINT>(ViewportInfo.Width);
-	DepthBufferDesc.Height = static_cast<UINT>(ViewportInfo.Height);
+	DepthBufferDesc.Width = static_cast<float>(FrameBufferDesc.Width);
+	DepthBufferDesc.Height = static_cast<float>(FrameBufferDesc.Height);
 	DepthBufferDesc.MipLevels = 1;
 	DepthBufferDesc.ArraySize = 1;
 	DepthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;            // 32비트 중 24비트는 깊이, 8비트는 스텐실
@@ -240,10 +255,10 @@ void FDevice::ReleaseDepthStencilBuffer()
 	}
 }
 
-void FDevice::Prepare() const
+void FDevice::Prepare(int Index) const
 {
-	Clear();
-	SetRenderTarget();
+	//Clear();
+	SetRenderTarget(Index);
 }
 
 void FDevice::Clear() const
@@ -259,20 +274,20 @@ void FDevice::Clear() const
 	FDevice::Get().GetDeviceContext()->ClearDepthStencilView(PickingDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void FDevice::SetRenderTarget() const
+void FDevice::SetRenderTarget(int Index) const
 {
-	// Rasterization할 Viewport를 설정 
-	FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo);  // DepthStencil 뷰 및 스왑버퍼 세팅
-
 	///////////////////////
 	///일단 임시로 여기서 UUID 픽킹 텍스쳐 바인딩
+
 
 	ID3D11RenderTargetView* RTV = FEditorManager::Get().UUIDTexture->GetRTV();
 	// 렌더 타겟 바인딩
 	ID3D11RenderTargetView* RTVs[2] = { FrameBufferRTV, RTV };
 	FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, RTVs, DepthStencilView);
 
-	// FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, &RTV, nullptr);
+
+	// Rasterization할 Viewport를 설정 
+	FDevice::Get().GetDeviceContext()->RSSetViewports(1, &ViewportInfo[Index]);
 }
 
 void FDevice::PickingPrepare() const
@@ -285,3 +300,39 @@ void FDevice::PickingPrepare() const
 	FDevice::Get().GetDeviceContext()->OMSetRenderTargets(2, RTVs, PickingDepthStencilView);
 }
 
+void FDevice::SetViewport(int index, float TopLeftX, float TopLeftY, float Width, float Height)
+{
+	if (index < 0 || index >= 5) return;
+
+	ViewportInfo[index] = {
+		TopLeftX, TopLeftY,
+		Width, Height,
+		0.0f, 1.0f
+	};
+}
+
+void FDevice::UpdateViewport() {
+	float WindowWidth = static_cast<float>(UEngine::Get().GetScreenWidth());
+	float WindowHeight = static_cast<float>(UEngine::Get().GetScreenHeight());
+
+	// 뷰포트 불러오기
+	std::shared_ptr<FViewport> Viewport1 = FViewportClient::Get().GetViewport(0);
+	std::shared_ptr<FViewport> Viewport2 = FViewportClient::Get().GetViewport(1);
+	std::shared_ptr<FViewport> Viewport3 = FViewportClient::Get().GetViewport(2);
+	std::shared_ptr<FViewport> Viewport4 = FViewportClient::Get().GetViewport(3);
+
+	SetViewport(0, 0.0f, 0.0f, Viewport1->GetWidth() * WindowWidth / 2, Viewport1->GetHeight() * WindowHeight / 2);
+	SetViewport(1, GetWindowPosFromNDC(FVector(Viewport2->GetX(), Viewport2->GetY(), 0.0f), WindowWidth, WindowHeight).X, 0.0f,
+		Viewport2->GetWidth() * WindowWidth / 2, Viewport2->GetHeight() * WindowHeight / 2);
+	SetViewport(2, 0.0f, GetWindowPosFromNDC(FVector(Viewport3->GetX(), Viewport3->GetY(), 0.0f),
+		WindowWidth, WindowHeight).Y, Viewport3->GetWidth() * WindowWidth / 2, Viewport3->GetHeight() * WindowHeight / 2);
+	SetViewport(3, GetWindowPosFromNDC(FVector(Viewport4->GetX(), Viewport4->GetY(), 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(Viewport4->GetX(), Viewport4->GetY(), 0.0f), WindowWidth, WindowHeight).Y,
+		Viewport4->GetWidth() * WindowWidth / 2, Viewport4->GetHeight() * WindowHeight / 2);
+	SetViewport(4, 0.0f, 0.0f, WindowWidth, WindowHeight);
+
+}
+
+FVector FDevice::GetWindowPosFromNDC(FVector NDCPos, float Width, float Height) 
+{
+	return FVector((NDCPos.X + 1.0f) * Width / 2, (1.0f - NDCPos.Y) * Height / 2, 0.0f);
+}

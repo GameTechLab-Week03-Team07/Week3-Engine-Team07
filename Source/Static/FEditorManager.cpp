@@ -3,17 +3,19 @@
 #include "Object/World/World.h"
 #include "Core/Math/Vector.h"
 #include "Core/Math/Transform.h"
-#include <Object/Gizmo/GizmoActor.h>
 #include "Debug/DebugDrawManager.h"
-
 #include "Core/Input/PlayerInput.h"
 #include "Resource/Texture.h"
 #include "Core/Rendering/FDevice.h"
+#include "Static/ViewportClient.h"
+#include "Object/Actor/Camera.h"
+#include "Static/FUUIDBillBoard.h"
+#include "Object/Gizmo/GizmoActor.h"
 
 void FEditorManager::Init()
 {
-	const int Width = static_cast<int>(FDevice::Get().GetViewPortInfo().Width);
-	const int Height = static_cast<int>(FDevice::Get().GetViewPortInfo().Height);
+	const int Width = UEngine::Get().GetScreenWidth();
+	const int Height = UEngine::Get().GetScreenHeight();
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = Width;
@@ -27,7 +29,6 @@ void FEditorManager::Init()
 	
 	UUIDTexture = FTexture::Create("UUIDTexture", textureDesc);
 	UUIDTexture->CreateRenderTargetView();
-
 
 	//D3D11_TEXTURE2D_DESC DepthBufferDesc = {};
 	//DepthBufferDesc.Width = Width;
@@ -69,12 +70,8 @@ void FEditorManager::SelectActor(AActor* NewActor)
         SelectedActor->Pick();
 		    const FTransform newActorTransform = NewActor->GetActorTransform();
 		    Gizmo->SetActorTransform(newActorTransform);
-	   }
-}
-
-void FEditorManager::SetCamera(ACamera* NewCamera)
-{
-    Camera = NewCamera;
+			Gizmo->UpdateGizmoTransform(SelectedActor);
+	}
 }
 
 FVector4 FEditorManager::EncodeUUID(uint32 UUID)
@@ -132,65 +129,25 @@ void FEditorManager::LateTick([[maybe_unused]] float DeltaTime)
 			assert(PickedActor);
 
 			// if (GetOwner()->Implements<IGizmoInterface>() == false) // TODO: RTTI 개선하면 사용
-			if (!dynamic_cast<IGizmoInterface*>(PickedActor))
+			const AGizmoActor* GizmoActor = Cast<AGizmoActor>(PickedActor);
+			if (!GizmoActor)
 			{
 				// PickedActor를 한번 더 클릭하면 UnPicked
 				SelectActor(PickedActor);
+				FUUIDBillBoard::Get().SetTarget(PickedActor);
 			}
-				
 			
 			UE_LOG("Pick - UUID: %d", UUID);
 
 			if (const UGizmoComponent* GizmoCom = Cast<UGizmoComponent>(PickedComponent))
 			{
-				Gizmo->SetSelectedAxis(GizmoCom->GetSelectedAxis());
+				if (Gizmo)
+				{
+					Gizmo->SetSelectedAxis(GizmoCom->GetSelectedAxis());
+				}
 			}
 		}
 	}
-
-	//if (APlayerInput::Get().GetKeyPress(EKeyCode::LButton))
-	//{
-	//	if (SelectedActor != nullptr)
-	//	{
-	//		if (AGizmoActor* Gizmo = Cast<AGizmoActor>(SelectedActor))
-	//		{
-	//			//Gizmo->SetSelectedAxis(ESelectedAxis::Y);
-
-
-	//			//FVector MousePos = APlayerInput::Get().GetMouseScreenDeltaPos();
-
-	//			//FVector Dir = FVector{ 0.0f, MousePos.X, MousePos.Y } *0.1f;
-
-	//			//Gizmo->AddActorLocalOffset(Dir);
-
-
-
-	//			//if (Gizmo->GetSelectedAxis() != ESelectedAxis::None) return;
-	//			//UCylinderComp* CylinderComp = static_cast<UCylinderComp*>(PickedComponent);
-	//			//FVector4 CompColor = CylinderComp->GetCustomColor();
-	//			//if (1.0f - FMath::Abs(CompColor.X) < KINDA_SMALL_NUMBER) // Red - X축
-	//			//{
-	//			//    Gizmo->SetSelectedAxis(ESelectedAxis::X);
-	//			//}
-	//			//else if (1.0f - FMath::Abs(CompColor.Y) < KINDA_SMALL_NUMBER) // Green - Y축
-	//			//{
-	//			//    Gizmo->SetSelectedAxis(ESelectedAxis::Y);
-	//			//}
-	//			//else  // Blue - Z축
-	//			//{
-	//			//    Gizmo->SetSelectedAxis(ESelectedAxis::Z);
-	//			//}
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	// if (AGizmoHandle* Handle = FEditorManager::Get().GetGizmoHandle())
-	//	// {
-	//	//     Handle->SetSelectedAxis(ESelectedAxis::None);
-	//	// }
-	//}
-		 
 }
 
 void FEditorManager::OnUpdateWindowSize(uint32 Width, uint32 Height)
@@ -221,8 +178,8 @@ void FEditorManager::OnUpdateWindowSize(uint32 Width, uint32 Height)
 
 void FEditorManager::OnResizeComplete()
 {
-	const int Width = static_cast<int>(FDevice::Get().GetViewPortInfo().Width);
-	const int Height = static_cast<int>(FDevice::Get().GetViewPortInfo().Height);
+	const int Width = UEngine::Get().GetScreenWidth();
+	const int Height = UEngine::Get().GetScreenHeight();
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = Width;
@@ -241,8 +198,8 @@ void FEditorManager::OnResizeComplete()
 FVector4 FEditorManager::GetPixel(FVector MPos) const
 {
 
-	const float Width = FDevice::Get().GetViewPortInfo().Width;
-	const float Height = FDevice::Get().GetViewPortInfo().Height;
+	const float Width = UEngine::Get().GetScreenWidth();
+	const float Height = UEngine::Get().GetScreenHeight();
     MPos.X = FMath::Clamp(MPos.X, 0.0f, Width);
     MPos.Y = FMath::Clamp(MPos.Y, 0.0f, Height);
     // 1. Staging 텍스처 생성 (1x1 픽셀)

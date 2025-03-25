@@ -8,6 +8,8 @@
 #include "Object/ObjectFactory.h"
 #include "Core/UObject/TObjectIterator.h"
 #include "Resource/Texture.h"
+#include "WindowsBinWriter.h"
+#include "WindowsBinReader.h"
 
 // 메시 매니저 클래스 (일단 싱글톤으로 작성함)
 class FStaticMeshManager : public TSingleton<FStaticMeshManager>
@@ -19,24 +21,57 @@ public:
 		std::lock_guard<std::mutex> lock(MeshMutex);
 
 		// 이미 로드된 메시인지 확인
-		if (MeshMap.Find(FilePath))
+		/*if (MeshMap.Find(FilePath))
 		{
-			return *MeshMap.Find(FilePath); // 이미 로드된 메시라면 그대로 반환
+			return *MeshMap.Find(FilePath);
 		}
 
-		// 없으면 새 메시 생성
-		std::shared_ptr<FStaticMesh> newMesh = std::make_shared<FStaticMesh>();
+		std::string BaseName = FilePath;
+		size_t lastDot = BaseName.find_last_of('.');
+		if (lastDot != std::string::npos)
+		{
+			BaseName = BaseName.substr(0, lastDot);
+		}
 
-		// OBJ 파일 임포트
+		size_t lastSlash = BaseName.find_last_of("/\\");
+		if (lastSlash != std::string::npos)
+		{
+			BaseName = BaseName.substr(lastSlash + 1);
+		}*/
+
+		// 바이너리 파일 경로 생성
+		//std::string BinFilePath = "Contents/StaticMesh/" + BaseName + ".bin";
+
+		// 없으면 새 메시 생성
+		std::shared_ptr<FStaticMesh> NewMesh = std::make_shared<FStaticMesh>();
+
+		// 바이너리 파일이 존재하는지 확인
+		//if (DoesBinaryFileExist(BinFilePath))
+		//{
+		//	// 바이너리 파일에서 로드
+		//	// TEMP
+		//	MeshMap[FilePath] = NewMesh;
+		//	return LoadFromBinary(BinFilePath, NewMesh);
+		//}
+		//else
+		//{
+		//	// OBJ 파일 파싱 후 바이너리로 저장
+		//	if (ParseAndSaveToBinary(FilePath, BinFilePath))
+		//	{
+		//		return LoadFromBinary(BinFilePath, NewMesh);
+		//	}
+		//	return nullptr;
+		//}
+
 		FObjImporter importer;
-		if (!importer.ImportObjFile(FilePath, *newMesh))
+		if (!importer.ImportObjFile(FilePath, *NewMesh))
 		{
 			return nullptr; // 로드 실패
 		}
 
 		// 메시 맵에 저장
-		MeshMap[FilePath] = newMesh;
-		return newMesh;
+		MeshMap[FilePath] = NewMesh;
+		return NewMesh;
 	}
 	// UStaticMesh를 로드하는 함수 (UObject를 상속받아 UUID가 생긴 상태)
 	UStaticMesh* LoadObjStaticMesh(const std::string& PathFileName)
@@ -215,6 +250,117 @@ public:
 		std::lock_guard<std::mutex> lock(MeshMutex);
 		return MeshMap.Num();
 	}
+
+	// OBJ 파일을 파싱하고 바이너리로 저장
+	bool ParseAndSaveToBinary(const std::string& objFilePath, const std::string& binFilePath)
+	{
+		// OBJ 파일 파싱
+		FObjImporter importer;
+		FObjInfo objInfo;
+		FStaticMesh mesh;
+
+		if (!importer.ImportObjFile(objFilePath, mesh))
+		{
+			return false;
+		}
+
+		// 바이너리 파일로 저장
+		return SaveStaticMeshToBinary(mesh, binFilePath);
+	}
+
+	// 메시 데이터를 바이너리 파일로 저장
+	bool SaveStaticMeshToBinary(const FStaticMesh& mesh, const std::string& binFilePath)
+	{
+		FWindowsBinWriter writer(binFilePath);
+		if (!writer.IsValid())
+		{
+			return false;
+		}
+
+		// 복사본 생성 후 저장
+		std::string pathName = mesh.PathFileName;
+		TArray<FVertexSimple> verticesCopy = mesh.Vertices;
+		TArray<uint32> indicesCopy = mesh.Indices;
+		writer << pathName;
+		writer << verticesCopy;
+		writer << indicesCopy;
+		// 정점 데이터 저장
+		//writer << mesh.Vertices;
+
+		// 인덱스 데이터 저장
+		//writer << mesh.Indices;
+
+		//// 머티리얼 정보 저장
+		//int32 materialCount = static_cast<int32>(mesh.Materials.Num());
+		//writer << materialCount;
+
+		//for (const auto& materialPair : mesh.Materials)
+		//{
+		//	std::string materialName = materialPair.Key;
+		//	writer << materialName;
+
+		//	const FObjMaterialInfo& material = materialPair.Value;
+
+		//	/*writer << material.DiffuseColor.X << material.DiffuseColor.Y << material.DiffuseColor.Z;
+		//	writer << material.AmbientColor.X << material.AmbientColor.Y << material.AmbientColor.Z;
+		//	writer << material.SpecularColor.X << material.SpecularColor.Y << material.SpecularColor.Z;
+		//	writer << material.SpecularExponent;
+		//	writer << material.Opacity;
+		//	writer << material.DiffuseTexture;
+		//	writer << material.PathFileName;*/
+		//}
+
+		return !writer.IsError();
+	}
+
+	// 바이너리 파일에서 메시 데이터 로드
+	std::shared_ptr<FStaticMesh> LoadFromBinary(const std::string& binFilePath, std::shared_ptr<FStaticMesh> OutMesh)
+	{
+		FWindowsBinReader reader(binFilePath);
+		if (!reader.IsValid())
+		{
+			return nullptr;
+		}
+		// Name 정보 읽기
+		reader << OutMesh->PathFileName;
+
+		// 정점 데이터 읽기
+		reader << OutMesh->Vertices;
+
+		// 인덱스 데이터 읽기
+		reader << OutMesh->Indices;
+
+		// 머티리얼 정보 읽기
+		int32 materialCount = 0;
+		reader << materialCount;
+
+		for (int32 i = 0; i < materialCount; i++)
+		{
+			std::string materialName;
+			reader << materialName;
+
+			FObjMaterialInfo material;
+			reader << material.DiffuseColor.X << material.DiffuseColor.Y << material.DiffuseColor.Z;
+			reader << material.AmbientColor.X << material.AmbientColor.Y << material.AmbientColor.Z;
+			reader << material.SpecularColor.X << material.SpecularColor.Y << material.SpecularColor.Z;
+			reader << material.SpecularExponent;
+			reader << material.Opacity;
+			reader << material.DiffuseTexture;
+			reader << material.PathFileName;
+
+			OutMesh->Materials[materialName] = material;
+		}
+
+		return OutMesh;
+	}
+
+	// 바이너리 파일이 존재하는지 확인
+	bool DoesBinaryFileExist(const std::string& binFilePath)
+	{
+		std::ifstream file(binFilePath);
+		return file.good();
+	}
+
 private:
 	// 메시 저장소
 	TMap<std::string, std::shared_ptr<FStaticMesh>> MeshMap;

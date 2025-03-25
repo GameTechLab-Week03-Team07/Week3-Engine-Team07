@@ -5,7 +5,7 @@
 #include "Core/Container/Map.h"
 #include "Core/Input/PlayerInput.h"
 #include "Object/Actor/Camera.h"
-#include <Object/Gizmo/GizmoHandle.h>
+#include "Object/Gizmo/GizmoHandle.h"
 
 #include "Object/Actor/Cone.h"
 #include "Object/Actor/Cube.h"
@@ -16,11 +16,11 @@
 #include "Static/FEditorManager.h"
 #include "Static/FLineBatchManager.h"
 #include "Static/FUUIDBillBoard.h"
-#include <Core/Math/Ray.h>
+#include "Static/ViewportClient.h"
+#include "Core/Math/Ray.h"
 
 #include "Core/Rendering/URenderer.h"
 #include "Object/Actor/Arrow.h"
-#include "Object/Actor/Picker.h"
 #include "Core/Config/ConfigManager.h"
 #include "Object/Gizmo/GizmoActor.h"
 #include "Object/MeshComponent/UStaticMeshComponent.h"
@@ -33,6 +33,8 @@ void UWorld::InitWorld()
 {
 	//TODO : 
 	GridSize = FString::ToFloat(UConfigManager::Get().GetValue(TEXT("World"), TEXT("GridSize")));
+	ExcludedClasses.Add(FString("ACamera"));
+	ExcludedClasses.Add(FString("AGizmoActor"));
 }
 
 void UWorld::BeginPlay()
@@ -90,7 +92,7 @@ void UWorld::OnDestroy()
 	UConfigManager::Get().SaveConfig("editor.ini");
 }
 
-void UWorld::Render()
+void UWorld::Render(uint32 ViewportIndex)
 {
 	URenderer* Renderer = UEngine::Get().GetRenderer();
 
@@ -103,8 +105,42 @@ void UWorld::Render()
 		return;
 	}
 
-	ACamera* cam = FEditorManager::Get().GetCamera();
-	cam->UpdateCameraMatrix();
+
+	ACamera* cam = nullptr;
+
+	switch (ViewportIndex)
+	{
+	case 0:
+		cam = FEditorManager::Get().GetCameraList()[0];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 1:
+		cam = FEditorManager::Get().GetCameraList()[1];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 2:
+		cam = FEditorManager::Get().GetCameraList()[2];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 3:
+		cam = FEditorManager::Get().GetCameraList()[3];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	default:
+		cam = FEditorManager::Get().GetCameraList()[2];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	}
+
+	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 
 
 	//if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton))
@@ -129,10 +165,9 @@ void UWorld::Render()
 	}
 	UDebugDrawManager::Get().Render();
 
-
-	FLineBatchManager::Get().Render();
-
 	FUUIDBillBoard::Get().Render();
+
+	//FViewportClient::Get().Render();
 
 
 	//DisplayPickingTexture(*Renderer);
@@ -151,7 +186,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 			continue;
 		}
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		RenderComponent->Render();
 	}
 
@@ -162,7 +196,6 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 		RenderComponent->Render();
 		//MsgBoxAssert("없어진 기능입니다");
 		// uint32 UUID = RenderComponent->GetUUID();
-		// RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
 		// uint32 depth = RenderComponent->GetOwner()->GetDepth();
 		// RenderComponent->Render();
 	}
@@ -195,7 +228,7 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 		RenderComponent->Render();
 	}
 
-	FDevice::Get().SetRenderTarget();
+	//FDevice::Get().SetRenderTarget();
 }
 
 // void UWorld::DisplayPickingTexture(URenderer& Renderer)
@@ -321,6 +354,20 @@ void UWorld::LoadWorld(const char* InSceneName)
 		
 		Actor->SetActorTransform(Transform);
 	}
+}
+
+TArray<AActor*>& UWorld::GetDisplayedActors() {
+	DisplayedActors.Empty();
+
+	for (AActor* Actor : Actors)
+	{
+		if (Actor && ExcludedClasses.Find(Actor->GetClass()->GetName()) == -1)
+		{
+			DisplayedActors.Add(Actor);
+		}
+	}
+
+	return DisplayedActors;
 }
 
 void UWorld::RayCasting(const FVector& MouseNDCPos)
