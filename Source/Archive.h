@@ -209,7 +209,10 @@ public:
 		*this << Value.DiffuseTexture;
 		*this << Value.AmbientColor;
 		*this << Value.SpecularColor;
+		*this << Value.SpecularTexture;
 		*this << Value.SpecularExponent;
+		*this << Value.NormalColor;
+		*this << Value.NormalTexture;
 		*this << Value.Opacity;
 		return *this;
 	}
