@@ -243,9 +243,6 @@
     <ClCompile Include="Source\Object\Actor\Cylinder.cpp">
       <Filter>Source\Object\Actor</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Object\Actor\Picker.cpp">
-      <Filter>Source\Object\Actor</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Object\Actor\Quad.cpp">
       <Filter>Source\Object\Actor</Filter>
     </ClCompile>
@@ -418,27 +415,16 @@
     <ClCompile Include="Source\Object\Actor\WorldGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Resource\StaticMesh\FObjImporter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Resource\StaticMesh\FStaticMeshManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Resource\StaticMesh\UStaticMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Object\MeshComponent\UMeshComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Object\MeshComponent\UStaticMeshComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Object\Actor\StaticMesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Core\Rendering\FStateGroupEnableManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="Source\Archive.cpp" />
+    <ClCompile Include="Source\WindowsBinReader.cpp" />
+    <ClCompile Include="Source\WindowsBinWriter.cpp" />
+    <ClCompile Include="Source\Core\Rendering\FStateGroupEnableManager.cpp" />
+    <ClCompile Include="Source\Resource\StaticMesh\FStaticMeshManager.cpp" />
+    <ClCompile Include="Source\Resource\StaticMesh\FObjImporter.cpp" />
+    <ClCompile Include="Source\Resource\StaticMesh\UStaticMesh.cpp" />
+    <ClCompile Include="Source\Object\MeshComponent\UMeshComponent.cpp" />
+    <ClCompile Include="Source\Object\MeshComponent\UStaticMeshComponent.cpp" />
+    <ClCompile Include="Source\Object\Actor\StaticMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\AbstractClass\Singleton.h">
@@ -580,9 +566,6 @@
       <Filter>Source\Object\Actor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Object\Actor\Cylinder.h">
-      <Filter>Source\Object\Actor</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Object\Actor\Picker.h">
       <Filter>Source\Object\Actor</Filter>
     </ClInclude>
     <ClInclude Include="Source\Object\Actor\Quad.h">
@@ -830,36 +813,19 @@
     <ClInclude Include="Source\Object\Actor\WorldGrid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Resource\StaticMesh\StaticMeshTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Resource\StaticMesh\UStaticMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\UObject\TObjectIterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Object\MeshComponent\UMeshComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Object\MeshComponent\UStaticMeshComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Object\Actor\StaticMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Resource\FMatIndexConstantsComponentData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="Source\Archive.h" />
+    <ClInclude Include="Source\WindowsBinReader.h" />
+    <ClInclude Include="Source\WindowsBinWriter.h" />
+    <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h" />
+    <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
+    <ClInclude Include="Source\Resource\FMatIndexConstantsComponentData.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\StaticMeshTypes.h" />
+    <ClInclude Include="Source\Resource\StaticMesh\UStaticMesh.h" />
+    <ClInclude Include="Source\Object\MeshComponent\UMeshComponent.h" />
+    <ClInclude Include="Source\Object\MeshComponent\UStaticMeshComponent.h" />
+    <ClInclude Include="Source\Object\Actor\StaticMesh.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="JungleEngine.natvis" />
@@ -877,16 +843,15 @@
     <FxCompile Include="Shaders\ShaderLine_VS.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\ShaderW0.hlsl">
-      <Filter>Source\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\SubUV_PS.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\Simple_PS.hlsl" />
+    <FxCompile Include="Shaders\Simple_VS.hlsl" />
+    <FxCompile Include="Shaders\StaticMesh_PS.hlsl" />
+    <FxCompile Include="Shaders\StaticMesh_VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="font_atlas.dds" />
-    <Image Include="font_atlas.png" />
     <Image Include="Pretendard_Kor.png" />
   </ItemGroup>
   <ItemGroup>
@@ -894,9 +859,27 @@
     <None Include=".gitignore" />
     <None Include="imgui.ini" />
     <None Include="README.md" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.bin" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.mtl" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.obj" />
+    <None Include="Contents\StaticMesh\blue_texture.png" />
+    <None Include="Contents\StaticMesh\cube.bin" />
+    <None Include="Contents\StaticMesh\cube.obj" />
+    <None Include="Contents\StaticMesh\cube2.bin" />
+    <None Include="Contents\StaticMesh\cube2.mtl" />
+    <None Include="Contents\StaticMesh\cube2.obj" />
+    <None Include="Contents\StaticMesh\dice.bin" />
+    <None Include="Contents\StaticMesh\dice.mtl" />
+    <None Include="Contents\StaticMesh\dice.obj" />
+    <None Include="Contents\StaticMesh\Dice.png" />
+    <None Include="Contents\StaticMesh\DiceRed.png" />
+    <None Include="Contents\StaticMesh\FinalBaseMesh.bin" />
+    <None Include="Contents\StaticMesh\FinalBaseMesh.obj" />
+    <None Include="Contents\StaticMesh\pirate.obj" />
+    <None Include="Contents\StaticMesh\red_texture.png" />
+    <None Include="Contents\StaticMesh\Skull.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="font_atlas.txt" />
     <Text Include="Pretendard_Kor.txt" />
   </ItemGroup>
 </Project>
