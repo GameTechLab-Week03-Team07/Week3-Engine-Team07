@@ -86,29 +86,14 @@ void FRenderResourceCollection::Render()
 				sectionMat = FMaterial::Find("StaticMeshMaterial");
 			}
 
-
+			// FIX
 			MatIndexData.MatIndex = Section.MaterialIndex;
-
-
 
 			for (auto& Binding : ConstantBufferBindings)
 			{
 				Binding.Value->Setting();
 			}
 
-			// 머티리얼 정보를 머티리얼 파라미터에 업데이트합니다.
-			//auto it = materialMap.Find(Section.SlotName);
-			//if (it != nullptr)
-			//{
-			//	const FObjMaterialInfo& matInfo = *it;
-			//	sectionMat->SetDiffuseColor(matInfo.DiffuseColor);
-			//	if (!matInfo.DiffuseTexture.empty())
-			//	{
-			//		sectionMat->SetDiffuseTexture(matInfo.DiffuseTexture);
-			//		// 필요 시 텍스처 바인딩 로직을 추가하세요.
-			//	}
-			//}
-			// 
 			// 업데이트된 머티리얼 상태를 적용합니다.
 			sectionMat->Setting(bOverrideRasterizer);
 			// 해당 섹션에 대해 DrawIndexed 호출합니다.
@@ -209,18 +194,3 @@ std::shared_ptr<FConstantBufferBinding> FRenderResourceCollection::SetConstantBu
 
 	return Binding;
 }
-
-void FRenderResourceCollection::UpdateMatIndexConstantBuffer(int MatIndex)
-{
-	MatIndexData.MatIndex = MatIndex;
-	// 정수형 머티리얼 인덱스를 GPU로 전달
-	SetConstantBufferBinding(
-		"MatIndexConstantBuffer",                       // 바인딩 이름
-		&MatIndexData,                     // CPU에서 보낼 데이터 포인터
-		sizeof(FMatIndexConstantsComponentData),                        // 데이터 크기
-		3,                                 // 바인딩 포인트 (예시)
-		true,                               // Vertex Shader에 사용
-		true                                // Pixel Shader에 사용
-	);
-}
-

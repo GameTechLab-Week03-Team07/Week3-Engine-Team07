@@ -10,7 +10,8 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Core/Rendering/FDevice.h"
-#include "Resource/FMatIndexConstantsComponentData.h"
+#include "Resource/ShaderConstants.h"
+
 enum class RenderMode
 {
 	Indexed,
@@ -21,10 +22,9 @@ enum class RenderMode
 class FRenderResourceCollection
 {
 public:
-
+	// TO-DO: refactor
 	FMatIndexConstantsComponentData MatIndexData;
-	//테스트 임시 메쉬
-
+	//void UpdateMatIndexConstantBuffer();
 
 
 	void SetMesh(const FString& _Name);
@@ -59,7 +59,7 @@ public:
 	
 	std::shared_ptr<FConstantBufferBinding> SetConstantBufferBinding(const FString& _Name,
 	                                                                 const void* _CPUDataPtr, int _DataSize,int _BindPoint, bool	bIsUseVertexShader, bool bIsUsePixelShader);
-	
+
 	
 	std::shared_ptr<class FTextureBinding> SetTextureBinding(const FString& _Name,
 		int _BindPoint, bool bIsUseVertexShader, bool bIsUsePixelShader);
@@ -85,7 +85,7 @@ private:
 
 	bool bOverrideRasterizer = true;
 	
-	void UpdateMatIndexConstantBuffer(int MatIndex);
+	//void UpdateMatIndexConstantBuffer(int MatIndex);
 
 	// // 테스트 상수버퍼
 	// std::shared_ptr<class FConstantBufferBinding> ConstantBufferBinding = nullptr;

@@ -214,6 +214,14 @@ public:
 				// DiffuseTexture
 				iss >> currentMaterial.DiffuseTexture;
 			}
+			else if (prefix == "map_Bump") {
+				// NormalTexture
+				iss >> currentMaterial.NormalTexture;
+			}
+			else if (prefix == "map_Ks") {
+				// SpecularTexture
+				iss >> currentMaterial.SpecularTexture;
+			}
 		}
 
 		// 마지막 재질 저장

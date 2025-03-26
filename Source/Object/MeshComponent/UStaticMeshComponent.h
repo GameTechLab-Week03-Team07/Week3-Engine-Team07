@@ -45,6 +45,8 @@ public:
 	// 바운드 계산 오버라이드
 	virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override;
 
+	//FMatIndexConstantsComponentData& GetMatIndexConstantsComponentData() { return MatIndexConstantsComponentData; }
+
 protected:
 	// 정적 메시 참조
 	UStaticMesh* StaticMesh = nullptr;
@@ -58,4 +60,8 @@ protected:
 
 	// 메시 데이터로부터 바운드 계산
 	virtual FBoxSphereBounds CalcMeshBounds(const FTransform& LocalToWorld) const override;
+
+	void UpdateMatIndexConstantBuffer();
+
+	//FMatIndexConstantsComponentData MatIndexConstantsComponentData;
 };
