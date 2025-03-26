@@ -449,22 +449,6 @@ void UI::RenderPropertyWindow() const
 			selectedTransform.SetScale(scale[0], scale[1], scale[2]);
 			selectedActor->SetActorTransform(selectedTransform);
 		}
-		/*if (FEditorManager::Get().GetGizmoHandle() != nullptr)
-		{
-			AGizmoHandle* Gizmo = FEditorManager::Get().GetGizmoHandle();
-			if(Gizmo->GetGizmoType() == EGizmoType::Translate)
-			{
-				ImGui::Text("GizmoType: Translate");
-			}
-			else if (Gizmo->GetGizmoType() == EGizmoType::Rotate)
-			{
-				ImGui::Text("GizmoType: Rotate");
-			}
-			else if (Gizmo->GetGizmoType() == EGizmoType::Scale)
-			{
-				ImGui::Text("GizmoType: Scale");
-			}
-		}*/
 
 		// SpotLight 속성 표시
 		ASpotLight* spotLight = dynamic_cast<ASpotLight*>(selectedActor);

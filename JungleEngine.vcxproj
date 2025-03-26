@@ -224,12 +224,10 @@
     <ClCompile Include="Source\Object\Actor\Cone.cpp" />
     <ClCompile Include="Source\Object\Actor\Cylinder.cpp" />
     <ClCompile Include="Source\Object\Actor\Quad.cpp" />
-    <ClCompile Include="Source\Object\Gizmo\GizmoHandle.cpp" />
     <ClCompile Include="Source\Object\Actor\Arrow.cpp" />
     <ClCompile Include="Source\Core\Input\PlayerController.cpp" />
     <ClCompile Include="Source\Core\Input\PlayerInput.cpp" />
     <ClCompile Include="Source\Object\Actor\Cube.cpp" />
-    <ClCompile Include="Source\Object\Gizmo\Axis.cpp" />
     <ClCompile Include="Source\Object\ActorComponent\ActorComponent.cpp" />
     <ClCompile Include="Source\Debug\DebugConsole.cpp" />
     <ClCompile Include="Source\Object\Actor\Actor.cpp" />
@@ -324,7 +322,7 @@
     <ClInclude Include="Source\WindowsBinWriter.h" />
     <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h" />
     <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
-    <ClInclude Include="Source\Resource\FMatIndexConstantsComponentData.h" />
+    <ClInclude Include="Source\Resource\ShaderConstants.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h" />
     <ClInclude Include="Source\Core\Delegates\Delegate.h" />
@@ -384,7 +382,6 @@
     <ClInclude Include="Source\Core\Math\Transform.h" />
     <ClInclude Include="Source\Object\Actor\Cylinder.h" />
     <ClInclude Include="Source\Object\Actor\Quad.h" />
-    <ClInclude Include="Source\Object\Gizmo\Axis.h" />
     <ClInclude Include="Source\Object\ObjectFactory.h" />
     <ClInclude Include="Source\Object\PrimitiveComponent\UPrimitiveComponent.h" />
     <ClInclude Include="Source\Object\World\World.h" />
@@ -409,7 +406,6 @@
     <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Rendering\UI.h" />
     <ClInclude Include="Source\Core\Rendering\URenderer.h" />
-    <ClInclude Include="Source\Object\Gizmo\GizmoHandle.h" />
     <ClInclude Include="Source\Core\Container\CString.h" />
     <ClCompile Include="Source\Static\FEditorManager.cpp" />
     <ClInclude Include="Source\Object\Actor\Arrow.h" />

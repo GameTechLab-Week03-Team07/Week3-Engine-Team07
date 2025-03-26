@@ -5,7 +5,6 @@
 #include "Core/Container/Map.h"
 #include "Core/Input/PlayerInput.h"
 #include "Object/Actor/Camera.h"
-#include "Object/Gizmo/GizmoHandle.h"
 
 #include "Object/Actor/Cone.h"
 #include "Object/Actor/Cube.h"
@@ -139,29 +138,18 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 		{
 			continue;
 		}
-		// uint32 UUID = RenderComponent->GetUUID();
 		RenderComponent->Render();
 	}
 
 	// Renderer.PrepareZIgnore();
 	for (auto& RenderComponent: ZIgnoreRenderComponents)
 	{
-		
 		RenderComponent->Render();
-		//MsgBoxAssert("없어진 기능입니다");
-		// uint32 UUID = RenderComponent->GetUUID();
-		// uint32 depth = RenderComponent->GetOwner()->GetDepth();
-		// RenderComponent->Render();
 	}
 }
 
 void UWorld::RenderMainTexture(URenderer& Renderer)
 {
-	// Renderer.Prepare();
-	// Renderer.PrepareShader();
-	// Renderer.PrepareMain();
-
-	//Renderer.PrepareMainShader();
 	for (auto& RenderComponent : RenderComponents)
 	{
 		if (RenderComponent->GetOwner()->GetDepth() > 0)
@@ -169,7 +157,6 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 			continue;
 		}
 		uint32 depth = RenderComponent->GetOwner()->GetDepth();
-		// RenderComponent->UpdateConstantDepth(Renderer, depth);
 		RenderComponent->Render();
 	}
 
@@ -181,14 +168,7 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 		uint32 depth = RenderComponent->GetOwner()->GetDepth();
 		RenderComponent->Render();
 	}
-
-	//FDevice::Get().SetRenderTarget();
 }
-
-// void UWorld::DisplayPickingTexture(URenderer& Renderer)
-// {
-// 	Renderer.RenderPickingTexture();
-// }
 
 void UWorld::ClearWorld()
 {
@@ -355,7 +335,6 @@ void UWorld::LoadWorld(const char* InSceneName)
 
 		AddCamera(Camera);
 		FEditorManager::Get().AddCamera(Camera);
-
 	}
 }
 
@@ -457,11 +436,6 @@ void UWorld::RayCasting(const FVector& MouseNDCPos)
 	{
 		FEditorManager::Get().SelectActor(SelectedActor);
 	}
-}
-
-void UWorld::PickByPixel(const FVector& MousePos)
-{
-
 }
 
 void UWorld::OnChangedGridSize()

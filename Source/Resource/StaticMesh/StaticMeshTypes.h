@@ -19,6 +19,9 @@ struct FObjMaterialInfo {
 	std::string DiffuseTexture;
 	FVector AmbientColor;
 	FVector SpecularColor;
+	std::string SpecularTexture;
+	FVector NormalColor;
+	std::string NormalTexture;
 	float SpecularExponent;
 	float Opacity;
 
@@ -26,6 +29,7 @@ struct FObjMaterialInfo {
 		DiffuseColor(1.0f, 1.0f, 1.0f),
 		AmbientColor(1.0f, 1.0f, 1.0f),
 		SpecularColor(1.0f, 1.0f, 1.0f),
+		NormalColor(1.0f, 1.0f, 1.0f),
 		SpecularExponent(0.0f),
 		Opacity(1.0f) {
 	}

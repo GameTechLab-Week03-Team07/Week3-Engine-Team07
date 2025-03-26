@@ -818,7 +818,7 @@
     <ClInclude Include="Source\WindowsBinWriter.h" />
     <ClInclude Include="Source\Core\Rendering\FStateGroupEnableManager.h" />
     <ClInclude Include="Source\Core\UObject\TObjectIterator.h" />
-    <ClInclude Include="Source\Resource\FMatIndexConstantsComponentData.h" />
+    <ClInclude Include="Source\Resource\ShaderConstants.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FStaticMeshManager.h" />
     <ClInclude Include="Source\Resource\StaticMesh\FObjImporter.h" />
     <ClInclude Include="Source\Resource\StaticMesh\StaticMeshTypes.h" />
@@ -853,6 +853,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Pretendard_Kor.png" />
+    <Image Include="Contents\StaticMesh\blue_texture.png" />
+    <Image Include="Contents\StaticMesh\Dice.png" />
+    <Image Include="Contents\StaticMesh\DiceRed.png" />
+    <Image Include="Contents\StaticMesh\red_texture.png" />
+    <Image Include="Contents\StaticMesh\Skull.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -881,5 +886,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Pretendard_Kor.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Contents\StaticMesh\cube.obj" />
+    <Object Include="Contents\StaticMesh\cube2.obj" />
+    <Object Include="Contents\StaticMesh\dice.obj" />
+    <Object Include="Contents\StaticMesh\FinalBaseMesh.obj" />
+    <Object Include="Contents\StaticMesh\12140_Skull_v3.obj" />
+    <Object Include="Contents\StaticMesh\pirate.obj" />
   </ItemGroup>
 </Project>
