@@ -121,11 +121,9 @@ std::shared_ptr<FTextureBinding> FRenderResourceCollection::SetTextureBinding(co
 {
 	std::shared_ptr<FTexture> Res = FTexture::Find(_Name);
 
-	// if (Res == nullptr)
-	// {
-	// 	//없으면 그 사이즈의 이름으로 만듦 이름이 겹치면 몰?루
-	// 	Res = FConstantBuffer::Create(_Name, _DataSize);
-	// }
+	if (Res == nullptr) {
+		return nullptr;
+	}
 	
 	std::shared_ptr<FTextureBinding> Binding = std::make_shared<FTextureBinding>();
 
