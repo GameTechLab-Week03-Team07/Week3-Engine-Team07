@@ -106,7 +106,37 @@ bool UConfigManager::SaveConfig(const FString& InConfigName)
 	else
 	{
 		// 빌드된 실행 파일의 경로로 설정
-		return false;
+		filesystem::path curPath = filesystem::current_path();
+		filesystem::path configPath = curPath / "Config" / InConfigName.GetData();
+		filesystem::path parentPath = configPath.parent_path();
+		if (parentPath.empty() == false && filesystem::exists(parentPath) == false)
+		{
+			if (filesystem::create_directories(parentPath) == false)
+			{
+				std::cout << "Failed to create directory: " << parentPath << std::endl;
+				return false;
+			}
+		}
+
+		ofstream configFile(configPath);
+		if (configFile.is_open() == false)
+		{
+			std::cout << "File open failed: " << configPath << std::endl;
+			return false;
+		}
+
+		for (const auto& [section, keyValues] : Configs)
+		{
+			if (section.IsEmpty() == false)
+				configFile << "[" << section.GetData() << "]" << std::endl;
+			for (const auto& [key, value] : keyValues)
+			{
+				configFile << key.GetData() << " = " << value.GetData() << std::endl;
+			}
+			configFile << std::endl;
+		}
+
+		return true;
 	}
 }
 
