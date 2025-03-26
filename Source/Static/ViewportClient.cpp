@@ -7,7 +7,8 @@
 #include "Object/World/World.h"
 #include "Core/Input/PlayerInput.h"
 #include "Core/Rendering/FDevice.h"
-#include <Core/Rendering/FViewMode.h>
+#include "Core/Rendering/FViewMode.h"
+#include "Core/Config/ConfigManager.h"
 
 void FViewportClient::Create()
 {	
@@ -15,17 +16,53 @@ void FViewportClient::Create()
 	RootWindow = std::make_shared<SWindow>(-1.0f, 1.0f, 1.0f, -1.0f);
 	
 	// 수평 스플리터 생성
-	SplitterH = std::make_shared<SSplitterH>(-1.0f, 0.01f, 1.0f, -0.01f);
+	float SplitterH_Left = FString::ToFloat(UConfigManager::Get().GetValue("SplitterH", "Left"));
+	float SplitterH_Top = FString::ToFloat(UConfigManager::Get().GetValue("SplitterH", "Top"));
+	float SplitterH_Right = FString::ToFloat(UConfigManager::Get().GetValue("SplitterH", "Right"));
+	float SplitterH_Bottom = FString::ToFloat(UConfigManager::Get().GetValue("SplitterH", "Bottom"));
+
+	SplitterH = std::make_shared<SSplitterH>(SplitterH_Left, SplitterH_Top, SplitterH_Right, SplitterH_Bottom);
 
 	// 수직 스플리터 생성
-	SplitterV_Top = std::make_shared<SSplitterV>(-0.01f, 1.0f, 0.01f, 0.0f);
-	SplitterV_Bottom = std::make_shared<SSplitterV>(-0.01f, 0.0f, 0.01f, -1.0f);
+	float SplitterV_Top_Left = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Top", "Left"));
+	float SplitterV_Top_Top = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Top", "Top"));
+	float SplitterV_Top_Right = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Top", "Right"));
+	float SplitterV_Top_Bottom = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Top", "Bottom"));
+
+	SplitterV_Top = std::make_shared<SSplitterV>(SplitterV_Top_Left, SplitterV_Top_Top, SplitterV_Top_Right, SplitterV_Top_Bottom);
+
+	float SplitterV_Bottom_Left = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Bottom", "Left"));
+	float SplitterV_Bottom_Top = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Bottom", "Top"));
+	float SplitterV_Bottom_Right = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Bottom", "Right"));
+	float SplitterV_Bottom_Bottom = FString::ToFloat(UConfigManager::Get().GetValue("SplitterV_Bottom", "Bottom"));
+
+	SplitterV_Bottom = std::make_shared<SSplitterV>(SplitterV_Bottom_Left, SplitterV_Bottom_Top, SplitterV_Bottom_Right, SplitterV_Bottom_Bottom);
 
 	// 분할 뷰포트 생성
-	AddViewport(-1.0f, 1.0f, 1.0f, 1.0f);
-	AddViewport(0.0f, 1.0f, 1.0f, 1.0f);
-	AddViewport(-1.0f, 0.0f, 1.0f, 1.0f);
-	AddViewport(0.0f, 0.0f, 1.0f, 1.0f);
+	float ViewportLT_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "X"));
+	float ViewportLT_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "Y"));
+	float ViewportLT_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "Width"));
+	float ViewportLT_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "Height"));
+
+	float ViewportRT_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "X"));
+	float ViewportRT_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "Y"));
+	float ViewportRT_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "Width"));
+	float ViewportRT_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "Height"));
+
+	float ViewportLB_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "X"));
+	float ViewportLB_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "Y"));
+	float ViewportLB_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "Width"));
+	float ViewportLB_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "Height"));
+
+	float ViewportRB_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "X"));
+	float ViewportRB_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "Y"));
+	float ViewportRB_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "Width"));
+	float ViewportRB_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "Height"));
+
+	AddViewport(ViewportLT_X, ViewportLT_Y, ViewportLT_Width, ViewportLT_Height);
+	AddViewport(ViewportRT_X, ViewportRT_Y, ViewportRT_Width, ViewportRT_Height);
+	AddViewport(ViewportLB_X, ViewportLB_Y, ViewportLB_Width, ViewportLB_Height);
+	AddViewport(ViewportRB_X, ViewportRB_Y, ViewportRB_Width, ViewportRB_Height);
 
 	// 수직 스플리터에 뷰포트 부착
 	SplitterV_Top->SideLT = Viewports[0];
@@ -236,4 +273,42 @@ void FViewportClient::IsPressedOnSplitter()
 			bIsPressedOnSplitter = true;
 		}
 	}
+}
+
+void FViewportClient::SaveViewport() 
+{
+	UConfigManager::Get().SetValue("SplitterH", "Left", std::to_string(FViewportClient::Get().GetSplitterH()->Rect.Left));
+	UConfigManager::Get().SetValue("SplitterH", "Top", std::to_string(FViewportClient::Get().GetSplitterH()->Rect.Top));
+	UConfigManager::Get().SetValue("SplitterH", "Right", std::to_string(FViewportClient::Get().GetSplitterH()->Rect.Right));
+	UConfigManager::Get().SetValue("SplitterH", "Bottom", std::to_string(FViewportClient::Get().GetSplitterH()->Rect.Bottom));
+
+	UConfigManager::Get().SetValue("SplitterV_Top", "Left", std::to_string(FViewportClient::Get().GetSplitterV_Top()->Rect.Left));
+	UConfigManager::Get().SetValue("SplitterV_Top", "Top", std::to_string(FViewportClient::Get().GetSplitterV_Top()->Rect.Top));
+	UConfigManager::Get().SetValue("SplitterV_Top", "Right", std::to_string(FViewportClient::Get().GetSplitterV_Top()->Rect.Right));
+	UConfigManager::Get().SetValue("SplitterV_Top", "Bottom", std::to_string(FViewportClient::Get().GetSplitterV_Top()->Rect.Bottom));
+
+	UConfigManager::Get().SetValue("SplitterV_Bottom", "Left", std::to_string(FViewportClient::Get().GetSplitterV_Bottom()->Rect.Left));
+	UConfigManager::Get().SetValue("SplitterV_Bottom", "Top", std::to_string(FViewportClient::Get().GetSplitterV_Bottom()->Rect.Top));
+	UConfigManager::Get().SetValue("SplitterV_Bottom", "Right", std::to_string(FViewportClient::Get().GetSplitterV_Bottom()->Rect.Right));
+	UConfigManager::Get().SetValue("SplitterV_Bottom", "Bottom", std::to_string(FViewportClient::Get().GetSplitterV_Bottom()->Rect.Bottom));
+
+	UConfigManager::Get().SetValue("ViewportLT", "X", std::to_string(FViewportClient::Get().GetViewport(0)->GetX()));
+	UConfigManager::Get().SetValue("ViewportLT", "Y", std::to_string(FViewportClient::Get().GetViewport(0)->GetY()));
+	UConfigManager::Get().SetValue("ViewportLT", "Width", std::to_string(FViewportClient::Get().GetViewport(0)->GetWidth()));
+	UConfigManager::Get().SetValue("ViewportLT", "Height", std::to_string(FViewportClient::Get().GetViewport(0)->GetHeight()));
+
+	UConfigManager::Get().SetValue("ViewportRT", "X", std::to_string(FViewportClient::Get().GetViewport(1)->GetX()));
+	UConfigManager::Get().SetValue("ViewportRT", "Y", std::to_string(FViewportClient::Get().GetViewport(1)->GetY()));
+	UConfigManager::Get().SetValue("ViewportRT", "Width", std::to_string(FViewportClient::Get().GetViewport(1)->GetWidth()));
+	UConfigManager::Get().SetValue("ViewportRT", "Height", std::to_string(FViewportClient::Get().GetViewport(1)->GetHeight()));
+
+	UConfigManager::Get().SetValue("ViewportLB", "X", std::to_string(FViewportClient::Get().GetViewport(2)->GetX()));
+	UConfigManager::Get().SetValue("ViewportLB", "Y", std::to_string(FViewportClient::Get().GetViewport(2)->GetY()));
+	UConfigManager::Get().SetValue("ViewportLB", "Width", std::to_string(FViewportClient::Get().GetViewport(2)->GetWidth()));
+	UConfigManager::Get().SetValue("ViewportLB", "Height", std::to_string(FViewportClient::Get().GetViewport(2)->GetHeight()));
+
+	UConfigManager::Get().SetValue("ViewportRB", "X", std::to_string(FViewportClient::Get().GetViewport(3)->GetX()));
+	UConfigManager::Get().SetValue("ViewportRB", "Y", std::to_string(FViewportClient::Get().GetViewport(3)->GetY()));
+	UConfigManager::Get().SetValue("ViewportRB", "Width", std::to_string(FViewportClient::Get().GetViewport(3)->GetWidth()));
+	UConfigManager::Get().SetValue("ViewportRB", "Height", std::to_string(FViewportClient::Get().GetViewport(3)->GetHeight()));
 }

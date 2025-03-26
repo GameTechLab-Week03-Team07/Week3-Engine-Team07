@@ -88,6 +88,7 @@ void UWorld::LateTick(float DeltaTime)
 
 void UWorld::OnDestroy()
 {
+	FViewportClient::Get().SaveViewport();
 	UConfigManager::Get().SaveConfig("editor.ini");
 }
 
@@ -100,47 +101,13 @@ void UWorld::Render(uint32 ViewportIndex)
 		return;
 	}
 
-	ACamera* cam = nullptr;
+	// 뷰포트에 따른 카메라 세팅
+	SetCameraByViewport(ViewportIndex);
 
-	switch (ViewportIndex)
-	{
-	case 0:
-		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Front];
-		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
-		SetCamera(cam);
-		FEditorManager::Get().SetCamera(cam);
-		break;
-	case 1:
-		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Side];
-		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
-		SetCamera(cam);
-		FEditorManager::Get().SetCamera(cam);
-		break;
-	case 2:
-		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::None];
-		SetCamera(cam);
-		FEditorManager::Get().SetCamera(cam);
-		break;
-	case 3:
-		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Top];
-		cam->SetActorRotation(FQuat(FVector(0.0f, 89.8f, 0.0f)));
-		SetCamera(cam);
-		FEditorManager::Get().SetCamera(cam);
-		break;
-	default:
-		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::None];
-		SetCamera(cam);
-		FEditorManager::Get().SetCamera(cam);
-		break;
-	}
-
-	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
-
-
-
-
+	// 메인 렌더링
 	RenderMainTexture(*Renderer);
 
+	// 기타 렌더링
 	FLineBatchManager::Get().Render();
 
 	AActor* SelectedActor = FEditorManager::Get().GetSelectedActor();
@@ -350,6 +317,7 @@ void UWorld::LoadWorld(const char* InSceneName)
 		Camera->SetFieldOfVew(CameraInfo->Fov);
 		Camera->SetNear(CameraInfo->NearClip);
 		Camera->SetFar(CameraInfo->FarClip);
+		Camera->SetZoomSize(CameraInfo->Zoom);
 
 		if (CameraInfo->ProjectionMode == ECameraProjectionMode::Orthographic)
 		{
@@ -500,7 +468,8 @@ UWorldInfo UWorld::GetWorldInfo() const
 						.Rotation = Camera->GetActorRotation(),
 						.Fov = Camera->GetFieldOfView(),
 						.NearClip = Camera->GetNear(),
-						.FarClip = Camera->GetFar()
+						.FarClip = Camera->GetFar(),
+						.Zoom = Camera->GetZoomSize()
 					}
 				);
 				WorldInfo.CameraInfos.push(std::move(CameraInfo));
@@ -535,4 +504,43 @@ UWorldInfo UWorld::GetWorldInfo() const
 		i++;
 	}
 	return WorldInfo;
+}
+
+void UWorld::SetCameraByViewport(uint32 ViewportIndex) 
+{
+	ACamera* cam = nullptr;
+
+	switch (ViewportIndex)
+	{
+	case 0:
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Front];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, 0.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 1:
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Side];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 0.0f, -90.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 2:
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::None];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	case 3:
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Top];
+		cam->SetActorRotation(FQuat(FVector(0.0f, 89.8f, 0.0f)));
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	default:
+		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::None];
+		SetCamera(cam);
+		FEditorManager::Get().SetCamera(cam);
+		break;
+	}
+
+	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 }

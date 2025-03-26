@@ -28,14 +28,20 @@ public:
 
 	void IsPressedOnSplitter();
 
+	void SaveViewport();
+
 	inline uint32 GetFocusedViewportIndex() const { return FocusedViewportIndex; }
 	inline void SetFocusedViewportIndex(uint32 index) { FocusedViewportIndex = index; }
 
 	inline std::shared_ptr<FViewport> GetViewport(uint32 index) { return Viewports[index]; }
-	inline void AddViewport(int32 InX, int32 InY, int32 InWidth, int32 InHeight) { Viewports.Add(std::make_shared<FViewport>(InX, InY, InWidth, InHeight)); }
+	inline void AddViewport(float InX, float InY, float InWidth, float InHeight) { Viewports.Add(std::make_shared<FViewport>(InX, InY, InWidth, InHeight)); }
 
 	inline bool GetIsSplitLayout() { return bSplitLayout; }
 	inline void SetIsSplitLayout(bool bInSplitLayout) { bSplitLayout = bInSplitLayout; }
+
+	inline std::shared_ptr<SSplitterH> GetSplitterH() { return SplitterH; }
+	inline std::shared_ptr<SSplitterV> GetSplitterV_Top() { return SplitterV_Top; }
+	inline std::shared_ptr<SSplitterV> GetSplitterV_Bottom() { return SplitterV_Bottom; }
 
 private:
 	TArray<FVertexSimple> VertexBuffer;

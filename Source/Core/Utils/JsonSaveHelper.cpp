@@ -88,6 +88,7 @@ std::unique_ptr<UWorldInfo> JsonSaveHelper::LoadScene(const std::string& SceneNa
 			Camera->Fov = CameraInfo["Fov"].ToFloat();
 			Camera->NearClip = CameraInfo["NearClip"].ToFloat();
 			Camera->FarClip = CameraInfo["FarClip"].ToFloat();
+			Camera->Zoom = CameraInfo["Zoom"].ToFloat();
 			WorldInfo->CameraInfos.push(std::move(Camera));
 		}
 
@@ -142,6 +143,7 @@ void JsonSaveHelper::SaveScene(UWorldInfo WorldInfo)
 		Json["Camera"][CameraType][index]["NearClip"] = CameraInfo->NearClip;
 		Json["Camera"][CameraType][index]["FarClip"] = CameraInfo->FarClip;
 		Json["Camera"][CameraType][index]["OrthoViewMode"] = OrthoViewMode;
+		Json["Camera"][CameraType][index]["Zoom"] = CameraInfo->Zoom;
 	}
      
     std::ofstream Output(WorldInfo.SceneName + ".scene");

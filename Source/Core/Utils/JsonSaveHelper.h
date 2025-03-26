@@ -29,6 +29,7 @@ struct ACameraInfo
     float Fov;
     float NearClip;
     float FarClip;
+	float Zoom;
 };
 
 struct UWorldInfo
