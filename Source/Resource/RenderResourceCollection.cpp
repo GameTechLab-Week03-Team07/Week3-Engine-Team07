@@ -89,7 +89,6 @@ void FRenderResourceCollection::Render()
 			// FIX
 			MatIndexData.MatIndex = Section.MaterialIndex;
 
-
 			for (auto& Binding : ConstantBufferBindings)
 			{
 				Binding.Value->Setting();
@@ -194,17 +193,4 @@ std::shared_ptr<FConstantBufferBinding> FRenderResourceCollection::SetConstantBu
 	ConstantBufferBindings.Add(_Name, Binding);
 
 	return Binding;
-}
-
-void FRenderResourceCollection::UpdateMatIndexConstantBuffer()
-{
-	// 정수형 머티리얼 인덱스를 GPU로 전달
-	SetConstantBufferBinding(
-		"MatIndexConstantBuffer",                       // 바인딩 이름
-		&MatIndexData,                     // CPU에서 보낼 데이터 포인터
-		sizeof(FMatIndexConstantsComponentData),                        // 데이터 크기
-		3,                                 // 바인딩 포인트 (예시)
-		true,                               // Vertex Shader에 사용
-		true                                // Pixel Shader에 사용
-	);
 }

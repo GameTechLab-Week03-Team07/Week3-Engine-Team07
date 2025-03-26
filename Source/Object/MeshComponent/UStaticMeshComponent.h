@@ -61,5 +61,7 @@ protected:
 	// 메시 데이터로부터 바운드 계산
 	virtual FBoxSphereBounds CalcMeshBounds(const FTransform& LocalToWorld) const override;
 
+	void UpdateMatIndexConstantBuffer();
+
 	//FMatIndexConstantsComponentData MatIndexConstantsComponentData;
 };

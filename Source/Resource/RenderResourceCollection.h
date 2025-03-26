@@ -24,7 +24,7 @@ class FRenderResourceCollection
 public:
 	// TO-DO: refactor
 	FMatIndexConstantsComponentData MatIndexData;
-	void UpdateMatIndexConstantBuffer();
+	//void UpdateMatIndexConstantBuffer();
 
 
 	void SetMesh(const FString& _Name);

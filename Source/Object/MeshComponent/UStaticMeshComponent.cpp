@@ -58,8 +58,7 @@ void UStaticMeshComponent::SetStaticMesh(UStaticMesh* InStaticMesh)
 
 FBoxSphereBounds UStaticMeshComponent::CalcBounds(const FTransform& LocalToWorld) const
 {
-	//if (StaticMesh && StaticMesh->StaticMeshAsset)
-		if (StaticMesh)
+	if (StaticMesh)
 	{
 		return CalcMeshBounds(LocalToWorld);
 	}
@@ -81,22 +80,27 @@ void UStaticMeshComponent::InitializeRenderResources()
 	{
 		mesh->SetSections(StaticMesh->StaticMeshAsset->Sections);
 	}
-	/*if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
-	{
-		mesh->SetMaterials(StaticMesh->StaticMeshAsset->Materials);
-	}*/
+
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
 
 	if (StaticMesh->StaticMeshAsset->MaterialInfoArray.Len()!=0)
 	{
-		FString texArrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
+		// Diffuse 텍스처 바인딩 (register t2)
+		FString diffuseTexArrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
 		GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
-		GetRenderResourceCollection().SetTextureBinding(texArrayName, 2, false, true);
+		GetRenderResourceCollection().SetTextureBinding(diffuseTexArrayName, 2, false, true);
+
+		// Normal 텍스처 바인딩 (register t3)
+		FString normalTexArrayName = "StaticMeshNormalTextureArray_" + StaticMesh->GetAssetPathFileName();
+		GetRenderResourceCollection().SetTextureBinding(normalTexArrayName, 3, false, true);
+
+		// Specular 텍스처 바인딩 (register t4)
+		FString specularTexArrayName = "StaticMeshSpecularTextureArray_" + StaticMesh->GetAssetPathFileName();
+		GetRenderResourceCollection().SetTextureBinding(specularTexArrayName, 4, false, true);
 	}
-	// FRenderResourceCollection::UpdateMatIndexConstantBuffer()
-	//GetRenderResourceCollection().SetConstantBufferBinding("MatIndexConstantBuffer", &GetRenderResourceCollection().MatIndexData, sizeof(FMatIndexConstantsComponentData), 3, true, true );
-	GetRenderResourceCollection().UpdateMatIndexConstantBuffer();
+
+	UpdateMatIndexConstantBuffer();
 }
 
 FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToWorld) const
@@ -123,4 +127,17 @@ FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToW
 
 	FBox BoundingBox(Min, Max);
 	return FBoxSphereBounds(BoundingBox).TransformBy(LocalToWorld);
+}
+
+void UStaticMeshComponent::UpdateMatIndexConstantBuffer()
+{
+	// 정수형 머티리얼 인덱스를 GPU로 전달
+	GetRenderResourceCollection().SetConstantBufferBinding(
+		"MatIndexConstantBuffer",                       // 바인딩 이름
+		&GetRenderResourceCollection().MatIndexData,                     // CPU에서 보낼 데이터 포인터
+		sizeof(FMatIndexConstantsComponentData),                        // 데이터 크기
+		3,                                 // 바인딩 포인트 (예시)
+		true,                               // Vertex Shader에 사용
+		true                                // Pixel Shader에 사용
+	);
 }
