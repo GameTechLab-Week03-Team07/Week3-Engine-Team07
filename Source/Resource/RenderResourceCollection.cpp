@@ -110,7 +110,7 @@ void FRenderResourceCollection::Render()
 			//}
 			// 
 			// 업데이트된 머티리얼 상태를 적용합니다.
-			sectionMat->Setting();
+			sectionMat->Setting(bOverrideRasterizer);
 			// 해당 섹션에 대해 DrawIndexed 호출합니다.
 			FDevice::Get().GetDeviceContext()->DrawIndexed(Section.indexCount, Section.indexStart, 0);
 		}

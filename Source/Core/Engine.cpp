@@ -283,7 +283,7 @@ void UEngine::InitCamera()
 	SideViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	SideViewCamera->SetOrthoViewType(EOrthoViewMode::Side);
 	SideViewCamera->SetActorPosition(FVector(0.0f, 5.0f, 0.0f));
-	SideViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
+	SideViewCamera->SetActorRotation(FVector(0.0f, 0.0f, -90.0f));
 	World->AddCamera(SideViewCamera);
 	FEditorManager::Get().AddCamera(SideViewCamera);
 
@@ -296,7 +296,7 @@ void UEngine::InitCamera()
 	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	TopViewCamera->SetOrthoViewType(EOrthoViewMode::Top);
 	TopViewCamera->SetActorPosition(FVector(0.0f, 0.0f, 5.0f));
-	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
+	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.8f, 0.0f)));
 	World->AddCamera(TopViewCamera);
 	FEditorManager::Get().AddCamera(TopViewCamera);
 

@@ -124,7 +124,7 @@ void UWorld::Render(uint32 ViewportIndex)
 		break;
 	case 3:
 		cam = FEditorManager::Get().GetCameraList()[EOrthoViewMode::Top];
-		cam->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
+		cam->SetActorRotation(FQuat(FVector(0.0f, 89.8f, 0.0f)));
 		SetCamera(cam);
 		FEditorManager::Get().SetCamera(cam);
 		break;
