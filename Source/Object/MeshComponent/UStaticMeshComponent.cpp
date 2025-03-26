@@ -72,31 +72,37 @@ void UStaticMeshComponent::InitializeRenderResources()
 	{
 		return;
 	}
-	// 정적메시 정보로 버퍼 생성
-	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
-	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
-	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
-	if (StaticMesh->StaticMeshAsset->Sections.Num() != 0)
+
+	// 정적 메시 데이터로 버퍼 생성
+	FString AssetName(StaticMesh->GetAssetPathFileName());
+	FVertexBuffer::Create(AssetName, StaticMesh->StaticMeshAsset->Vertices);
+	FIndexBuffer::Create(AssetName, StaticMesh->StaticMeshAsset->Indices);
+
+	// FMesh 객체 생성 및 섹션 설정
+	std::shared_ptr<FMesh> mesh = FMesh::Create(AssetName);
+	if (StaticMesh->StaticMeshAsset->MaterialInfoArray.Len() != 0)
 	{
 		mesh->SetSections(StaticMesh->StaticMeshAsset->Sections);
 	}
 
+	// 렌더 리소스 컬렉션에 메시와 머티리얼 설정
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
 
-	if (StaticMesh->StaticMeshAsset->MaterialInfoArray.Len()!=0)
+	// MaterialInfoArray가 있을 경우 텍스처 및 샘플러 바인딩 처리
+	if (StaticMesh->StaticMeshAsset->Sections.Num() != 0)
 	{
 		// Diffuse 텍스처 바인딩 (register t2)
-		FString diffuseTexArrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
+		FString diffuseTexArrayName = "StaticMeshTextureArray_" + AssetName;
 		GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
 		GetRenderResourceCollection().SetTextureBinding(diffuseTexArrayName, 2, false, true);
 
 		// Normal 텍스처 바인딩 (register t3)
-		FString normalTexArrayName = "StaticMeshNormalTextureArray_" + StaticMesh->GetAssetPathFileName();
+		FString normalTexArrayName = "StaticMeshNormalTextureArray_" + AssetName;
 		GetRenderResourceCollection().SetTextureBinding(normalTexArrayName, 3, false, true);
 
 		// Specular 텍스처 바인딩 (register t4)
-		FString specularTexArrayName = "StaticMeshSpecularTextureArray_" + StaticMesh->GetAssetPathFileName();
+		FString specularTexArrayName = "StaticMeshSpecularTextureArray_" + AssetName;
 		GetRenderResourceCollection().SetTextureBinding(specularTexArrayName, 4, false, true);
 	}
 
@@ -107,7 +113,7 @@ FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToW
 {
 	if (!StaticMesh || !StaticMesh->StaticMeshAsset || StaticMesh->StaticMeshAsset->Vertices.Num() == 0)
 	{
-		//return Super::CalcMeshBounds(LocalToWorld);
+		return Super::CalcMeshBounds(LocalToWorld);
 	}
 
 	// 메시 정점을 기반으로 바운딩 박스 계산
