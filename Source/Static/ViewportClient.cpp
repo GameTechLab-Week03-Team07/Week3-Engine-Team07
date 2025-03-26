@@ -178,13 +178,14 @@ void FViewportClient::Drag()
 
 void FViewportClient::UpdateDragState() 
 {
-	if (!bIsPressedOnSplitter) return;
-
-
 	// 처음 클릭한 위치가 스플리터인지 확인
+	if (APlayerInput::Get().GetKeyPress(EKeyCode::LButton) && !bIsPressedOnSplitter) 
+		return;
+
 	if (SplitterH->IsHover(APlayerInput::Get().GetMouseNDCPos()))
 	{
 		SetCursor(LoadCursor(NULL, IDC_SIZENS));
+
 		if (APlayerInput::Get().GetKeyPress(EKeyCode::LButton))
 		{
 			bIsDragSplitterH = true;
@@ -193,6 +194,7 @@ void FViewportClient::UpdateDragState()
 	else if (SplitterV_Top->IsHover(APlayerInput::Get().GetMouseNDCPos()))
 	{
 		SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+
 		if (APlayerInput::Get().GetKeyPress(EKeyCode::LButton))
 		{
 			bIsDragSplitterV = true;
@@ -201,6 +203,7 @@ void FViewportClient::UpdateDragState()
 	else if (SplitterV_Bottom->IsHover(APlayerInput::Get().GetMouseNDCPos()))
 	{
 		SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+
 		if (APlayerInput::Get().GetKeyPress(EKeyCode::LButton))
 		{
 			bIsDragSplitterV = true;
