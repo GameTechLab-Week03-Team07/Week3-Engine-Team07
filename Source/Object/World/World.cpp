@@ -135,14 +135,10 @@ void UWorld::Render(uint32 ViewportIndex)
 		break;
 	}
 
-	auto temp = FEditorManager::Get().GetCameraList();
 	cam->UpdateCameraMatrix(FDevice::Get().GetViewPortInfo(ViewportIndex).Width, FDevice::Get().GetViewPortInfo(ViewportIndex).Height);
 
 
-	//if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton))
-	//{
-	//	RenderPickingTexture(*Renderer);
-	//}
+
 
 	RenderMainTexture(*Renderer);
 
@@ -162,11 +158,6 @@ void UWorld::Render(uint32 ViewportIndex)
 	UDebugDrawManager::Get().Render();
 
 	FUUIDBillBoard::Get().Render();
-
-	//FViewportClient::Get().Render();
-
-
-	//DisplayPickingTexture(*Renderer);
 
 }
 
@@ -243,6 +234,20 @@ void UWorld::ClearWorld()
 			DestroyActor(Actor);
 			ClearCameraList();
 			FEditorManager::Get().ClearCameraList();
+		}
+	}
+
+	UE_LOG("Clear World");
+}
+
+void UWorld::ClearWorldWithoutCamera()
+{
+	TArray CopyActors = Actors;
+	for (AActor* Actor : CopyActors)
+	{
+		if (!dynamic_cast<IGizmoInterface*>(Actor))
+		{
+			DestroyActor(Actor);
 		}
 	}
 

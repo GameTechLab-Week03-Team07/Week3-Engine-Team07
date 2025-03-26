@@ -42,6 +42,7 @@ public:
 	void RenderMainTexture(URenderer& Renderer);
 
 	void ClearWorld();
+	void ClearWorldWithoutCamera();
 	void LoadWorld(const char* InSceneName);
 	void SaveWorld();
 
