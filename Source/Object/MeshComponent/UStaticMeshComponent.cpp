@@ -2,8 +2,6 @@
 #include "Core/Engine.h"
 #include "Resource/DirectResource/VertexBuffer.h"
 #include "Resource/DirectResource/IndexBuffer.h"
-#include "Resource/DirectResource/Vertexbuffer.h"
-#include "Resource/DirectResource/IndexBUffer.h"
 #include "Resource/Mesh.h"
 
 UStaticMeshComponent::UStaticMeshComponent()
@@ -79,33 +77,24 @@ void UStaticMeshComponent::InitializeRenderResources()
 	FVertexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Vertices);
 	FIndexBuffer::Create(FString(StaticMesh->GetAssetPathFileName()), StaticMesh->StaticMeshAsset->Indices);
 	std::shared_ptr<FMesh> mesh = FMesh::Create(FString(StaticMesh->GetAssetPathFileName()));
-	FString textureName = StaticMesh->StaticMeshAsset->Materials["12140_Skull_v3"].PathFileName;
+	if (StaticMesh->StaticMeshAsset->Sections.Num() != 0)
+	{
+		mesh->SetSections(StaticMesh->StaticMeshAsset->Sections);
+	}
+	/*if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
+	{
+		mesh->SetMaterials(StaticMesh->StaticMeshAsset->Materials);
+	}*/
 	GetRenderResourceCollection().SetMesh(mesh);
 	GetRenderResourceCollection().SetMaterial("StaticMeshMaterial");
-	
-	if (!StaticMesh->StaticMeshAsset->Materials.IsEmpty())
+
+	if (StaticMesh->StaticMeshAsset->MaterialInfoArray.Len()!=0)
 	{
-		// 첫 번째 머티리얼 사용 (또는 다른 선택 로직 구현)
-		for (const auto& MaterialPair : StaticMesh->StaticMeshAsset->Materials)
-		{
-			const auto& MaterialName = MaterialPair.Key;
-			const auto& Material = MaterialPair.Value;
-
-			// 텍스처 경로가 있는지 확인
-			if (!Material.DiffuseTexture.empty())
-			{
-				// 텍스처 이름 생성 (MaterialName + "_Diffuse")
-				FString TextureName = FString(MaterialName) + "_Diffuse";
-
-				// 텍스처 및 샘플러 바인딩
-				GetRenderResourceCollection().SetTextureBinding(TextureName, 2, false, true);
-				GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
-
-				// 첫 번째 유효한 텍스처만 사용하려면 여기서 break
-				break;
-			}
-		}
+		FString texArrayName = "StaticMeshTextureArray_" + StaticMesh->GetAssetPathFileName();
+		GetRenderResourceCollection().SetSamplerBinding("LinearSamplerState", 0, false, true);
+		GetRenderResourceCollection().SetTextureBinding(texArrayName, 2, false, true);
 	}
+	GetRenderResourceCollection().SetConstantBufferBinding("MatIndexConstantBuffer", &GetRenderResourceCollection().MatIndexData, sizeof(FMatIndexConstantsComponentData), 3, true, true );
 }
 
 FBoxSphereBounds UStaticMeshComponent::CalcMeshBounds(const FTransform& LocalToWorld) const

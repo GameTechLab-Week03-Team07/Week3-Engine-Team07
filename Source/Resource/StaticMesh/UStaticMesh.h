@@ -1,11 +1,11 @@
 #pragma once
 #include "Core/UObject/Object.h"
+#include "Core/UObject/ObjectMacros.h"
 #include "StaticMeshTypes.h"
 
 class UStaticMesh : public UObject
 {
 	DECLARE_CLASS(UStaticMesh, UObject)
-
 public:
 	UStaticMesh() = default;
 

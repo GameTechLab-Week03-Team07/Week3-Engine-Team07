@@ -3,7 +3,14 @@
 #include "Core/Engine.h"
 #include "Resource/DirectResource/Vertexbuffer.h"
 #include "Resource/DirectResource/IndexBuffer.h"
-
+#include "StaticMesh/StaticMeshTypes.h"
+#include "Debug/DebugConsole.h"
+#include "DirectResource/ShaderResourceBinding.h"
+#include "DirectResource/InputLayout.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "Core/Rendering/FDevice.h"
+#include "Resource/FMatIndexConstantsComponentData.h"
 enum class RenderMode
 {
 	Indexed,
@@ -15,7 +22,7 @@ class FRenderResourceCollection
 {
 public:
 
-
+	FMatIndexConstantsComponentData MatIndexData;
 	//테스트 임시 메쉬
 
 
@@ -78,7 +85,10 @@ private:
 
 	bool bOverrideRasterizer = true;
 	
+	void UpdateMatIndexConstantBuffer(int MatIndex);
+
 	// // 테스트 상수버퍼
 	// std::shared_ptr<class FConstantBufferBinding> ConstantBufferBinding = nullptr;
 	// std::shared_ptr<class FConstantBuffer> ConstantBuffer = nullptr;
+	
 };

@@ -1,9 +1,4 @@
 #include "RenderResourceCollection.h"
-#include "Debug/DebugConsole.h"
-#include "DirectResource/ShaderResourceBinding.h"
-#include "DirectResource/InputLayout.h"
-#include "Mesh.h"
-#include "Material.h"
 
 void FRenderResourceCollection::SetMesh(const FString& _Name)
 {
@@ -57,7 +52,7 @@ void FRenderResourceCollection::Render()
 {
 	Mesh->Setting();
 	Layout->Setting();
-	Material->Setting(bOverrideRasterizer); 
+	//Material->Setting(); 
 
 	for (auto& Binding : ConstantBufferBindings)
 	{
@@ -74,7 +69,58 @@ void FRenderResourceCollection::Render()
 		Binding.Value->Setting();
 	}
 	
-	Mesh->Draw();
+	// 섹션 정보가 있으면 섹션별로 처리
+	if (Mesh->GetSections().Num() != 0)
+	{
+		// Mesh 내부에 저장된 머티리얼 정보를 가져옵니다.
+		//const TMap<std::string, FObjMaterialInfo>& materialMap = Mesh->GetMaterials();
+
+		// 각 섹션마다 처리
+		for (const auto& Section : Mesh->GetSections())
+		{
+			// 섹션의 SlotName(예: "RedMaterial", "BlueMaterial")을 이용해 머티리얼 객체를 찾습니다.
+			std::shared_ptr<FMaterial> sectionMat = FMaterial::Find(Section.SlotName);
+			if (!sectionMat)
+			{
+				// 해당 머티리얼이 없다면 기본 머티리얼("StaticMeshMaterial")을 사용합니다.
+				sectionMat = FMaterial::Find("StaticMeshMaterial");
+			}
+
+
+			MatIndexData.MatIndex = Section.MaterialIndex;
+
+
+
+			for (auto& Binding : ConstantBufferBindings)
+			{
+				Binding.Value->Setting();
+			}
+
+			// 머티리얼 정보를 머티리얼 파라미터에 업데이트합니다.
+			//auto it = materialMap.Find(Section.SlotName);
+			//if (it != nullptr)
+			//{
+			//	const FObjMaterialInfo& matInfo = *it;
+			//	sectionMat->SetDiffuseColor(matInfo.DiffuseColor);
+			//	if (!matInfo.DiffuseTexture.empty())
+			//	{
+			//		sectionMat->SetDiffuseTexture(matInfo.DiffuseTexture);
+			//		// 필요 시 텍스처 바인딩 로직을 추가하세요.
+			//	}
+			//}
+			// 
+			// 업데이트된 머티리얼 상태를 적용합니다.
+			sectionMat->Setting();
+			// 해당 섹션에 대해 DrawIndexed 호출합니다.
+			FDevice::Get().GetDeviceContext()->DrawIndexed(Section.indexCount, Section.indexStart, 0);
+		}
+	}
+	else
+	{
+		// 섹션 정보가 없는 경우 기존 방식
+		Material->Setting(bOverrideRasterizer);
+		Mesh->Draw();
+	}
 }
 
 void FRenderResourceCollection::Reset()
@@ -108,6 +154,7 @@ std::shared_ptr<FTextureBinding> FRenderResourceCollection::SetTextureBinding(co
 
 	return Binding;
 }
+
 
 std::shared_ptr<FSamplerBinding> FRenderResourceCollection::SetSamplerBinding(const FString& _Name, int _BindPoint,
                                                                               bool bIsUseVertexShader, bool bIsUsePixelShader)
@@ -161,5 +208,19 @@ std::shared_ptr<FConstantBufferBinding> FRenderResourceCollection::SetConstantBu
 	ConstantBufferBindings.Add(_Name, Binding);
 
 	return Binding;
+}
+
+void FRenderResourceCollection::UpdateMatIndexConstantBuffer(int MatIndex)
+{
+	MatIndexData.MatIndex = MatIndex;
+	// 정수형 머티리얼 인덱스를 GPU로 전달
+	SetConstantBufferBinding(
+		"MatIndexConstantBuffer",                       // 바인딩 이름
+		&MatIndexData,                     // CPU에서 보낼 데이터 포인터
+		sizeof(FMatIndexConstantsComponentData),                        // 데이터 크기
+		3,                                 // 바인딩 포인트 (예시)
+		true,                               // Vertex Shader에 사용
+		true                                // Pixel Shader에 사용
+	);
 }
 

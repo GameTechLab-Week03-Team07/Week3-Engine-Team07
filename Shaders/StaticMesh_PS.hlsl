@@ -1,5 +1,10 @@
-Texture2D staticMeshTexture : register(t2);
+Texture2DArray staticMeshTextures : register(t2);
 SamplerState samLinear : register(s0);
+
+cbuffer MaterialConstants : register(b3)
+{
+	int MaterialIndex;
+};
 
 struct VS_OUTPUT
 {
@@ -26,8 +31,7 @@ struct PS_OUTPUT
 PS_OUTPUT StaticMesh_PS(VS_OUTPUT input) : SV_TARGET
 {
 	PS_OUTPUT output;
-	
-	float4 sampledColor = staticMeshTexture.Sample(samLinear, input.Texcoord);
+  float4 sampledColor = staticMeshTextures.Sample(samLinear, float3(input.Texcoord, (float) MaterialIndex));	
 	output.color = bUseVertexColor == true ? sampledColor : input.Color;
 	output.UUID = UUIDColor;
 	

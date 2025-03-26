@@ -5,12 +5,12 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
+
 #include "Core/Container/Array.h"
 //#include "Core/Container/String.h"
 #include "StaticMeshTypes.h"
 
 namespace fs = std::filesystem;
-
 class FObjImporter {
 public:
 	// 색상 정보가 없는 경우를 위한 팔레스 및 가벼운 랜덤 지정 함수
@@ -227,79 +227,91 @@ public:
 
 	// OBJ Raw 데이터를 엔진에서 사용할 수 있는 데이터로 변환
 	bool ConvertToStaticMesh(const FObjInfo& ObjInfo, FStaticMesh& OutMesh) {
-		OutMesh.Vertices.Reserve(ObjInfo.Faces.Len() * 3);
-		OutMesh.Indices.Reserve(ObjInfo.Faces.Len() * 3);
-
-		std::unordered_map<std::string, int> vertexCache;
-		int nextIndex = 0;
-
-		for (const auto& face : ObjInfo.Faces) {
-			for (int i = 0; i < 3; i++) {
-				FVertexSimple vertex;
-
-				// 정점 위치 설정
-				if (face.VertexIndices[i] >= 0 && face.VertexIndices[i] < ObjInfo.Vertices.Num()) {
-					vertex.X = ObjInfo.Vertices[face.VertexIndices[i]].X;
-					vertex.Y = ObjInfo.Vertices[face.VertexIndices[i]].Y;
-					vertex.Z = ObjInfo.Vertices[face.VertexIndices[i]].Z;
-				}
-				// UV 좌표 설정
-				if (face.UVIndices[i] >= 0 && face.UVIndices[i] < ObjInfo.UVs.Num()) {
-					vertex.U = ObjInfo.UVs[face.UVIndices[i]].X;
-					vertex.V = ObjInfo.UVs[face.UVIndices[i]].Y;
-				}
-				else {
-					// UV 좌표가 없는 경우 기본값 설정
-					vertex.U = 0.0f;
-					vertex.V = 0.0f;
-				}
-				// 법선 벡터 설정
-				if (face.NormalIndices[i] >= 0 && face.NormalIndices[i] < ObjInfo.Normals.Num()) {
-					vertex.NX = ObjInfo.Normals[face.NormalIndices[i]].X;
-					vertex.NY = ObjInfo.Normals[face.NormalIndices[i]].Y;
-					vertex.NZ = ObjInfo.Normals[face.NormalIndices[i]].Z;
-				}
-				else {
-					// 법선이 없는 경우 기본값 설정 (위쪽 방향)
-					vertex.NX = 0.0f;
-					vertex.NY = 1.0f;
-					vertex.NZ = 0.0f;
-				}
-				// 재질에 따른 색상 설정
-				if (!face.MaterialName.empty() && ObjInfo.Materials.Contains(face.MaterialName)) {
-					const FObjMaterialInfo& material = ObjInfo.Materials[face.MaterialName];
-					vertex.R = material.DiffuseColor.X;
-					vertex.G = material.DiffuseColor.Y;
-					vertex.B = material.DiffuseColor.Z;
-					vertex.A = material.Opacity;
-				}
-				else {
-					// 색상 정보가 없는 경우 기본 색상 설정
-					FVector color = GetColorFromPalette(OutMesh.Vertices.Num() / 3);
-					vertex.R = color.X;
-					vertex.G = color.Y;
-					vertex.B = color.Z;
-					vertex.A = 1.0f;
-				}
-
-				// 정점 중복 제거를 위한 키 생성
-				std::string vertexKey = CreateVertexKey(vertex);
-
-				// 이미 처리된 정점인지 확인
-				if (vertexCache.find(vertexKey) != vertexCache.end()) {
-					OutMesh.Indices.Add(vertexCache[vertexKey]);
-				}
-				else {
-					OutMesh.Vertices.Add(vertex);
-					OutMesh.Indices.Add(nextIndex);
-					vertexCache[vertexKey] = nextIndex;
-					nextIndex++;
-				}
-			}
+		// Material 슬롯 등록
+		int matIndex = 0;
+		for (const auto& [name, info] : ObjInfo.Materials) {
+			OutMesh.MaterialSlotNameToIndex[name] = matIndex++;
+			OutMesh.MaterialInfoArray.Add(info);
 		}
 
-		// 재질 복사
-		OutMesh.Materials = ObjInfo.Materials;
+		// 섹션별 face 그룹화
+		//FIXME : unordered_map, vector 사용자 정의 자료구조로 변경.
+		std::unordered_map<std::string, std::vector<const FFace*>> FacesByMaterial;
+		for (const FFace& face : ObjInfo.Faces) {
+			FacesByMaterial[face.MaterialName].push_back(&face);
+		}
+
+		// 공통 정점 캐싱
+		std::unordered_map<std::string, int> vertexCache;
+		int nextVertexIndex = 0;
+
+		// 섹션 단위로 처리
+		for (const auto& [materialName, faceList] : FacesByMaterial) {
+			int indexStart = OutMesh.Indices.Num();
+
+			for (const FFace* face : faceList) {
+				for (int i = 0; i < 3; i++) {
+					FVertexSimple vertex;
+
+					// 위치
+					if (face->VertexIndices[i] >= 0 && face->VertexIndices[i] < ObjInfo.Vertices.Num()) {
+						const FVector& pos = ObjInfo.Vertices[face->VertexIndices[i]];
+						vertex.X = pos.X; vertex.Y = pos.Y; vertex.Z = pos.Z;
+					}
+
+					// UV
+					if (face->UVIndices[i] >= 0 && face->VertexIndices[i] < ObjInfo.Vertices.Num()) {
+						const FVector& uv = ObjInfo.UVs[face->UVIndices[i]];
+						vertex.U = uv.X; vertex.V = uv.Y;
+					}
+					else {
+						vertex.U = 0.0f; vertex.V = 0.0f;
+					}
+
+					// 법선
+					if (face->NormalIndices[i] >= 0 && face->NormalIndices[i] < ObjInfo.Normals.Num()) {
+						const FVector& normal = ObjInfo.Normals[face->NormalIndices[i]];
+						vertex.NX = 0.0f; vertex.NY = 1.0f; vertex.NX = 0.0f;
+					}
+					else {
+						vertex.NX = 0.0f; vertex.NY = 1.0f; vertex.NX = 0.0f;
+					}
+
+					//색상 (머티리얼 또는 랜덤)
+					if (!materialName.empty() && ObjInfo.Materials.Contains(materialName)) {
+						const FObjMaterialInfo& material = ObjInfo.Materials[materialName];
+						vertex.R = material.DiffuseColor.X;
+						vertex.G = material.DiffuseColor.Y;
+						vertex.B = material.DiffuseColor.Z;
+						vertex.A = material.Opacity;
+					}
+					else {
+						FVector color = GetColorFromPalette(OutMesh.Vertices.Num() / 3);
+						vertex.R = color.X; vertex.G = color.Y; vertex.B = color.Z; vertex.A = 1.0f;
+					}
+
+					// 중복 정점 체크
+					std::string key = CreateVertexKey(vertex);
+					if (vertexCache.find(key) != vertexCache.end()) {
+						OutMesh.Indices.Add(vertexCache[key]);
+					}
+					else {
+						OutMesh.Vertices.Add(vertex);
+						OutMesh.Indices.Add(nextVertexIndex);
+						vertexCache[key] = nextVertexIndex++;
+					}
+				}
+			}
+			int indexCount = OutMesh.Indices.Num() - indexStart;
+
+			FSubMeshSection section;
+			section.indexStart = indexStart;
+			section.indexCount = indexCount;
+			section.SlotName = materialName;
+			section.MaterialIndex = OutMesh.MaterialSlotNameToIndex[materialName];
+
+			OutMesh.Sections.Add(section);
+		}
 
 		return true;
 	}
