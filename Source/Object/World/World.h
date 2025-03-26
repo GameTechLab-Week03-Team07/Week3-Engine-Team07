@@ -63,8 +63,6 @@ public:
 
 	void RayCasting(const FVector& MouseNDCPos);
 
-	void PickByPixel(const FVector& MousePos);
-
 	TArray<AActor*>& GetActors() { return Actors; }
 
 	TArray<FString> ExcludedClasses;
