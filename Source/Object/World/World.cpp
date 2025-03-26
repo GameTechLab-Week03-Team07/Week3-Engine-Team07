@@ -104,11 +104,13 @@ void UWorld::Render(uint32 ViewportIndex)
 	// 뷰포트에 따른 카메라 세팅
 	SetCameraByViewport(ViewportIndex);
 
+	// 기타 렌더링
+	FLineBatchManager::Get().Render();
+
 	// 메인 렌더링
 	RenderMainTexture(*Renderer);
 
-	// 기타 렌더링
-	FLineBatchManager::Get().Render();
+	
 
 	AActor* SelectedActor = FEditorManager::Get().GetSelectedActor();
 	if (SelectedActor != nullptr)
