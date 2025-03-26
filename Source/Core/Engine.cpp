@@ -43,7 +43,7 @@ LRESULT UEngine::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEWHEEL:
 	{
 		uint32 FocusedViewportIndex = FViewportClient::Get().GetFocusedViewportIndex();
-		ACamera* CurrentCamera = UEngine::Get().GetWorld()->GetCameraList()[FocusedViewportIndex];
+		ACamera* CurrentCamera = UEngine::Get().GetWorld()->GetCameraList()[OrthoViewModeLookup[FocusedViewportIndex]];
 		// 마우스 휠 이벤트 처리
 		short zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 		float curZoomSize = CurrentCamera->GetZoomSize();
@@ -130,6 +130,7 @@ void UEngine::Run()
 
 		if (!ImGui::GetIO().WantCaptureMouse)
 		{		
+			auto temp = World->GetCamera();
 			FVector winSize = Renderer->GetFrameBufferWindowSize();
 			APlayerInput::Get().Update(WindowHandle, winSize.X, winSize.Y);
 			APlayerController::Get().ProcessPlayerInput(EngineDeltaTime);
@@ -150,11 +151,7 @@ void UEngine::Run()
 				for (int i = 0; i < 4; i++)
 				{
 					FDevice::Get().SetRenderTarget(i);
-					World->Tick(EngineDeltaTime);
-					World->Render(i);
-
-					FEditorManager::Get().LateTick(EngineDeltaTime);
-					World->LateTick(EngineDeltaTime);
+					RenderWorld(i);
 				}
 
 				FDevice::Get().SetRenderTarget(4);
@@ -165,11 +162,7 @@ void UEngine::Run()
 			else
 			{
 				FDevice::Get().SetRenderTarget(4);
-				World->Tick(EngineDeltaTime);
-				World->Render(4);
-
-				FEditorManager::Get().LateTick(EngineDeltaTime);
-				World->LateTick(EngineDeltaTime);
+				RenderWorld(4);
 
 				FEditorManager::Get().GetCamera()->SetIsControllable(true);
 			}
@@ -267,6 +260,15 @@ void UEngine::InitWorld()
 	World->BeginPlay();
 }
 
+void UEngine::RenderWorld(uint32 Index) 
+{
+	World->Tick(EngineDeltaTime);
+	World->Render(Index);
+
+	FEditorManager::Get().LateTick(EngineDeltaTime);
+	World->LateTick(EngineDeltaTime);
+}
+
 void UEngine::InitCamera() 
 {
 	ACamera* FrontViewCamera = World->SpawnActor<ACamera>();
@@ -281,7 +283,7 @@ void UEngine::InitCamera()
 	SideViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	SideViewCamera->SetOrthoViewType(EOrthoViewMode::Side);
 	SideViewCamera->SetActorPosition(FVector(0.0f, 5.0f, 0.0f));
-	SideViewCamera->SetActorRotation(FVector(0.0f, 90.0f, 0.0f));
+	SideViewCamera->SetActorRotation(FVector(0.0f, 0.0f, -90.0f));
 	World->AddCamera(SideViewCamera);
 	FEditorManager::Get().AddCamera(SideViewCamera);
 
@@ -294,7 +296,7 @@ void UEngine::InitCamera()
 	TopViewCamera->ProjectionMode = ECameraProjectionMode::Orthographic;
 	TopViewCamera->SetOrthoViewType(EOrthoViewMode::Top);
 	TopViewCamera->SetActorPosition(FVector(0.0f, 0.0f, 5.0f));
-	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.99f, 0.0f)));
+	TopViewCamera->SetActorRotation(FQuat(FVector(0.0f, 89.8f, 0.0f)));
 	World->AddCamera(TopViewCamera);
 	FEditorManager::Get().AddCamera(TopViewCamera);
 

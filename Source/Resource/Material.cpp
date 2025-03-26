@@ -28,14 +28,14 @@ void FMaterial::VertexShader()
 	VertexShaderPtr->Setting();
 }
 
-void FMaterial::Rasterizer()
+void FMaterial::Rasterizer(bool bOverrideRasterizer)
 {
 	if (nullptr == RasterizerPtr)
 	{
 		MsgBoxAssert("존재하지 않는 레스터 라이저를 세팅하려고 했습니다.");
 	}
 
-	RasterizerPtr->Setting();
+	RasterizerPtr->Setting(bOverrideRasterizer);
 }
 
 void FMaterial::PixelShader()
@@ -128,10 +128,10 @@ void FMaterial::SetDepthState(const FString& InValue)
 	}
 }
 
- void FMaterial::Setting()
+void FMaterial::Setting(bool bOverrideRasterizer)
 {
 	VertexShader();
-	Rasterizer();
+	Rasterizer(bOverrideRasterizer);
 	PixelShader();
 	Blend();
 	DepthStencil();

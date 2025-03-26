@@ -3,8 +3,8 @@
 
 #include "Core/AbstractClass/Singleton.h"
 #include "Core/Math/Vector.h"
+#include "Object/Actor/Camera.h"
 
-class ACamera;
 class AActor;
 class AGizmoActor;
 
@@ -20,10 +20,10 @@ public:
     void SelectActor(AActor* NewActor);
 
     inline ACamera* GetCamera() const {return Camera;}
-	inline TArray<ACamera*> GetCameraList() const { return CameraList; }
+	inline TMap<EOrthoViewMode, ACamera*> GetCameraList() const { return CameraList; }
 
-	inline void SetCamera(ACamera* NewCamera) { Camera = NewCamera; }
-	inline void AddCamera(ACamera* NewCamera) { CameraList.Add(NewCamera); }
+	void SetCamera(ACamera* NewCamera) { Camera = NewCamera; }
+	inline void AddCamera(ACamera* NewCamera) { CameraList.Add(NewCamera->GetOrthoViewType(), NewCamera); }
 	inline void ClearCameraList() { CameraList.Empty(); }
 
 	inline AGizmoActor* GetGizmo() const {return Gizmo;}
@@ -41,7 +41,7 @@ public:
     
 private:
     ACamera* Camera = nullptr;
-	TArray<ACamera*> CameraList;
+	TMap<EOrthoViewMode, ACamera*> CameraList;
 
     AActor* SelectedActor = nullptr;
 	AGizmoActor* Gizmo = nullptr;

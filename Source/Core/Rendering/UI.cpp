@@ -242,7 +242,7 @@ void UI::RenderPrimitiveSelection()
 
 	if (ImGui::Button("New Scene"))
 	{
-		World->ClearWorld();
+		World->ClearWorldWithoutCamera();
 	}
 	if (ImGui::Button("Save Scene"))
 	{

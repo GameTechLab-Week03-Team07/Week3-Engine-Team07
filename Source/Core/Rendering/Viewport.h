@@ -4,7 +4,7 @@
 #include "Object/Window/Window.h"
 
 
-class FViewport : public SWindow
+class FViewport : public SWindow 
 {
 public:
 	FViewport(float InX, float InY, float InWidth, float InHeight)

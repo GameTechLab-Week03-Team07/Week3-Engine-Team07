@@ -21,9 +21,19 @@ ACamera::ACamera()
     SetActorTransform(StartPos);
 }
 
+ACamera::~ACamera()
+{
+	APlayerInput::Get().UnregisterKeyCallbacks(GetUUID());
+}
+
 void ACamera::BeginPlay()
 {
 	Super::BeginPlay();
+	SetRegisterKeyCallback();
+}
+
+void ACamera::SetRegisterKeyCallback() 
+{
 	APlayerInput::Get().RegisterKeyPressCallback(EKeyCode::W, [this] { MoveForward(); }, GetUUID());
 	APlayerInput::Get().RegisterKeyPressCallback(EKeyCode::S, [this] { MoveBackward(); }, GetUUID());
 	APlayerInput::Get().RegisterKeyPressCallback(EKeyCode::A, [this] { MoveLeft(); }, GetUUID());
@@ -32,13 +42,13 @@ void ACamera::BeginPlay()
 	APlayerInput::Get().RegisterKeyPressCallback(EKeyCode::E, [this] { MoveUp(); }, GetUUID());
 
 	APlayerInput::Get().RegisterKeyDownCallback(EKeyCode::F, [this]
-	{
-		if (const AActor* SelectedActor = FEditorManager::Get().GetSelectedActor())
 		{
-			if (SelectedActor == this) return;
-			SetActorPosition(SelectedActor->GetActorPosition() - (GetForward() * 10.0f));
-		}
-	}, GetUUID());
+			if (const AActor* SelectedActor = FEditorManager::Get().GetSelectedActor())
+			{
+				if (SelectedActor == this) return;
+				SetActorPosition(SelectedActor->GetActorPosition() - (GetForward() * 10.0f));
+			}
+		}, GetUUID());
 
 	APlayerInput::Get().RegisterMousePressCallback(EKeyCode::RButton, std::bind(&ACamera::Rotate, this, std::placeholders::_1), GetUUID());
 

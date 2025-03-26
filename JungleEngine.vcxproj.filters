@@ -864,9 +864,25 @@
     <None Include=".gitignore" />
     <None Include="imgui.ini" />
     <None Include="README.md" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.bin" />
     <None Include="Contents\StaticMesh\12140_Skull_v3.mtl" />
+    <None Include="Contents\StaticMesh\12140_Skull_v3.obj" />
+    <None Include="Contents\StaticMesh\blue_texture.png" />
+    <None Include="Contents\StaticMesh\cube.bin" />
+    <None Include="Contents\StaticMesh\cube.obj" />
+    <None Include="Contents\StaticMesh\cube2.bin" />
     <None Include="Contents\StaticMesh\cube2.mtl" />
+    <None Include="Contents\StaticMesh\cube2.obj" />
+    <None Include="Contents\StaticMesh\dice.bin" />
     <None Include="Contents\StaticMesh\dice.mtl" />
+    <None Include="Contents\StaticMesh\dice.obj" />
+    <None Include="Contents\StaticMesh\Dice.png" />
+    <None Include="Contents\StaticMesh\DiceRed.png" />
+    <None Include="Contents\StaticMesh\FinalBaseMesh.bin" />
+    <None Include="Contents\StaticMesh\FinalBaseMesh.obj" />
+    <None Include="Contents\StaticMesh\pirate.obj" />
+    <None Include="Contents\StaticMesh\red_texture.png" />
+    <None Include="Contents\StaticMesh\Skull.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Pretendard_Kor.txt" />
