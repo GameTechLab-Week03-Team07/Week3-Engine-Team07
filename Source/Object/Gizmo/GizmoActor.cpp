@@ -3,10 +3,9 @@
 #include "Core/Engine.h"
 #include "Object/World/World.h"
 #include "Static/FEditorManager.h"
-
+#include "Static/ViewportClient.h"
 #include "Object/Actor/Camera.h"
 #include "Core/Input/PlayerInput.h"
-#include "Static/ViewportClient.h"
 #include "Debug/DebugConsole.h"
 
 AGizmoActor::AGizmoActor()
@@ -205,7 +204,7 @@ void AGizmoActor::Tick(float DeltaTime)
 			RayEnd = InvViewMat.TransformVector4(RayEnd);
 			RayEnd /= RayEnd.W = 1;
 
-			ACamera* CurrentCamera = FEditorManager::Get().GetCameraList()[CurrentViewportIndex];
+			ACamera* CurrentCamera = FEditorManager::Get().GetCameraList()[OrthoViewModeLookup[CurrentViewportIndex]];
 
 			FVector RayDir = (RayEnd - RayOrigin).GetSafeNormal();
 

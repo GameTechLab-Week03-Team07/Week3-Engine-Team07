@@ -202,3 +202,33 @@ FVector APlayerInput::CalNDCPos(FVector InMousePos, FVector WindowSize) const
 {
     return { (2.0f * InMousePos.X) / WindowSize.X - 1.0f,  (-2.0f * InMousePos.Y) / WindowSize.Y + 1.0f, 0};
 }
+
+void APlayerInput::UnregisterKeyCallbacks(uint32 UUID)
+{
+	// KeyPress 콜백 제거
+	for (auto& [Key, Callbacks] : KeyPressCallbacks)
+	{
+		Callbacks.RemoveAll([UUID](const auto& CallbackInfo)
+			{
+				return CallbackInfo.GetID() == UUID;
+			});
+	}
+
+	// KeyDown 콜백 제거
+	for (auto& [Key, Callbacks] : KeyDownCallbacks)
+	{
+		Callbacks.RemoveAll([UUID](const auto& CallbackInfo)
+			{
+				return CallbackInfo.GetID() == UUID;
+			});
+	}
+
+	// MousePress 콜백 제거
+	for (auto& [Key, Callbacks] : MousePressCallbacks)
+	{
+		Callbacks.RemoveAll([UUID](const auto& CallbackInfo)
+			{
+				return CallbackInfo.GetID() == UUID;
+			});
+	}
+}

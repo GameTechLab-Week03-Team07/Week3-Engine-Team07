@@ -207,6 +207,7 @@ public:
 	void RegisterMousePressCallback(EKeyCode Button, const Fn& Callback, uint32 uuid);
 	template <typename Fn>
 	void RegisterMouseUpCallback(EKeyCode Button, const Fn& Callback, uint32 uuid);
+	void UnregisterKeyCallbacks(uint32 UUID);
 
 private:
 	void CreateKeys();
@@ -221,7 +222,6 @@ private:
 	void SetMousePos(HWND hWnd, uint32 FrameBufferWidth, uint32 FrameBufferHeight);
 
 	FVector CalNDCPos(FVector InMousePos, FVector WindowSize) const;
-
 private:
 	// Key 이벤트에 대한 콜백들을 저장하는 맵 (각 키마다 여러 콜백을 가질 수 있음)
 	TMap<EKeyCode, TArray<KeyCallbackWrapper>> KeyDownCallbacks;
@@ -360,3 +360,4 @@ void APlayerInput::RegisterMouseUpCallback(EKeyCode Button, const Fn& Callback, 
 
 	MouseUpCallbacks[Button].Emplace(Callback, uuid);
 }
+

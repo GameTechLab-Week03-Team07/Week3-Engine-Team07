@@ -64,6 +64,35 @@ std::unique_ptr<UWorldInfo> JsonSaveHelper::LoadScene(const std::string& SceneNa
 		}
 		WorldInfo->ObjectInfos.push(std::move(ObjectInfo));
     }
+
+	for (auto& [CameraType, CamerasArray] : Json["Camera"].ObjectRange())
+	{
+		for (JSON& CameraInfo : CamerasArray.ArrayRange())
+		{
+			std::unique_ptr<ACameraInfo> Camera = std::make_unique<ACameraInfo>();
+			std::string temp = CameraType;
+			Camera->ProjectionMode = CameraType == "PerspectiveCamera" ? ECameraProjectionMode::Perspective : ECameraProjectionMode::Orthographic;
+			Camera->OrthoViewMode = CameraInfo["OrthoViewMode"].ToString() == "Front" ? EOrthoViewMode::Front : CameraInfo["OrthoViewMode"].ToString() == "Side" ? EOrthoViewMode::Side : CameraInfo["OrthoViewMode"].ToString() == "Top" ? EOrthoViewMode::Top : EOrthoViewMode::None;
+			JSON Location = CameraInfo["Location"];
+			JSON Rotation = CameraInfo["Rotation"];
+			Camera->Location = FVector(
+				static_cast<float>(Location[0].ToFloat()),
+				static_cast<float>(Location[1].ToFloat()),
+				static_cast<float>(Location[2].ToFloat())
+			);
+			Camera->Rotation = FVector(
+				static_cast<float>(Rotation[0].ToFloat()),
+				static_cast<float>(Rotation[1].ToFloat()),
+				static_cast<float>(Rotation[2].ToFloat())
+			);
+			Camera->Fov = CameraInfo["Fov"].ToFloat();
+			Camera->NearClip = CameraInfo["NearClip"].ToFloat();
+			Camera->FarClip = CameraInfo["FarClip"].ToFloat();
+			WorldInfo->CameraInfos.push(std::move(Camera));
+		}
+
+	}
+
     return WorldInfo;
 }
 
@@ -96,6 +125,24 @@ void JsonSaveHelper::SaveScene(UWorldInfo WorldInfo)
 			Json["Actors"][Uuid]["StaticMeshAssetPath"] = ObjectInfo->StaticMeshAssetPath;
 		}
     }
+	while (!WorldInfo.CameraInfos.empty())
+	{
+		const std::unique_ptr<ACameraInfo> CameraInfo = std::move(WorldInfo.CameraInfos.front());
+		WorldInfo.CameraInfos.pop();
+
+		std::string CameraType = CameraInfo->ProjectionMode == ECameraProjectionMode::Perspective ? "PerspectiveCamera" : "OrthographicCamera";
+		std::string OrthoViewMode = CameraInfo->OrthoViewMode == EOrthoViewMode::Front ? "Front" : CameraInfo->OrthoViewMode == EOrthoViewMode::Side ? "Side" : CameraInfo->OrthoViewMode == EOrthoViewMode::Top ? "Top" : "None";
+		
+		Json["Camera"][CameraType].append(JSON::Make(JSON::Class::Object));
+
+		int index = Json["Camera"][CameraType].size() - 1;
+		Json["Camera"][CameraType][index]["Location"].append(CameraInfo->Location.X, CameraInfo->Location.Y, CameraInfo->Location.Z);
+		Json["Camera"][CameraType][index]["Rotation"].append(CameraInfo->Rotation.X, CameraInfo->Rotation.Y, CameraInfo->Rotation.Z);
+		Json["Camera"][CameraType][index]["Fov"] = CameraInfo->Fov;
+		Json["Camera"][CameraType][index]["NearClip"] = CameraInfo->NearClip;
+		Json["Camera"][CameraType][index]["FarClip"] = CameraInfo->FarClip;
+		Json["Camera"][CameraType][index]["OrthoViewMode"] = OrthoViewMode;
+	}
      
     std::ofstream Output(WorldInfo.SceneName + ".scene");
     

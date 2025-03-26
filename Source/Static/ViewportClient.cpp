@@ -7,6 +7,7 @@
 #include "Object/World/World.h"
 #include "Core/Input/PlayerInput.h"
 #include "Core/Rendering/FDevice.h"
+#include <Core/Rendering/FViewMode.h>
 
 void FViewportClient::Create()
 {	
@@ -39,7 +40,8 @@ void FViewportClient::Create()
 	// 바인딩
 	RenderResourceCollection.SetConstantBufferBinding("FConstantsComponentData", &ConstantsComponentData, 0, true, false);
 	RenderResourceCollection.SetMesh("Cube");
-	RenderResourceCollection.SetMaterial("DefaultMaterial");
+	RenderResourceCollection.SetMaterial("AlwaysVisibleMaterial");
+	RenderResourceCollection.SetIsOverrideRasterizer(false);
 }
 
 void FViewportClient::Render()
@@ -98,6 +100,7 @@ void FViewportClient::Render()
 
 void FViewportClient::Drag() 
 {
+	IsPressedOnSplitter();
 	UpdateDragState();
 
 	if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton) || APlayerInput::Get().GetKeyPress(EKeyCode::LButton))
@@ -168,12 +171,17 @@ void FViewportClient::Drag()
 	{
 		bIsDragSplitterH = false;
 		bIsDragSplitterV = false;
+		bIsPressedOnSplitter = false;
 		SetCursor(LoadCursor(NULL, IDC_ARROW));
 	}
 }
 
 void FViewportClient::UpdateDragState() 
 {
+	if (!bIsPressedOnSplitter) return;
+
+
+	// 처음 클릭한 위치가 스플리터인지 확인
 	if (SplitterH->IsHover(APlayerInput::Get().GetMouseNDCPos()))
 	{
 		SetCursor(LoadCursor(NULL, IDC_SIZENS));
@@ -200,15 +208,29 @@ void FViewportClient::UpdateDragState()
 	}
 }
 
-void FViewportClient::SetFocusedViewport() {
+void FViewportClient::SetFocusedViewport() 
+{
 	for (int i = 0; i < 4; i++)
 	{
 		if (FViewportClient::Get().GetViewport(i)->IsHover(APlayerInput::Get().GetMouseNDCPos()))
 		{
 			SetFocusedViewportIndex(i);
-			UEngine::Get().GetWorld()->GetCameraList()[i]->SetIsControllable(true);
+			UEngine::Get().GetWorld()->GetCameraList()[OrthoViewModeLookup[i]]->SetIsControllable(true);
 			continue;
 		}
-		UEngine::Get().GetWorld()->GetCameraList()[i]->SetIsControllable(false);
+		UEngine::Get().GetWorld()->GetCameraList()[OrthoViewModeLookup[i]]->SetIsControllable(false);
+	}
+}
+
+void FViewportClient::IsPressedOnSplitter() 
+{
+	if (APlayerInput::Get().GetKeyDown(EKeyCode::LButton))
+	{
+		if (SplitterH->IsHover(APlayerInput::Get().GetMouseNDCPos()) || 
+			SplitterV_Top->IsHover(APlayerInput::Get().GetMouseNDCPos()) || 
+			SplitterV_Bottom->IsHover(APlayerInput::Get().GetMouseNDCPos()))
+		{
+			bIsPressedOnSplitter = true;
+		}
 	}
 }

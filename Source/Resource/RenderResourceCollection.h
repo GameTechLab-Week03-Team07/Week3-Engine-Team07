@@ -47,7 +47,7 @@ public:
 	void Render();
 	void Reset();
 
-
+	void SetIsOverrideRasterizer(bool _bOverrideRasterizer) { bOverrideRasterizer = _bOverrideRasterizer; }
 
 	template<typename ConstantType>
 	std::shared_ptr<class FConstantBufferBinding> SetConstantBufferBinding(const FString& _Name,  const ConstantType* DataPtr,
@@ -82,6 +82,8 @@ private:
 	TMap<FString, std::shared_ptr<FConstantBufferBinding>> ConstantBufferBindings;
 	TMap<FString, std::shared_ptr<FTextureBinding>> TextureBindings;
 	TMap<FString, std::shared_ptr<FSamplerBinding>> SamplerBindings;
+
+	bool bOverrideRasterizer = true;
 	
 	void UpdateMatIndexConstantBuffer(int MatIndex);
 
