@@ -58,6 +58,9 @@ void FEditorManager::SelectActor(AActor* NewActor)
 	if (SelectedActor == NewActor)
 		return;
 	
+	if (const AGizmoActor* GizmoCom = Cast<AGizmoActor>(NewActor))
+		return;
+
     if (SelectedActor != nullptr && SelectedActor != NewActor)
     {
         SelectedActor->UnPick();

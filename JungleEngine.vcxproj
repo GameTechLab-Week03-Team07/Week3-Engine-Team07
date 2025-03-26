@@ -224,7 +224,6 @@
     <ClCompile Include="Source\Object\Actor\Cone.cpp" />
     <ClCompile Include="Source\Object\Actor\Cylinder.cpp" />
     <ClCompile Include="Source\Object\Actor\Quad.cpp" />
-    <ClCompile Include="Source\Object\Gizmo\GizmoHandle.cpp" />
     <ClCompile Include="Source\Object\Actor\Arrow.cpp" />
     <ClCompile Include="Source\Core\Input\PlayerController.cpp" />
     <ClCompile Include="Source\Core\Input\PlayerInput.cpp" />
@@ -409,7 +408,6 @@
     <ClInclude Include="Source\Core\Engine.h" />
     <ClInclude Include="Source\Core\Rendering\UI.h" />
     <ClInclude Include="Source\Core\Rendering\URenderer.h" />
-    <ClInclude Include="Source\Object\Gizmo\GizmoHandle.h" />
     <ClInclude Include="Source\Core\Container\CString.h" />
     <ClCompile Include="Source\Static\FEditorManager.cpp" />
     <ClInclude Include="Source\Object\Actor\Arrow.h" />
