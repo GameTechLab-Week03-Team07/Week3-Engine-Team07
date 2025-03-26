@@ -6,6 +6,7 @@
 #include "Resource/Texture.h"
 #include "Object/Window/Window.h"
 #include "Static/ViewportClient.h"
+#include "Core/Config/ConfigManager.h"
 
 void FDevice::Init(HWND _hwnd)
 {
@@ -83,17 +84,7 @@ void FDevice::CreateDeviceAndSwapChain(HWND hWindow)
     SwapChain->GetDesc(&SwapChainDesc);
     
     // 뷰포트 정보 설정
-	float InitWidth = static_cast<float>(SwapChainDesc.BufferDesc.Width) / 2;
-	float InitHeight = static_cast<float>(SwapChainDesc.BufferDesc.Height) / 2;
-
-	SetViewport(0, 0.0f, 0.0f, InitWidth, InitHeight);
-	SetViewport(1, InitWidth, 0.0f, InitWidth , InitHeight);
-	SetViewport(2, 0.0f, InitHeight, InitWidth, InitHeight);
-	SetViewport(3, InitWidth, InitHeight, InitWidth, InitHeight);
-	SetViewport(4, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
-
-	//SetViewport(0, 0.0f, 0.0f, static_cast<float>(SwapChainDesc.BufferDesc.Width), static_cast<float>(SwapChainDesc.BufferDesc.Height));
-
+	CreateViewport();
 }
 
 void FDevice::ReleaseDeviceAndSwapChain()
@@ -311,7 +302,40 @@ void FDevice::SetViewport(int index, float TopLeftX, float TopLeftY, float Width
 	};
 }
 
-void FDevice::UpdateViewport() {
+void FDevice::CreateViewport() 
+{
+	float WindowWidth = static_cast<float>(UEngine::Get().GetScreenWidth());
+	float WindowHeight = static_cast<float>(UEngine::Get().GetScreenHeight());
+
+	float ViewportLT_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "X"));
+	float ViewportLT_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "Y"));
+	float ViewportLT_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "Width"));
+	float ViewportLT_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLT", "Height"));
+
+	float ViewportRT_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "X"));
+	float ViewportRT_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "Y"));
+	float ViewportRT_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "Width"));
+	float ViewportRT_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRT", "Height"));
+
+	float ViewportLB_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "X"));
+	float ViewportLB_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "Y"));
+	float ViewportLB_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "Width"));
+	float ViewportLB_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportLB", "Height"));
+
+	float ViewportRB_X = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "X"));
+	float ViewportRB_Y = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "Y"));
+	float ViewportRB_Width = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "Width"));
+	float ViewportRB_Height = FString::ToFloat(UConfigManager::Get().GetValue("ViewportRB", "Height"));
+
+	SetViewport(0, GetWindowPosFromNDC(FVector(ViewportLT_X, ViewportLT_Y, 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(ViewportLT_X, ViewportLT_Y, 0.0f), WindowWidth, WindowHeight).Y, ViewportLT_Width * WindowWidth / 2, ViewportLT_Height * WindowHeight / 2);
+	SetViewport(1, GetWindowPosFromNDC(FVector(ViewportRT_X, ViewportRT_Y, 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(ViewportRT_X, ViewportRT_Y, 0.0f), WindowWidth, WindowHeight).Y, ViewportRT_Width * WindowWidth / 2, ViewportRT_Height * WindowHeight / 2);
+	SetViewport(2, GetWindowPosFromNDC(FVector(ViewportLB_X, ViewportLB_Y, 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(ViewportLB_X, ViewportLB_Y, 0.0f), WindowWidth, WindowHeight).Y, ViewportLB_Width * WindowWidth / 2, ViewportLB_Height * WindowHeight / 2);
+	SetViewport(3, GetWindowPosFromNDC(FVector(ViewportRB_X, ViewportRB_Y, 0.0f), WindowWidth, WindowHeight).X, GetWindowPosFromNDC(FVector(ViewportRB_X, ViewportRB_Y, 0.0f), WindowWidth, WindowHeight).Y, ViewportRB_Width * WindowWidth / 2, ViewportRB_Height * WindowHeight / 2);
+	SetViewport(4, 0.0f, 0.0f, WindowWidth, WindowHeight);
+}
+
+void FDevice::UpdateViewport() 
+{
 	float WindowWidth = static_cast<float>(UEngine::Get().GetScreenWidth());
 	float WindowHeight = static_cast<float>(UEngine::Get().GetScreenHeight());
 

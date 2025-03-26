@@ -78,6 +78,7 @@ public:
 	float GetGridSize() const { return GridSize; }
 private:
 	UWorldInfo GetWorldInfo() const;
+	void SetCameraByViewport(uint32 ViewportIndex);
 	ACamera* Camera = nullptr;
 	TMap<EOrthoViewMode, ACamera*> CameraList;
 
